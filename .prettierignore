@@ -1,0 +1,15 @@
+node_modules/
+.next/
+coverage/
+
+*-lock.json
+*-lock.yaml
+*.lock
+
+.env
+.env.*
+.env-*
+
+**/data/core
+**/data/index.ts
+**/data/*.gen.ts
