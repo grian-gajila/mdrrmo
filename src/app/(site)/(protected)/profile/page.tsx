@@ -1,4 +1,5 @@
 'use client';
+import { images } from '@/constant/images';
 import {
   AlertCircle,
   ArrowLeft,
@@ -15,7 +16,6 @@ import {
   LogOut,
   MapPin,
   Phone,
-  Shield,
   Upload,
   User,
   X,
@@ -162,12 +162,14 @@ export default function ProfilePage() {
       <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/95 backdrop-blur-sm">
         <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-6">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-linear-to-br from-orange-500 to-red-600 shadow-sm">
-              <Shield className="h-5 w-5 text-white" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg">
+              <Image src={images.logo} alt="LOGO" className="h-10 w-10" />
             </div>
-            <div className="leading-tight">
-              <p className="text-sm font-bold text-gray-900">MDRRMO</p>
-              <p className="text-[11px] text-gray-400">Volunteer Portal</p>
+            <div className="leading-none">
+              <p className="text-sm font-bold text-orange-500">MDRRMO</p>
+              <p className="mt-px text-[10px] text-gray-400">
+                Volunteer Portal
+              </p>
             </div>
           </div>
 

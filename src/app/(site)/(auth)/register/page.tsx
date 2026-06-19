@@ -1,12 +1,7 @@
 'use client';
-import {
-  AlertCircle,
-  CheckCircle,
-  Eye,
-  EyeOff,
-  Loader2,
-  Shield,
-} from 'lucide-react';
+import { images } from '@/constant/images';
+import { AlertCircle, CheckCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -56,8 +51,8 @@ export default function RegisterPage() {
     <div className="flex h-screen w-full items-center justify-center bg-linear-to-b from-orange-200 to-white px-4 py-8">
       <div className="w-full max-w-sm">
         <div className="mb-5 flex flex-col items-center">
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-orange-500 to-red-600 shadow-lg shadow-orange-200">
-            <Shield className="h-6 w-6 text-white" />
+          <div className="flex-2 items-center justify-center rounded-2xl">
+            <Image src={images.logo} alt="LOGO" className="h-24 w-24" />
           </div>
           <h1 className="text-xl font-extrabold text-gray-900">
             Create your account

@@ -1,5 +1,7 @@
 'use client';
+import { images } from '@/constant/images';
 import { AlertCircle, Eye, EyeOff, Shield } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -35,7 +37,7 @@ export default function AdminLoginPage() {
           </div>
           <div className="relative z-10 space-y-6 text-center">
             <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border border-white/30 bg-white/20 backdrop-blur-sm">
-              <Shield className="h-12 w-12 text-white" />
+              <Image src={images.logo} alt="LOGO" className="" />
             </div>
             <div>
               <h1 className="text-3xl font-bold tracking-tight">MDRRMO</h1>
@@ -76,7 +78,7 @@ export default function AdminLoginPage() {
           <div className="mx-auto w-full max-w-sm space-y-8">
             <div>
               <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-100 px-3 py-1.5 text-xs font-semibold text-orange-500">
-                <Shield className="h-3 w-3" />
+                <Shield className="h-4 w-4" />
                 ADMIN PORTAL
               </div>
               <h3 className="text-2xl font-bold text-gray-900">Welcome back</h3>

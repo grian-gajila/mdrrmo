@@ -1,4 +1,5 @@
 'use client';
+import { images } from '@/constant/images';
 import {
   AlertTriangle,
   Award,
@@ -15,6 +16,7 @@ import {
   Star,
   Users,
 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 export default function LandingPage() {
@@ -23,11 +25,11 @@ export default function LandingPage() {
       <div className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500">
-              <Shield className="h-4 w-4 text-white" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg">
+              <Image src={images.logo} alt="LOGO" className="h-10 w-10" />
             </div>
             <div className="leading-none">
-              <p className="text-sm font-bold text-gray-900">MDRRMO</p>
+              <p className="text-sm font-bold text-orange-500">MDRRMO</p>
               <p className="mt-px text-[10px] text-gray-400">
                 Volunteer Portal
               </p>
