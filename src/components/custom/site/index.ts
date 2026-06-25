@@ -1,4 +1,4 @@
-import { AuthHeader, AuthSidePanel } from './custom-auth-ui';
+import { AuthHeader, AuthSidePanel } from './custom-ui';
 import { LoginForm } from './login-form';
 import { RegisterForm } from './register-form';
 
