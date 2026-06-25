@@ -1,4 +1,4 @@
-import { icons } from '@/constant/icons';
+import { Icons } from '@/constant/icons';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -12,7 +12,7 @@ export default function NotFound() {
           <div className="grid grid-cols-1 md:grid-cols-2">
             <div className="flex flex-col items-center justify-center gap-4 bg-orange-500 px-10 py-16">
               <Image
-                src={icons.error}
+                src={Icons.error}
                 alt="404 Not Found"
                 width={260}
                 height={260}

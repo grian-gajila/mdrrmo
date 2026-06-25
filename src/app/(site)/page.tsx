@@ -67,8 +67,10 @@ export default function LandingPage() {
 
       <section className="relative px-6 pt-20 pb-28">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 h-140 w-140 rounded-full border border-orange-100/70" />
-          <div className="absolute -top-20 -right-20 h-90 w-90 rounded-full border border-orange-200/50" />
+          <div className="absolute -top-80 -right-80 h-240 w-240 rounded-full border border-orange-100/90" />
+          <div className="absolute -top-60 -right-60 h-190 w-190 rounded-full border border-orange-200/80" />
+          <div className="absolute -top-40 -right-40 h-140 w-140 rounded-full border border-orange-300/70" />
+          <div className="absolute -top-20 -right-20 h-90 w-90 rounded-full border border-orange-400/60" />
         </div>
 
         <div className="relative mx-auto max-w-4xl text-center">
