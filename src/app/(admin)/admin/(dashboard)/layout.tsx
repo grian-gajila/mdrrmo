@@ -20,18 +20,18 @@ import { useState } from 'react';
 
 const navigation = [
   { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
-  { name: 'Applicants', href: '/admin/dashboard/applicants', icon: Users },
+  { name: 'Applicants', href: '/admin/applicants', icon: Users },
   {
     name: 'Announcements',
-    href: '/admin/dashboard/announcements',
+    href: '/admin/announcements',
     icon: Megaphone,
   },
   {
     name: 'Hired Volunteers',
-    href: '/admin/dashboard/volunteers',
+    href: '/admin/volunteers',
     icon: UserCheck,
   },
-  { name: 'Settings', href: '/admin/dashboard/settings', icon: Settings },
+  { name: 'Settings', href: '/admin/settings', icon: Settings },
 ];
 
 export default function DashboardLayout({
@@ -239,7 +239,7 @@ export default function DashboardLayout({
                 <div className="absolute top-full right-0 z-50 mt-2 w-48 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl">
                   <div className="p-1">
                     <Link
-                      href="/admin/dashboard/settings"
+                      href="/admin/settings"
                       className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
                     >
                       <Settings className="h-4 w-4" />

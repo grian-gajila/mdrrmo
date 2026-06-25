@@ -138,7 +138,7 @@ export default function DashboardPage() {
             Export Report
           </button>
           <Link
-            href="/admin/dashboard/applicants"
+            href="/admin/applicants"
             className="flex items-center gap-2 rounded-xl bg-orange-500 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-orange-200 transition-colors hover:bg-orange-300"
           >
             <Users className="h-4 w-4" />
@@ -159,7 +159,7 @@ export default function DashboardPage() {
           </p>
         </div>
         <Link
-          href="/admin/dashboard/applicants"
+          href="/admin/applicants"
           className="flex shrink-0 items-center gap-1 text-xs font-medium text-amber-700 hover:text-amber-800"
         >
           Review now <ChevronRight className="h-3 w-3" />
@@ -214,7 +214,7 @@ export default function DashboardPage() {
               ))}
             </div>
             <Link
-              href="/admin/dashboard/applicants"
+              href="/admin/applicants"
               className="flex items-center gap-1 text-xs font-medium text-orange-500 hover:text-orange-300"
             >
               See all <ChevronRight className="h-3 w-3" />
@@ -298,23 +298,23 @@ export default function DashboardPage() {
               {[
                 {
                   label: 'Review Pending Applications',
-                  href: '/admin/dashboard/applicants',
+                  href: '/admin/applicants',
                   icon: Clock,
                   badge: '11',
                 },
                 {
                   label: 'Create Announcement',
-                  href: '/admin/dashboard/announcements',
+                  href: '/admin/announcements',
                   icon: TrendingUp,
                 },
                 {
                   label: 'View Hired Volunteers',
-                  href: '/admin/dashboard/hired-as-volunteer',
+                  href: '/admin/volunteers',
                   icon: UserCheck,
                 },
                 {
                   label: 'System Settings',
-                  href: '/admin/dashboard/settings',
+                  href: '/admin/settings',
                   icon: Building2,
                 },
               ].map((action) => (
