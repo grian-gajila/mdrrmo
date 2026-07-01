@@ -67,7 +67,7 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+        <h1 className="text-lg font-bold text-gray-900">Settings</h1>
         <p className="mt-0.5 text-sm text-gray-500">
           Manage your account and system preferences
         </p>
@@ -75,12 +75,12 @@ export default function SettingsPage() {
 
       <div className="flex flex-col gap-6 lg:flex-row">
         <div className="shrink-0 lg:w-56">
-          <nav className="space-y-0.5 rounded-2xl border border-gray-100 bg-white p-2 shadow-sm">
+          <nav className="space-y-0.5 rounded-lg border border-gray-100 bg-white p-2 shadow-sm">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
+                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
                   activeTab === tab.id
                     ? 'bg-orange-500 text-white'
                     : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
@@ -93,7 +93,7 @@ export default function SettingsPage() {
           </nav>
         </div>
 
-        <div className="flex-1 rounded-2xl border border-gray-100 bg-white shadow-sm">
+        <div className="flex-1 rounded-lg border border-gray-100 bg-white shadow-sm">
           {activeTab === 'profile' && (
             <div>
               <div className="border-b border-gray-100 px-6 py-5">
@@ -104,11 +104,11 @@ export default function SettingsPage() {
               </div>
               <div className="space-y-6 p-6">
                 <div className="flex items-center gap-5">
-                  <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-orange-300 to-orange-500 text-2xl font-bold text-white">
+                  <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-orange-300 to-orange-500 text-2xl font-bold text-white">
                     {profile.firstName.charAt(0)}
                   </div>
                   <div>
-                    <button className="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50">
+                    <button className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50">
                       <Upload className="h-4 w-4" />
                       Upload Photo
                     </button>
@@ -128,7 +128,7 @@ export default function SettingsPage() {
                       onChange={(e) =>
                         setProfile({ ...profile, firstName: e.target.value })
                       }
-                      className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none"
+                      className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -140,7 +140,7 @@ export default function SettingsPage() {
                       onChange={(e) =>
                         setProfile({ ...profile, lastName: e.target.value })
                       }
-                      className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none"
+                      className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -152,7 +152,7 @@ export default function SettingsPage() {
                       onChange={(e) =>
                         setProfile({ ...profile, email: e.target.value })
                       }
-                      className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none"
+                      className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -164,7 +164,7 @@ export default function SettingsPage() {
                       onChange={(e) =>
                         setProfile({ ...profile, phone: e.target.value })
                       }
-                      className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none"
+                      className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none"
                     />
                   </div>
                   <div className="space-y-1.5 sm:col-span-2">
@@ -176,7 +176,7 @@ export default function SettingsPage() {
                       onChange={(e) =>
                         setProfile({ ...profile, position: e.target.value })
                       }
-                      className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none"
+                      className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -222,7 +222,7 @@ export default function SettingsPage() {
                         <input
                           type={field.show ? 'text' : 'password'}
                           placeholder="••••••••••"
-                          className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 pr-12 text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none"
+                          className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 pr-12 text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none"
                         />
                         <button
                           type="button"
@@ -244,7 +244,7 @@ export default function SettingsPage() {
                   <h3 className="mb-4 text-sm font-semibold text-gray-900">
                     Two-Factor Authentication
                   </h3>
-                  <div className="flex items-start gap-3 rounded-xl border border-orange-200 bg-orange-50 p-4">
+                  <div className="flex items-start gap-3 rounded-lg border border-orange-200 bg-orange-50 p-4">
                     <Shield className="mt-0.5 h-5 w-5 shrink-0 text-orange-500" />
                     <div className="flex-1">
                       <div className="text-sm font-medium text-gray-900">
@@ -295,7 +295,7 @@ export default function SettingsPage() {
                     ].map((item) => (
                       <div
                         key={item.key}
-                        className="flex items-center justify-between rounded-xl p-3 hover:bg-gray-50"
+                        className="flex items-center justify-between rounded-lg p-3 hover:bg-gray-50"
                       >
                         <span className="text-sm text-gray-700">
                           {item.label}
@@ -338,7 +338,7 @@ export default function SettingsPage() {
                     ].map((item) => (
                       <div
                         key={item.key}
-                        className="flex items-center justify-between rounded-xl p-3 hover:bg-gray-50"
+                        className="flex items-center justify-between rounded-lg p-3 hover:bg-gray-50"
                       >
                         <span className="text-sm text-gray-700">
                           {item.label}
@@ -382,7 +382,7 @@ export default function SettingsPage() {
                     ].map((item) => (
                       <div
                         key={item.key}
-                        className="flex items-center justify-between rounded-xl p-3 hover:bg-gray-50"
+                        className="flex items-center justify-between rounded-lg p-3 hover:bg-gray-50"
                       >
                         <div>
                           <div className="text-sm text-gray-700">
@@ -443,7 +443,7 @@ export default function SettingsPage() {
                       onChange={(e) =>
                         setOrg({ ...org, [field.key]: e.target.value })
                       }
-                      className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none"
+                      className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none"
                     />
                   </div>
                 ))}
@@ -484,7 +484,7 @@ export default function SettingsPage() {
                 ].map((item) => (
                   <div
                     key={item.title}
-                    className="flex items-center justify-between rounded-xl border border-gray-200 p-4 transition-colors hover:bg-gray-50"
+                    className="flex items-center justify-between rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50"
                   >
                     <div>
                       <div className="text-sm font-semibold text-gray-900">
@@ -513,7 +513,7 @@ export default function SettingsPage() {
             {!saved && <div />}
             <button
               onClick={handleSave}
-              className="flex items-center gap-2 rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-orange-200 transition-colors hover:cursor-pointer hover:bg-orange-300"
+              className="flex items-center gap-2 rounded-lg bg-orange-500 px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-orange-200 transition-colors hover:cursor-pointer hover:bg-orange-300"
             >
               <Save className="h-4 w-4" />
               Save Changes

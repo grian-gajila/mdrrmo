@@ -95,14 +95,14 @@ export default function LandingPage() {
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
               href="/register"
-              className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-orange-200/60 transition-all hover:-translate-y-0.5 hover:bg-orange-600"
+              className="inline-flex items-center gap-2 rounded-lg bg-orange-500 px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-orange-200/60 transition-all hover:-translate-y-0.5 hover:bg-orange-600"
             >
               Apply as Volunteer
               <ChevronRight className="h-4 w-4" />
             </Link>
             <Link
               href="/login"
-              className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-7 py-3.5 text-sm font-semibold text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50"
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-7 py-3.5 text-sm font-semibold text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50"
             >
               Track My Application
             </Link>
@@ -110,7 +110,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="mb-20 rounded-md bg-orange-500 px-6 py-4">
+      <section className="mb-20 rounded-lg bg-orange-500 px-6 py-4">
         <div className="mx-auto grid max-w-3xl grid-cols-2 gap-x-6 gap-y-8 text-center text-white sm:grid-cols-4">
           {[
             { value: '200+', label: 'Active Volunteers' },
@@ -196,7 +196,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="requirements" className="rounded-md bg-gray-100 px-6 py-24">
+      <section id="requirements" className="rounded-lg bg-gray-100 px-6 py-24">
         <div className="mx-auto max-w-3xl">
           <div className="mb-12 text-center">
             <p className="mb-2 text-xs font-bold tracking-widest text-orange-500 uppercase">
@@ -239,7 +239,7 @@ export default function LandingPage() {
             ].map((req) => (
               <div
                 key={req.title}
-                className="flex items-start gap-4 rounded-2xl border border-gray-100 bg-white p-5 transition-all hover:border-orange-200 hover:shadow-sm"
+                className="flex items-start gap-4 rounded-lg border border-gray-100 bg-white p-5 transition-all hover:border-orange-200 hover:shadow-sm"
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-50">
                   <req.icon className="h-5 w-5 text-orange-500" />
@@ -267,7 +267,7 @@ export default function LandingPage() {
             ))}
           </div>
 
-          <div className="mt-5 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <div className="mt-5 flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
             <p className="text-xs leading-relaxed text-amber-700">
               All documents must be clear and legible. Blurry or incomplete
@@ -308,7 +308,7 @@ export default function LandingPage() {
             ].map((b) => (
               <div
                 key={b.title}
-                className="group rounded-2xl border border-gray-100 p-6 transition-all hover:border-orange-200 hover:shadow-md"
+                className="group rounded-lg border border-gray-100 p-6 transition-all hover:border-orange-200 hover:shadow-md"
               >
                 <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500 transition-transform group-hover:scale-105">
                   <b.icon className="h-5 w-5 text-white" />
@@ -325,7 +325,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="mb-20 rounded-md bg-orange-500 px-6 py-16">
+      <section className="mb-20 rounded-lg bg-orange-500 px-6 py-16">
         <div className="mx-auto max-w-xl space-y-5 text-center">
           <h2 className="text-3xl font-extrabold text-white">
             Ready to make a difference?
@@ -336,7 +336,7 @@ export default function LandingPage() {
           </p>
           <Link
             href="/register"
-            className="inline-flex items-center gap-2 rounded-xl bg-white px-7 py-3.5 text-sm font-extrabold text-orange-500 transition-all hover:bg-orange-50"
+            className="inline-flex items-center gap-2 rounded-lg  bg-white px-7 py-3.5 text-sm font-extrabold text-orange-500 transition-all hover:bg-orange-50"
           >
             Start Your Application
             <ChevronRight className="h-4 w-4" />
@@ -344,12 +344,12 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer id="contact" className="rounded-t-md bg-gray-100 px-6 py-12">
+      <footer id="contact" className="rounded-t-lg bg-gray-100 px-6 py-12">
         <div className="mx-auto max-w-5xl">
           <div className="flex flex-col gap-10 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <div className="mb-3 flex items-center gap-2">
-                <Shield className="h-8 w-8 text-orange-500" />
+                <Image src={images.logo} alt="LOGO" className="h-10 w-10" />
                 <span className="text-lg font-extrabold text-orange-500">
                   MDRRMO
                 </span>
@@ -360,7 +360,7 @@ export default function LandingPage() {
             </div>
 
             <div className="space-y-3">
-              <p className="text-md mb-4 font-semibold tracking-wide text-gray-500 uppercase">
+              <p className="text-md mb-4 font-semibold tracking-wide text-gray-600 uppercase">
                 Contact Us
               </p>
               {[
@@ -373,7 +373,7 @@ export default function LandingPage() {
               ].map(({ icon: Icon, text }) => (
                 <div
                   key={text}
-                  className="flex items-center gap-2.5 text-sm text-gray-400 transition-colors hover:text-white"
+                  className="flex items-center gap-2.5 text-sm text-gray-500"
                 >
                   <Icon className="h-4 w-4 shrink-0 text-orange-500" />
                   <span>{text}</span>
@@ -382,7 +382,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="mt-10 border-t border-gray-800 pt-6 text-center text-xs text-gray-600">
+          <div className="mt-10 border-t border-gray-300 pt-6 text-center text-xs text-gray-600">
             © {new Date().getFullYear()} MDRRMO. All rights reserved.
           </div>
         </div>

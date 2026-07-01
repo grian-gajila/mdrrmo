@@ -133,13 +133,13 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50">
+          <button className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50">
             <FileText className="h-4 w-4" />
             Export Report
           </button>
           <Link
             href="/admin/applicants"
-            className="flex items-center gap-2 rounded-xl bg-orange-500 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-orange-200 transition-colors hover:bg-orange-300"
+            className="flex items-center gap-2 rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-orange-200 transition-colors hover:bg-orange-300"
           >
             <Users className="h-4 w-4" />
             View All Applicants
@@ -147,7 +147,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
+      <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-5 py-4">
         <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
         <div className="flex-1">
           <p className="text-sm font-semibold text-amber-800">
@@ -170,11 +170,11 @@ export default function DashboardPage() {
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
+            className="rounded-lg border border-gray-100 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
           >
             <div className="mb-4 flex items-center justify-between">
               <div
-                className={`h-11 w-11 ${stat.light} flex items-center justify-center rounded-xl`}
+                className={`h-11 w-11 ${stat.light} flex items-center justify-center rounded-lg`}
               >
                 <stat.icon className={`h-5 w-5 ${stat.textColor}`} />
               </div>
@@ -196,7 +196,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm lg:col-span-2">
+        <div className="overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm lg:col-span-2">
           <div className="flex items-center justify-between border-b border-gray-100 p-5">
             <div className="flex gap-1">
               {(['recent', 'events'] as const).map((tab) => (
@@ -228,7 +228,7 @@ export default function DashboardPage() {
                   key={i}
                   className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-gray-50"
                 >
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-orange-300 to-orange-500 text-sm font-semibold text-white">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-orange-300 to-orange-500 text-sm font-semibold text-white">
                     {applicant.name.charAt(0)}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -264,7 +264,7 @@ export default function DashboardPage() {
                   key={i}
                   className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-gray-50"
                 >
-                  <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-xl bg-orange-50">
+                  <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-lg bg-orange-50">
                     <Calendar className="h-4 w-4 text-orange-500" />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -290,7 +290,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="space-y-4">
-          <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+          <div className="rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
             <h3 className="mb-4 text-sm font-semibold text-gray-900">
               Quick Actions
             </h3>
@@ -321,7 +321,7 @@ export default function DashboardPage() {
                 <Link
                   key={action.label}
                   href={action.href}
-                  className="group flex items-center gap-3 rounded-xl p-3 transition-colors hover:bg-orange-50"
+                  className="group flex items-center gap-3 rounded-lg p-3 transition-colors hover:bg-orange-50"
                 >
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100 transition-colors group-hover:bg-orange-500">
                     <action.icon className="h-4 w-4 text-orange-500 transition-colors group-hover:text-white" />
@@ -340,7 +340,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl bg-linear-to-br from-orange-300 to-orange-500 p-5 text-white">
+          <div className="rounded-lg bg-linear-to-br from-orange-300 to-orange-500 p-5 text-white">
             <h3 className="mb-1 text-sm font-semibold">Monthly Summary</h3>
             <p className="mb-4 text-xs text-orange-100">
               June 2026 performance overview

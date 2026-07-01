@@ -233,7 +233,7 @@ export default function ApplicantsPage() {
             Review and manage volunteer applications
           </p>
         </div>
-        <button className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50">
+        <button className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50">
           <Download className="h-4 w-4" />
           Export List
         </button>
@@ -244,7 +244,7 @@ export default function ApplicantsPage() {
           <button
             key={tab}
             onClick={() => setFilterStatus(tab)}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all ${
+            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
               filterStatus === tab
                 ? 'bg-orange-500 text-white shadow-lg shadow-orange-200'
                 : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
@@ -260,7 +260,7 @@ export default function ApplicantsPage() {
         ))}
       </div>
 
-      <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+      <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row">
           <div className="relative flex-1">
             <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -269,17 +269,17 @@ export default function ApplicantsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search applicants by name..."
-              className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pr-4 pl-10 text-sm focus:border-transparent focus:ring-2 focus:ring-orange-500 focus:outline-none"
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pr-4 pl-10 text-sm focus:border-transparent focus:ring-2 focus:ring-orange-500 focus:outline-none"
             />
           </div>
-          <button className="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50">
+          <button className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50">
             <Filter className="h-4 w-4" />
             Filters
           </button>
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -312,7 +312,7 @@ export default function ApplicantsPage() {
                 >
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-orange-300 to-orange-500 text-sm font-semibold text-white">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-orange-300 to-orange-500 text-sm font-semibold text-white">
                         {applicant.name.charAt(0)}
                       </div>
                       <div>
@@ -387,7 +387,7 @@ export default function ApplicantsPage() {
                           <MoreHorizontal className="h-4 w-4" />
                         </button>
                         {actionMenuId === applicant.id && (
-                          <div className="absolute top-full right-0 z-20 mt-1 w-44 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-xl">
+                          <div className="absolute top-full right-0 z-20 mt-1 w-44 overflow-hidden rounded-lg border border-gray-100 bg-white shadow-xl">
                             <button className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-green-500 transition-colors hover:bg-green-50">
                               <CheckCircle className="h-4 w-4" /> Approve
                             </button>
@@ -428,10 +428,10 @@ export default function ApplicantsPage() {
 
       {selectedApplicant && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
-            <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-2xl border-b border-gray-100 bg-white px-6 py-4">
+          <div className="max-h-[90vh] w-full scrollbar-none max-w-3xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
+            <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-lg border-b border-gray-100 bg-white px-6 py-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-orange-300 to-orange-500 font-bold text-white">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-orange-300 to-orange-500 font-bold text-white">
                   {selectedApplicant.name.charAt(0)}
                 </div>
                 <div>
@@ -443,7 +443,7 @@ export default function ApplicantsPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center  gap-2">
                 <span
                   className={`rounded-full px-2.5 py-1 text-xs font-medium ${statusConfig[selectedApplicant.status as keyof typeof statusConfig].class}`}
                 >
@@ -455,7 +455,7 @@ export default function ApplicantsPage() {
                 </span>
                 <button
                   onClick={() => setSelectedApplicant(null)}
-                  className="rounded-xl p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+                  className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -507,7 +507,7 @@ export default function ApplicantsPage() {
                   ].map((field) => (
                     <div
                       key={field.label}
-                      className="rounded-xl bg-gray-50 p-3"
+                      className="rounded-lg bg-gray-50 p-3"
                     >
                       <div className="mb-0.5 text-xs text-gray-400">
                         {field.label}
@@ -530,7 +530,7 @@ export default function ApplicantsPage() {
                   </h3>
                 </div>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div className="rounded-xl bg-gray-50 p-3">
+                  <div className="rounded-lg bg-gray-50 p-3">
                     <div className="mb-0.5 text-xs text-gray-400">
                       ID Number
                     </div>
@@ -538,7 +538,7 @@ export default function ApplicantsPage() {
                       {selectedApplicant.idNumber}
                     </div>
                   </div>
-                  <div className="rounded-xl bg-gray-50 p-3">
+                  <div className="rounded-lg bg-gray-50 p-3">
                     <div className="mb-0.5 text-xs text-gray-400">
                       ID Card Type
                     </div>
@@ -546,7 +546,7 @@ export default function ApplicantsPage() {
                       {selectedApplicant.idCardAddress}
                     </div>
                   </div>
-                  <div className="rounded-xl bg-gray-50 p-3 sm:col-span-2">
+                  <div className="rounded-lg bg-gray-50 p-3 sm:col-span-2">
                     <div className="mb-0.5 flex items-center gap-1.5 text-xs text-gray-400">
                       <MapPin className="h-3 w-3" /> Current Address
                     </div>
@@ -554,7 +554,7 @@ export default function ApplicantsPage() {
                       {selectedApplicant.currentAddress}
                     </div>
                   </div>
-                  <div className="rounded-xl bg-gray-50 p-3">
+                  <div className="rounded-lg bg-gray-50 p-3">
                     <div className="mb-0.5 flex items-center gap-1.5 text-xs text-gray-400">
                       <Phone className="h-3 w-3" /> Contact Number
                     </div>
@@ -595,7 +595,7 @@ export default function ApplicantsPage() {
                   ].map((field) => (
                     <div
                       key={field.label}
-                      className="rounded-xl border border-red-100 bg-red-50/50 p-3"
+                      className="rounded-lg border border-red-100 bg-red-50/50 p-3"
                     >
                       <div className="mb-0.5 text-xs text-gray-400">
                         {field.label}
@@ -621,7 +621,7 @@ export default function ApplicantsPage() {
                   {selectedApplicant.documents.map((doc) => (
                     <div
                       key={doc}
-                      className="flex items-center gap-3 rounded-xl border border-green-100 bg-green-50 p-3"
+                      className="flex items-center gap-3 rounded-lg border border-green-100 bg-green-50 p-3"
                     >
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100">
                         <FileText className="h-4 w-4 text-green-600" />
@@ -638,19 +638,19 @@ export default function ApplicantsPage() {
               </div>
             </div>
 
-            <div className="sticky bottom-0 flex items-center justify-between rounded-b-2xl border-t border-gray-100 bg-white px-6 py-4">
+            <div className="sticky bottom-0 flex items-center justify-between rounded-b-lg border-t border-gray-100 bg-white px-6 py-4">
               <button
                 onClick={() => setSelectedApplicant(null)}
-                className="rounded-xl bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
+                className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
               >
                 Close
               </button>
               <div className="flex gap-2">
-                <button className="flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2 text-sm font-medium text-red-500 transition-colors hover:bg-red-100">
+                <button className="flex items-center gap-2 rounded-lg bg-red-50 px-4 py-2 text-sm font-medium text-red-500 transition-colors hover:bg-red-100">
                   <XCircle className="h-4 w-4" />
                   Reject
                 </button>
-                <button className="flex items-center gap-2 rounded-xl bg-green-500 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-green-200 transition-colors hover:bg-green-600">
+                <button className="flex items-center gap-2 rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-green-200 transition-colors hover:bg-green-600">
                   <CheckCircle className="h-4 w-4" />
                   Approve
                 </button>

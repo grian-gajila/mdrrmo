@@ -45,13 +45,13 @@ export default function DashboardLayout({
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50">
       <aside
         className={`fixed inset-y-0 left-0 z-50 w-64 transform border-r border-gray-100 bg-white shadow-xl transition-transform duration-300 lg:static lg:translate-x-0 lg:shadow-none ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex h-16 items-center gap-2 border-b border-gray-100 px-6">
+        <div className="flex h-16 items-center gap-2 border-b border-gray-200 px-6">
           <div className="flex shrink-0 items-center justify-center">
             <Image src={images.logo} alt="LOGO" className="h-10 w-10" />
           </div>
@@ -66,8 +66,8 @@ export default function DashboardLayout({
         </div>
 
         <div className="px-4 pt-4 pb-2">
-          <div className="flex items-center gap-3 rounded-xl border border-orange-100 bg-orange-50 p-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-linear-to-br from-orange-300 to-orange-500 text-sm font-bold text-white">
+          <div className="flex items-center gap-3 rounded-lg border border-orange-100 bg-orange-50 p-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-orange-300 to-orange-500 text-sm font-bold text-white">
               A
             </div>
             <div className="min-w-0">
@@ -94,7 +94,7 @@ export default function DashboardLayout({
               <Link
                 key={item.name}
                 href={item.href}
-                className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
+                className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
                   active
                     ? 'bg-orange-500 text-white shadow-lg shadow-orange-200'
                     : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
@@ -118,7 +118,7 @@ export default function DashboardLayout({
           })}
         </nav>
 
-        <div className="absolute right-0 bottom-0 left-0 border-t border-gray-100 p-4">
+        <div className="absolute right-0 bottom-0 left-0 border-t border-gray-200 p-4">
           <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
             <Building2 className="h-3 w-3" />
             <span>MDRRMO Mansalay © 2026</span>
@@ -225,9 +225,9 @@ export default function DashboardLayout({
                   setUserMenuOpen(!userMenuOpen);
                   setNotifOpen(false);
                 }}
-                className="flex items-center gap-2 rounded-xl px-3 py-2 transition-colors hover:bg-gray-100"
+                className="flex items-center gap-2 rounded-lg px-3 py-2 transition-colors hover:bg-gray-100"
               >
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-orange-400 to-orange-500 text-xs font-bold text-white">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-orange-400 to-orange-500 text-xs font-bold text-white">
                   A
                 </div>
                 <span className="hidden text-sm font-medium text-gray-700 sm:block">

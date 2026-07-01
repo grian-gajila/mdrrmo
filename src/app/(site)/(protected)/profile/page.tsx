@@ -112,8 +112,8 @@ export default function ProfilePage() {
 
   if (submitted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-        <div className="w-full max-w-md text-center">
+      <div className="flex min-h-screen w-full items-center justify-center bg-gray-50 px-4">
+        <div className="w-full max-w-lg text-center border shadow-md rounded-lg border-gray-100 bg-white px-6 py-10 sm:px-10">
           <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
             <CheckCircle className="h-10 w-10 text-green-500" />
           </div>
@@ -128,7 +128,7 @@ export default function ProfilePage() {
             and notify you at{' '}
             <strong className="text-gray-800">{mockUser.email}</strong>.
           </p>
-          <div className="mb-7 space-y-3 rounded-2xl border border-orange-100 bg-orange-50 p-5 text-left">
+          <div className="mb-7 space-y-3 rounded-lg border border-orange-100 bg-orange-50 p-5 text-left">
             <p className="text-xs font-bold tracking-widest text-orange-600 uppercase">
               What&apos;s next?
             </p>
@@ -148,7 +148,7 @@ export default function ProfilePage() {
               setSubmitted(false);
               setCurrentStep(1);
             }}
-            className="rounded-xl bg-orange-500 px-6 py-3 text-sm font-bold text-white shadow-md shadow-orange-100 transition-colors hover:bg-orange-600"
+            className="rounded-lg bg-orange-500 px-6 py-3 text-sm font-bold text-white shadow-md shadow-orange-100 transition-colors hover:bg-orange-600"
           >
             Back to Profile
           </button>
@@ -158,7 +158,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="h-screen bg-gray-50">
+    <div className="h-screen w-full ">
       <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/95 backdrop-blur-sm">
         <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-6">
           <div className="flex items-center gap-2.5">
@@ -184,7 +184,7 @@ export default function ProfilePage() {
                 onClick={() => setMenuOpen(!menuOpen)}
                 className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 transition-colors hover:bg-gray-100"
               >
-                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-linear-to-br from-orange-400 to-red-500 text-xs font-bold text-white">
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-linear-to-br from-orange-400 to-red-500 text-xs font-bold text-white">
                   {mockUser.name.charAt(0)}
                 </div>
                 <span className="hidden text-sm font-semibold text-gray-700 sm:block">
@@ -231,7 +231,7 @@ export default function ProfilePage() {
                 className="flex w-28 flex-col items-center gap-2"
               >
                 <div
-                  className={`flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold transition-all ${
+                  className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-bold transition-all ${
                     currentStep > step.id
                       ? 'cursor-pointer bg-green-500 text-white'
                       : currentStep === step.id
@@ -261,7 +261,7 @@ export default function ProfilePage() {
           ))}
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm">
           {currentStep === 1 && (
             <>
               <StepHeader
@@ -272,8 +272,8 @@ export default function ProfilePage() {
               />
 
               <div className="space-y-7 p-6 sm:p-8">
-                <div className="flex items-center gap-5 rounded-xl border border-orange-100 bg-orange-50 p-5">
-                  <label className="flex h-20 w-20 shrink-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-orange-200 bg-white transition-colors hover:border-orange-400">
+                <div className="flex items-center gap-5 rounded-lg border border-orange-100 bg-orange-50 p-5">
+                  <label className="flex h-20 w-20 shrink-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-orange-200 bg-white transition-colors hover:border-orange-400">
                     {form.photo ? (
                       <Image
                         src={URL.createObjectURL(form.photo)}
@@ -504,7 +504,7 @@ export default function ProfilePage() {
                     }
                     value={form.volunteerExperience}
                     onChange={(e) => set('volunteerExperience', e.target.value)}
-                    className="w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm placeholder-gray-300 transition focus:border-transparent focus:ring-2 focus:ring-orange-400 focus:outline-none"
+                    className="w-full resize-none rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm placeholder-gray-300 transition focus:border-transparent focus:ring-2 focus:ring-orange-400 focus:outline-none"
                   />
                 </FormSection>
 
@@ -517,7 +517,7 @@ export default function ProfilePage() {
                     placeholder="e.g. Maria dela Cruz, 45, Teacher, DepEd XYZ, 09XXXXXXXXX"
                     value={form.familyInfo}
                     onChange={(e) => set('familyInfo', e.target.value)}
-                    className="w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm placeholder-gray-300 transition focus:border-transparent focus:ring-2 focus:ring-orange-400 focus:outline-none"
+                    className="w-full resize-none rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm placeholder-gray-300 transition focus:border-transparent focus:ring-2 focus:ring-orange-400 focus:outline-none"
                   />
                 </FormSection>
 
@@ -579,7 +579,7 @@ export default function ProfilePage() {
               />
 
               <div className="space-y-5 p-6 sm:p-8">
-                <div className="flex items-start gap-3 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3.5">
+                <div className="flex items-start gap-3 rounded-lg border border-blue-100 bg-blue-50 px-4 py-3.5">
                   <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
                   <p className="text-sm text-blue-600">
                     Accepted formats: PDF, JPG, PNG. All submissions are
@@ -607,7 +607,7 @@ export default function ProfilePage() {
                 ).map((doc) => (
                   <div
                     key={doc.key}
-                    className="space-y-4 rounded-xl border border-gray-200 p-5"
+                    className="space-y-4 rounded-lg border border-gray-200 p-5"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-start gap-3">
@@ -645,13 +645,13 @@ export default function ProfilePage() {
                         <button
                           type="button"
                           onClick={() => set(doc.key, null)}
-                          className="text-gray-400 transition-colors hover:text-red-500"
+                          className="text-gray-500 transition-colors hover:text-red-500"
                         >
                           <X className="h-4 w-4" />
                         </button>
                       </div>
                     ) : (
-                      <label className="flex h-28 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 transition-all hover:border-orange-300 hover:bg-orange-50">
+                      <label className="flex h-28 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-200 transition-all hover:border-orange-300 hover:bg-orange-50">
                         <Upload className="h-5 w-5 text-gray-300" />
                         <p className="text-sm text-gray-400">
                           Drag & drop or{' '}
@@ -753,7 +753,7 @@ export default function ProfilePage() {
                 ].map((sec) => (
                   <div
                     key={sec.label}
-                    className="space-y-3 rounded-xl bg-gray-50 p-5"
+                    className="space-y-3 rounded-lg bg-gray-50 p-5"
                   >
                     <div className="flex items-center gap-2 border-b border-gray-100 pb-2">
                       <sec.icon className="h-4 w-4 text-orange-500" />
@@ -782,7 +782,7 @@ export default function ProfilePage() {
                       type="checkbox"
                       checked={form.agreed}
                       onChange={(e) => set('agreed', e.target.checked)}
-                      className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-orange-500"
+                      className="mt-0.5 h-4 w-4 rounded-lg border-gray-300 accent-orange-500"
                     />
                     <span className="text-sm leading-relaxed text-gray-600">
                       I certify that all information provided is{' '}
@@ -804,7 +804,7 @@ export default function ProfilePage() {
                 currentStep > 1 && setCurrentStep((currentStep - 1) as Step)
               }
               disabled={currentStep === 1}
-              className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30"
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30"
             >
               <ArrowLeft className="h-4 w-4" /> Previous
             </button>
@@ -812,7 +812,7 @@ export default function ProfilePage() {
             {currentStep < 3 ? (
               <button
                 onClick={() => setCurrentStep((currentStep + 1) as Step)}
-                className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-orange-100 transition-colors hover:bg-orange-600"
+                className="inline-flex items-center gap-2 rounded-lg bg-orange-500 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-orange-100 transition-colors hover:bg-orange-600"
               >
                 Continue <ArrowRight className="h-4 w-4" />
               </button>
@@ -820,7 +820,7 @@ export default function ProfilePage() {
               <button
                 onClick={handleSubmit}
                 disabled={!form.agreed || submitting}
-                className="inline-flex items-center gap-2 rounded-xl bg-green-500 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-green-100 transition-colors hover:bg-green-600 disabled:cursor-not-allowed disabled:bg-green-300"
+                className="inline-flex items-center gap-2 rounded-lg bg-green-500 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-green-100 transition-colors hover:bg-green-600 disabled:cursor-not-allowed disabled:bg-green-300"
               >
                 {submitting ? (
                   <>
@@ -913,6 +913,6 @@ function Field({
 }
 
 const inCls =
-  'w-full h-11 px-4 border border-gray-200 rounded-xl text-sm bg-gray-50 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition';
+  'w-full h-11 px-4 border border-gray-200 rounded-lg text-sm bg-gray-50 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition';
 const selCls =
-  'w-full h-11 px-4 border border-gray-200 rounded-xl text-sm bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition appearance-none cursor-pointer';
+  'w-full h-11 px-4 border border-gray-200 rounded-lg text-sm bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition appearance-none cursor-pointer';

@@ -28,7 +28,7 @@ export default function AdminLoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-orange-50 via-white to-orange-100 p-4">
-      <div className="grid w-full max-w-5xl grid-cols-1 gap-0 overflow-hidden rounded-2xl shadow-2xl lg:grid-cols-2">
+      <div className="grid w-full max-w-5xl grid-cols-1 gap-0 overflow-hidden rounded-lg shadow-2xl lg:grid-cols-2">
         <div className="relative flex flex-col items-center justify-center overflow-hidden bg-linear-to-br from-orange-300 via-orange-500 to-red-500 p-12 text-white">
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-10 left-10 h-32 w-32 rounded-full border-4 border-white"></div>
@@ -104,7 +104,7 @@ export default function AdminLoginPage() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Enter your username"
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm transition-all placeholder:text-gray-400 focus:border-transparent focus:ring-2 focus:ring-orange-500 focus:outline-none"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm transition-all placeholder:text-gray-400 focus:border-transparent focus:ring-2 focus:ring-orange-500 focus:outline-none"
                 />
               </div>
               <div className="space-y-1.5">
@@ -117,7 +117,7 @@ export default function AdminLoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 pr-12 text-sm transition-all placeholder:text-gray-400 focus:border-transparent focus:ring-2 focus:ring-orange-500 focus:outline-none"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 pr-12 text-sm transition-all placeholder:text-gray-400 focus:border-transparent focus:ring-2 focus:ring-orange-500 focus:outline-none"
                   />
                   <button
                     type="button"
@@ -136,7 +136,7 @@ export default function AdminLoginPage() {
                 <label className="flex cursor-pointer items-center gap-2">
                   <input
                     type="checkbox"
-                    className="h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500"
+                    className="h-4 w-4 rounded-lg border-gray-300 bg-orange-500 text-orange-500 active:ring-orange-500 focus:ring-orange-500"
                   />
                   <span className="text-sm text-gray-600">Remember me</span>
                 </label>
@@ -150,7 +150,7 @@ export default function AdminLoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-linear-to-r from-orange-300 to-orange-500 py-3 font-semibold text-white shadow-lg shadow-orange-200 transition-all duration-300 hover:from-orange-500 hover:to-orange-300 hover:transition-all hover:duration-300 disabled:cursor-not-allowed disabled:opacity-70"
+                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-linear-to-r from-orange-300 to-orange-500 py-3 font-semibold text-white shadow-lg shadow-orange-200 transition-all duration-300 hover:from-orange-500 hover:to-orange-300 hover:transition-all hover:duration-300 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {loading ? (
                   <>

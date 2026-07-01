@@ -119,7 +119,7 @@ export default function VolunteersPage() {
             Manage deployed and active MDRRMO volunteers
           </p>
         </div>
-        <button className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50">
+        <button className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50">
           <Download className="h-4 w-4" />
           Export
         </button>
@@ -159,10 +159,10 @@ export default function VolunteersPage() {
         ].map((s) => (
           <div
             key={s.label}
-            className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
+            className="flex items-center gap-3 rounded-lg border border-gray-100 bg-white p-4 shadow-sm"
           >
             <div
-              className={`h-10 w-10 ${s.bg} flex shrink-0 items-center justify-center rounded-xl`}
+              className={`h-10 w-10 ${s.bg} flex shrink-0 items-center justify-center rounded-lg`}
             >
               <s.icon className={`h-5 w-5 ${s.color}`} />
             </div>
@@ -174,23 +174,23 @@ export default function VolunteersPage() {
         ))}
       </div>
 
-      <div className="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:flex-row">
+      <div className="flex flex-col gap-3 rounded-lg border border-gray-100 bg-white p-4 shadow-sm sm:flex-row">
         <div className="relative flex-1">
           <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search volunteers..."
-            className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pr-4 pl-10 text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none"
+            className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pr-4 pl-10 text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none"
           />
         </div>
-        <button className="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50">
+        <button className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50">
           <Filter className="h-4 w-4" />
           Filter by Role
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -223,7 +223,7 @@ export default function VolunteersPage() {
                 >
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-orange-300 to-orange-500 text-sm font-semibold text-white">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-orange-300 to-orange-500 text-sm font-semibold text-white">
                         {volunteer.name.charAt(0)}
                       </div>
                       <div>
@@ -296,7 +296,7 @@ export default function VolunteersPage() {
                           <MoreHorizontal className="h-4 w-4" />
                         </button>
                         {actionMenuId === volunteer.id && (
-                          <div className="absolute top-full right-0 z-20 mt-1 w-40 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-xl">
+                          <div className="absolute top-full right-0 z-20 mt-1 w-40 overflow-hidden rounded-lg border border-gray-100 bg-white shadow-xl">
                             <button className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
                               <Activity className="h-4 w-4" />
                               View Record
@@ -352,14 +352,14 @@ export default function VolunteersPage() {
               </div>
               <button
                 onClick={() => setSelected(null)}
-                className="rounded-xl p-2 text-gray-400 hover:bg-gray-100"
+                className="rounded-lg p-2 text-gray-400 hover:bg-gray-100"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
             <div className="space-y-5 p-6">
               <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-xl bg-gray-50 p-3">
+                <div className="rounded-lg bg-gray-50 p-3">
                   <div className="mb-0.5 text-xs text-gray-400">Status</div>
                   <div
                     className={`inline-flex items-center gap-1.5 text-sm font-semibold ${selected.status === 'active' ? 'text-green-500' : 'text-gray-500'}`}
@@ -372,7 +372,7 @@ export default function VolunteersPage() {
                       : 'Inactive'}
                   </div>
                 </div>
-                <div className="rounded-xl bg-orange-50 p-3">
+                <div className="rounded-lg bg-orange-50 p-3">
                   <div className="mb-0.5 text-xs text-gray-400">
                     Deployments
                   </div>
@@ -400,7 +400,7 @@ export default function VolunteersPage() {
                     icon: Calendar,
                   },
                 ].map((field) => (
-                  <div key={field.label} className="rounded-xl bg-gray-50 p-3">
+                  <div key={field.label} className="rounded-lg bg-gray-50 p-3">
                     <div className="mb-1 flex items-center gap-1.5 text-xs text-gray-400">
                       <field.icon className="h-3 w-3" /> {field.label}
                     </div>
@@ -410,7 +410,7 @@ export default function VolunteersPage() {
                   </div>
                 ))}
               </div>
-              <div className="rounded-xl bg-blue-50 p-4">
+              <div className="rounded-lg bg-blue-50 p-4">
                 <div className="mb-2 flex items-center gap-2">
                   <Award className="h-4 w-4 text-blue-500" />
                   <span className="text-sm font-semibold text-gray-900">
@@ -432,11 +432,11 @@ export default function VolunteersPage() {
             <div className="flex justify-between border-t border-gray-100 px-6 py-4">
               <button
                 onClick={() => setSelected(null)}
-                className="rounded-xl bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
+                className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
               >
                 Close
               </button>
-              <button className="flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2 text-sm font-medium text-red-500 transition-colors hover:bg-red-100">
+              <button className="flex items-center gap-2 rounded-lg bg-red-50 px-4 py-2 text-sm font-medium text-red-500 transition-colors hover:bg-red-100">
                 <UserMinus className="h-4 w-4" /> Deactivate Volunteer
               </button>
             </div>
