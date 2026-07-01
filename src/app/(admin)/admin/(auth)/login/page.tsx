@@ -136,7 +136,7 @@ export default function AdminLoginPage() {
                 <label className="flex cursor-pointer items-center gap-2">
                   <input
                     type="checkbox"
-                    className="h-4 w-4 rounded-lg border-gray-300 bg-orange-500 text-orange-500 active:ring-orange-500 focus:ring-orange-500"
+                    className="h-4 w-4 rounded-lg border-gray-300  accent-orange-500"
                   />
                   <span className="text-sm text-gray-600">Remember me</span>
                 </label>
