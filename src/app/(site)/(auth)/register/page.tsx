@@ -1,17 +1,16 @@
 'use client';
-import CustomUi from '@/components/custom/site';
-import { RegisterForm } from '@/components/custom/site/register-form';
+import { UserAuth } from '@/components/features/user-auth';
 import Link from 'next/link';
 
 export default function RegisterPage() {
   return (
     <div className="flex h-screen w-full overflow-hidden">
-      <CustomUi.AuthSidePanel />
+      <UserAuth.SidePanel />
       <div className="flex w-full flex-col items-center h-screen justify-center overflow-y-auto bg-linear-to-b from-orange-100 to-white px-6 py-10 lg:w-1/2">
         <div className="w-full max-w-md">
           <div className="overflow-hidden rounded-lg border border-gray-100 bg-white shadow-lg shadow-gray-100">
-            <CustomUi.AuthHeader description=" Join the MDRRMO Volunteer Program" />
-            <RegisterForm />
+            <UserAuth.Header description=" Join the MDRRMO Volunteer Program" />
+            <UserAuth.RegisterForm />
           </div>
 
           <p className="mt-5 text-center text-sm text-gray-400">

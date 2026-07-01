@@ -2,23 +2,7 @@ import { images } from '@/constant/images';
 import { Shield, Users, Zap } from 'lucide-react';
 import Image from 'next/image';
 
-interface props {
-  description: string;
-}
-
-const AuthHeader = ({ description }: props) => {
-  return (
-    <div className="flex flex-col shadow  gap-1 text-orange-500 text-center py-3">
-      <div className="flex items-center justify-center gap-1">
-        <Image src={images.logo} alt="LOGO" className="h-8 w-8" />
-        <p className=" font-semibold text-xl">VOLUNTEER PORTAL</p>
-      </div>
-      <p className="mt-1 text-xs text-gray-400">{description}</p>
-    </div>
-  );
-};
-
-const AuthSidePanel = () => {
+const SidePanel = () => {
   return (
     <div className="relative hidden w-1/2 flex-col items-center justify-center overflow-hidden bg-linear-to-br from-orange-500 via-orange-400 to-amber-300 px-12 lg:flex">
       <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-white/10" />
@@ -64,4 +48,4 @@ const AuthSidePanel = () => {
   );
 };
 
-export { AuthHeader, AuthSidePanel };
+export default SidePanel;
