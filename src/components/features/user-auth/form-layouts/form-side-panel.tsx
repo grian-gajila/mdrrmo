@@ -1,7 +1,8 @@
 import { images } from '@/constant/images';
 import { Shield, Users, Zap } from 'lucide-react';
-import Image from 'next/image';
 
+const logoImageUrl =
+  typeof images.logo === 'string' ? images.logo : images.logo.src;
 const FormSidePanel = () => {
   return (
     <div className="relative hidden w-1/2 flex-col items-center justify-center overflow-hidden bg-linear-to-br from-orange-500 via-orange-400 to-amber-300 px-12 lg:flex">
@@ -9,9 +10,10 @@ const FormSidePanel = () => {
       <div className="absolute -right-16 -bottom-16 h-56 w-56 rounded-full bg-white/10" />
       <div className="absolute top-1/3 -right-8 h-32 w-32 rounded-full bg-white/10" />
 
-      <div className="relative z-10 mb-6 flex h-28 w-28 items-center justify-center rounded-3xl bg-white/20 shadow-xl shadow-orange-600/30 backdrop-blur-sm">
-        <Image src={images.logo} alt="MDRRMO Logo" className="h-20 w-20" />
-      </div>
+      <div
+        style={{ backgroundImage: `url('${logoImageUrl}')` }}
+        className=" lg:h-40 lg:w-40 md:h-30 md:w-30 w-30 h-30 bg-contain border border-white rounded-b-full bg-center bg-no-repeat opacity-70"
+      />
 
       <div className="relative z-10 text-center">
         <h1 className="text-3xl font-extrabold tracking-tight text-white drop-shadow">

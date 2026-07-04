@@ -1,8 +1,9 @@
-import logo from '@/assets/images/logo.png';
+import { images } from '@/constant/images';
 import { ChevronRight, Shield } from 'lucide-react';
 import Link from 'next/link';
 
-const logoImageUrl = typeof logo === 'string' ? logo : logo.src;
+const logoImageUrl =
+  typeof images.logo === 'string' ? images.logo : images.logo.src;
 
 const HeroSection = () => {
   return (
