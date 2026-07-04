@@ -2,7 +2,7 @@ import { images } from '@/constant/images';
 import { Shield, Users, Zap } from 'lucide-react';
 import Image from 'next/image';
 
-const SidePanel = () => {
+const FormSidePanel = () => {
   return (
     <div className="relative hidden w-1/2 flex-col items-center justify-center overflow-hidden bg-linear-to-br from-orange-500 via-orange-400 to-amber-300 px-12 lg:flex">
       <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-white/10" />
@@ -48,4 +48,4 @@ const SidePanel = () => {
   );
 };
 
-export default SidePanel;
+export default FormSidePanel;

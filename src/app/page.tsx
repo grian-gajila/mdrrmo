@@ -1,13 +1,14 @@
 'use client';
-import { LandingPage } from '@/components/features/landing-page';
+import { Layouts } from '@/components/features/landing-page/layouts';
+import { Sections } from '@/components/features/landing-page/sections';
 import { Award, ChevronRight, Clock, Star } from 'lucide-react';
 import Link from 'next/link';
 
 export default function HomePage() {
   return (
     <div className="h-screen bg-white font-sans antialiased">
-      <LandingPage.NavBar />
-      <LandingPage.HeroSection />
+      <Layouts.NavBar />
+      <Sections.HeroSection />
       <section className="mb-20 rounded-lg bg-orange-500 px-6 py-4">
         <div className="mx-auto grid max-w-3xl grid-cols-2 gap-x-6 gap-y-8 text-center text-white sm:grid-cols-4">
           {[
@@ -25,8 +26,8 @@ export default function HomePage() {
           ))}
         </div>
       </section>
-      <LandingPage.ProcessSection />
-      <LandingPage.RequirementsSection />
+      <Sections.ProcessSection />
+      <Sections.RequirementsSection />
       <section className="px-6 py-24">
         <div className="mx-auto max-w-5xl">
           <div className="mb-14 text-center">
@@ -93,7 +94,7 @@ export default function HomePage() {
           </Link>
         </div>
       </section>
-      <LandingPage.Footer />
+      <Layouts.Footer />
     </div>
   );
 }
