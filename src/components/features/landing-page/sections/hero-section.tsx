@@ -1,14 +1,21 @@
+import logo from '@/assets/images/logo.png';
 import { ChevronRight, Shield } from 'lucide-react';
 import Link from 'next/link';
+
+const logoImageUrl = typeof logo === 'string' ? logo : logo.src;
 
 const HeroSection = () => {
   return (
     <section className="relative px-6 pt-20 pb-28">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-80 -right-80 h-240 w-240 rounded-full border border-orange-100/90" />
-        <div className="absolute -top-60 -right-60 h-190 w-190 rounded-full border border-orange-200/80" />
-        <div className="absolute -top-40 -right-40 h-140 w-140 rounded-full border border-orange-300/70" />
-        <div className="absolute -top-20 -right-20 h-90 w-90 rounded-full border border-orange-400/60" />
+        <div className="absolute -top-80 -right-80 lg:h-240 lg:w-240 md:h-235 md:w-235 w-230 h-230 rounded-full border border-orange-100/90" />
+        <div className="absolute -top-60 -right-60 lg:h-190 lg:w-190 md:h-185 md:w-185 w-180 h-180 rounded-full border border-orange-200/80" />
+        <div className="absolute -top-40 -right-40 lg:h-140 lg:w-140 md:h-135 md:w-135 w-130 h-130 rounded-full border border-orange-300/70" />
+        <div className="absolute -top-20 -right-20 lg:h-90 lg:w-90 md:h-85 md:w-85 w-80 h-80 rounded-full border border-orange-400/60" />
+        <div
+          style={{ backgroundImage: `url('${logoImageUrl}')` }}
+          className="absolute top-0 right-0 -rotate-20 lg:h-40 lg:w-40 md:h-30 md:w-30 w-30 h-30 bg-contain border-2 border-orange-500 rounded-b-full bg-center bg-no-repeat opacity-10"
+        />
       </div>
 
       <div className="relative mx-auto max-w-4xl text-center">

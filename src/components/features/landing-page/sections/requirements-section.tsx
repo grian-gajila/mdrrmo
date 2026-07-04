@@ -2,7 +2,10 @@ import { AlertTriangle, Award, FileText, Heart, IdCard } from 'lucide-react';
 
 const RequirementsSection = () => {
   return (
-    <section id="requirements" className="rounded-lg bg-gray-100 px-6 py-24">
+    <section
+      id="requirements"
+      className="lg:rounded-lg md:rounded-lg bg-gray-100 px-6 py-24 lg:mx-6 md:mx-6"
+    >
       <div className="mx-auto max-w-3xl">
         <div className="mb-12 text-center">
           <p className="mb-2 text-xs font-bold tracking-widest text-orange-500 uppercase">

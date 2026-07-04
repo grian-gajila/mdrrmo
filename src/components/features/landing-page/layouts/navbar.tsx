@@ -12,6 +12,7 @@ import {
 import { images } from '@/constant/images';
 import { Menu } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, type MouseEvent } from 'react';
 
@@ -80,7 +81,7 @@ const NavBar = () => {
           </SheetTrigger>
           <SheetContent>
             <SheetHeader>
-              <div className="flex items-center gap-2.5 border-b border-gray-100 pb-4">
+              <div className="flex items-center gap-2.5 border-b border-gray-300 pb-4">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg">
                   <Image src={images.logo} alt="LOGO" className="h-10 w-10" />
                 </div>
@@ -114,23 +115,26 @@ const NavBar = () => {
                   </nav>
                 </div>
                 <div className="flex flex-col w-full items-center gap-2 pt-6 px-4 border-t border-gray-100">
-                  <Button
-                    onClick={() => router.push('/login')}
-                    variant="outline"
-                    className="round`ed-lg px-4 w-full py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-orange-500"
+                  <Link
+                    href="/login"
+                    className="round`ed-lg border rounded-lg text-center px-4 w-full py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-orange-500"
                   >
                     Sign In
-                  </Button>
-                  <Button
-                    onClick={() => router.push('/register')}
-                    className="rounded-lg bg-orange-500 w-full px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-orange-600"
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="rounded-lg text-center bg-orange-500 w-full px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-orange-600"
                   >
                     Apply Now
-                  </Button>
+                  </Link>
                 </div>
               </div>
             </SheetDescription>
-            <SheetFooter></SheetFooter>
+            <SheetFooter>
+              <div className="mt-10 border-t border-gray-300 pt-6 text-center text-xs text-gray-600">
+                © {new Date().getFullYear()} MDRRMO. All rights reserved.
+              </div>
+            </SheetFooter>
           </SheetContent>
         </Sheet>
 
