@@ -7,7 +7,7 @@ export default function NotFound() {
     <>
       <title>404 | MDRRMO</title>
 
-      <div className="flex min-h-screen items-center justify-center bg-orange-100 px-6 py-12">
+      <div className="flex min-h-screen w-full items-center justify-center bg-orange-100 px-6 py-12">
         <div className="w-full max-w-4xl overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
           <div className="grid grid-cols-1 md:grid-cols-2">
             <div className="flex flex-col items-center justify-center gap-4 bg-orange-500 px-10 py-16">
