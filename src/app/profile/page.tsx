@@ -1,20 +1,17 @@
 'use client';
-import { images } from '@/constant/images';
+import { Layouts } from '@/components/features/landing-page/layouts';
 import { ApplyForm } from '@/types';
 import {
   AlertCircle,
   ArrowLeft,
   ArrowRight,
-  Bell,
   Camera,
   Check,
   CheckCircle,
-  ChevronDown,
   FileText,
   Heart,
   IdCard,
   Loader2,
-  LogOut,
   MapPin,
   Phone,
   Upload,
@@ -37,12 +34,10 @@ const mockUser = {
   email: 'juan@email.com',
 };
 
-// ── Component ──────────────────────────────────────────────────────────────────
 export default function ProfilePage() {
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
 
   const [form, setForm] = useState<ApplyForm>({
     name: mockUser.name,
@@ -132,61 +127,9 @@ export default function ProfilePage() {
 
   return (
     <div className="h-screen w-full ">
-      <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/95 backdrop-blur-sm">
-        <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-6">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg">
-              <Image src={images.logo} alt="LOGO" className="h-10 w-10" />
-            </div>
-            <div className="leading-none">
-              <p className="text-sm font-bold text-orange-500">MDRRMO</p>
-              <p className="mt-px text-[10px] text-gray-400">
-                Volunteer Portal
-              </p>
-            </div>
-          </div>
+      <Layouts.NavBar />
 
-          <div className="flex items-center gap-2">
-            <button className="relative flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-gray-100">
-              <Bell className="h-4 w-4 text-gray-500" />
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full border border-white bg-red-500" />
-            </button>
-
-            <div className="relative">
-              <button
-                onClick={() => setMenuOpen(!menuOpen)}
-                className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 transition-colors hover:bg-gray-100"
-              >
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-linear-to-br from-orange-400 to-red-500 text-xs font-bold text-white">
-                  {mockUser.name.charAt(0)}
-                </div>
-                <span className="hidden text-sm font-semibold text-gray-700 sm:block">
-                  {mockUser.name}
-                </span>
-                <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
-              </button>
-
-              {menuOpen && (
-                <div className="absolute top-11 right-0 z-50 w-52 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-xl">
-                  <div className="border-b border-gray-50 px-4 py-3">
-                    <p className="truncate text-xs font-bold text-gray-900">
-                      {mockUser.name}
-                    </p>
-                    <p className="truncate text-xs text-gray-400">
-                      {mockUser.email}
-                    </p>
-                  </div>
-                  <button className="flex w-full items-center gap-2.5 px-4 py-3 text-sm text-red-500 transition-colors hover:bg-red-50">
-                    <LogOut className="h-4 w-4" /> Sign Out
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="mx-auto max-w-4xl px-6 py-10">
+      <div className="mx-auto max-w-6xl lg:py-20 md:py-16 py-10">
         <div className="mb-10 text-center">
           <h1 className="text-2xl font-extrabold text-gray-900">
             Volunteer Application
@@ -196,15 +139,15 @@ export default function ProfilePage() {
           </p>
         </div>
 
-        <div className="mb-10 flex items-start justify-center">
+        <div className="mb-10 flex items-start justify-center mx-auto">
           {STEPS.map((step, i) => (
             <div key={step.id} className="flex items-start">
               <button
                 onClick={() => currentStep > step.id && setCurrentStep(step.id)}
-                className="flex w-28 flex-col items-center gap-2"
+                className="flex lg:w-28 md:w-28 w-24 flex-col items-center gap-2"
               >
                 <div
-                  className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-bold transition-all ${
+                  className={`flex h-8 w-8 md:h-9 lg:h-10 md:w-9 lg:w-10 items-center justify-center rounded-full text-sm font-bold transition-all ${
                     currentStep > step.id
                       ? 'cursor-pointer bg-green-500 text-white'
                       : currentStep === step.id
@@ -219,7 +162,7 @@ export default function ProfilePage() {
                   )}
                 </div>
                 <span
-                  className={`text-center text-xs leading-tight font-semibold ${currentStep === step.id ? 'text-orange-500' : 'text-gray-400'}`}
+                  className={`text-center lg:text-xs text-[8px] md:text-xs sm:text-[10px] leading-tight font-semibold ${currentStep === step.id ? 'text-orange-500' : 'text-gray-400'}`}
                 >
                   {step.title}
                 </span>
@@ -227,14 +170,14 @@ export default function ProfilePage() {
 
               {i < STEPS.length - 1 && (
                 <div
-                  className={`mx-1 mt-5 h-0.5 w-20 transition-colors ${currentStep > step.id ? 'bg-green-400' : 'bg-gray-200'}`}
+                  className={`mx-1 mt-5 h-0.5 lg:w-60 md:w-40 sm:w-20 w-5 transition-colors ${currentStep > step.id ? 'bg-green-400' : 'bg-gray-200'}`}
                 />
               )}
             </div>
           ))}
         </div>
 
-        <div className="overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm">
+        <div className="overflow-hidden lg:rounded-lg md:rounded-lg sm:rounded-lg border border-gray-100 bg-white shadow-sm">
           {currentStep === 1 && (
             <>
               <StepHeader
@@ -811,6 +754,7 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+      <Layouts.Footer />
     </div>
   );
 }
