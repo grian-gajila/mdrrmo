@@ -2,8 +2,8 @@ import { Award, Clock, Star } from 'lucide-react';
 
 const BenefitsSection = () => {
   return (
-    <section className="px-6 py-24">
-      <div className="mx-auto max-w-5xl">
+    <section className="lg:px-6 md:px-6 sm:px-6">
+      <div className="mx-auto max-w-6xl px-6 lg:px-0 md:px-0 sm:px-0 py-20">
         <div className="mb-14 text-center">
           <p className="mb-2 text-xs font-bold tracking-widest text-orange-500 uppercase">
             Benefits

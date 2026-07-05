@@ -2,8 +2,8 @@ import { CheckCircle, FileText, Users } from 'lucide-react';
 
 const ProcessSection = () => {
   return (
-    <section id="how-it-works" className="px-6 py-24">
-      <div className="mx-auto max-w-5xl">
+    <section id="how-it-works" className="lg:px-6 md:px-6 sm:px-6">
+      <div className="mx-auto max-w-6xl lg:px-0 md:px-0 sm:px-0 px-6 py-24">
         <div className="mb-16 text-center">
           <p className="mb-2 text-xs font-bold tracking-widest text-orange-500 uppercase">
             Process

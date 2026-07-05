@@ -8,7 +8,7 @@ const logoImageUrl =
 const HeroSection = () => {
   return (
     <section className="relative px-6 pt-20 pb-28">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      <div className="pointer-events-none max-w-6xl mx-auto absolute inset-0 overflow-hidden">
         <div className="absolute -top-80 -right-80 lg:h-240 lg:w-240 md:h-235 md:w-235 w-230 h-230 rounded-full border border-orange-100/90" />
         <div className="absolute -top-60 -right-60 lg:h-190 lg:w-190 md:h-185 md:w-185 w-180 h-180 rounded-full border border-orange-200/80" />
         <div className="absolute -top-40 -right-40 lg:h-140 lg:w-140 md:h-135 md:w-135 w-130 h-130 rounded-full border border-orange-300/70" />
@@ -19,7 +19,7 @@ const HeroSection = () => {
         />
       </div>
 
-      <div className="relative mx-auto max-w-4xl text-center">
+      <div className="relative mx-auto max-w-6xl text-center">
         <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-100 bg-orange-50 px-3 py-1.5">
           <Shield className="h-3 w-3 text-orange-500" />
           <span className="text-xs font-semibold tracking-wide text-orange-600 uppercase">

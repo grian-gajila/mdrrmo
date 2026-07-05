@@ -41,8 +41,8 @@ const NavBar = () => {
   };
 
   return (
-    <div className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
+    <div className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 backdrop-blur-md px-6">
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg">
             <Image src={images.logo} alt="LOGO" className="h-10 w-10" />

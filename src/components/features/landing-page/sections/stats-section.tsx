@@ -1,7 +1,7 @@
 const StatsSection = () => {
   return (
-    <section className="mb-20 rounded-lg bg-orange-500 px-6 mx-6 py-4">
-      <div className="mx-auto grid max-w-3xl grid-cols-2 gap-x-6 gap-y-8 text-center text-white sm:grid-cols-4">
+    <section className="lg:px-6 md:px-6 sm:px-6">
+      <div className="mx-auto grid grid-cols-2 gap-x-6 py-4 sm:rounded-lg md:rounded-lg lg:rounded-lg max-w-6xl bg-orange-500 gap-y-8 text-center text-white sm:grid-cols-4">
         {[
           { value: '200+', label: 'Active Volunteers' },
           { value: '50+', label: 'Partner Organizations' },

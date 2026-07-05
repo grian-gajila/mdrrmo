@@ -4,11 +4,8 @@ import Image from 'next/image';
 
 const Footer = () => {
   return (
-    <footer
-      id="contact"
-      className="md:rounded-t-lg lg:rounded-t-lg bg-gray-100 px-6 py-12 md:mx-6 lg:mx-6"
-    >
-      <div className="mx-auto max-w-5xl">
+    <footer id="contact" className=" lg:px-6 md:px-6 sm:px-6">
+      <div className="mx-auto max-w-6xl py-16 md:rounded-t-lg px-6 lg:px-10 md:px-10 sm:px-10 lg:rounded-t-lg sm:rounded-lg bg-gray-100">
         <div className="flex flex-col gap-10 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <div className="mb-3 flex items-center gap-2">
