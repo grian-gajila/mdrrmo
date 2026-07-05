@@ -1,5 +1,6 @@
 'use client';
 import { images } from '@/constant/images';
+import { ApplyForm } from '@/types';
 import {
   AlertCircle,
   ArrowLeft,
@@ -24,34 +25,6 @@ import Image from 'next/image';
 import { useState } from 'react';
 
 type Step = 1 | 2 | 3;
-
-interface ApplyForm {
-  name: string;
-  gender: string;
-  age: string;
-  dob: string;
-  nationality: string;
-  nativePlace: string;
-  educationLevel: string;
-  politicalStatus: string;
-  healthStatus: string;
-  idNumber: string;
-  idType: string;
-  currentAddress: string;
-  contactNumber: string;
-  homePhone: string;
-  maritalStatus: string;
-  volunteerExperience: string;
-  familyInfo: string;
-  emergencyName: string;
-  emergencyRelation: string;
-  emergencyContact: string;
-  emergencyAddress: string;
-  validId: File | null;
-  trainingCert: File | null;
-  photo: File | null;
-  agreed: boolean;
-}
 
 const STEPS = [
   { id: 1 as Step, title: 'Personal Details', icon: User },
