@@ -1,5 +1,5 @@
 'use client';
-import { images } from '@/constant/images';
+import { Shared } from '@/components/shared';
 import {
   Bell,
   Building2,
@@ -13,7 +13,6 @@ import {
   UserCheck,
   Users,
 } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
@@ -51,19 +50,7 @@ export default function DashboardLayout({
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex h-16 items-center gap-2 border-b border-gray-200 px-6">
-          <div className="flex shrink-0 items-center justify-center">
-            <Image src={images.logo} alt="LOGO" className="h-10 w-10" />
-          </div>
-          <div className="min-w-0">
-            <div className="text-sm leading-tight font-bold text-orange-500">
-              MDRRMO
-            </div>
-            <div className="truncate text-xs text-gray-500">
-              Volunteer Management
-            </div>
-          </div>
-        </div>
+        <Shared.Brand parentStyle="h-16 border-b border-gray-200 px-6" />
 
         <div className="px-4 pt-4 pb-2">
           <div className="flex items-center gap-3 rounded-lg border border-orange-100 bg-orange-50 p-3">

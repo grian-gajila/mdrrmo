@@ -4,7 +4,7 @@ import Link from 'next/link';
 const CtaSection = () => {
   return (
     <section className="mb-20 lg:px-6 md:px-6 sm:px-6">
-      <div className="mx-auto max-w-6xl space-y-5 text-center md:rounded-lg lg:rounded-lg sm:rounded-lg bg-orange-500 py-16">
+      <div className="mx-auto max-w-6xl space-y-5 text-center px-6 md:rounded-lg lg:rounded-lg sm:rounded-lg bg-orange-500 py-16">
         <h2 className="text-3xl font-extrabold text-white">
           Ready to make a difference?
         </h2>
