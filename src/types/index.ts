@@ -1,3 +1,21 @@
+export type {
+  adminUsers,
+  announcements,
+  announcementTypeEnum,
+  applicationStatusEnum,
+  hiredVolunteers,
+  volunteerApplications,
+  volunteerProfiles,
+  volunteerStatusEnum,
+} from '@/lib/db/schema';
+
+export type ActionResult =
+  | { ok: true; message?: string }
+  | { ok: false; error: string; fields?: Record<string, string[]> };
+
+export type UserRole = 'VOLUNTEER' | 'ADMIN';
+export type ApplicantStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'HIRED';
+
 export interface ApplyForm {
   name: string;
   gender: string;
