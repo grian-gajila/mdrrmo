@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { Toaster } from 'sonner';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -20,6 +21,7 @@ export default function RootLayout({
         className={`flex h-screen w-full items-center justify-center ${inter.className}`}
       >
         {children}
+        <Toaster expand={true} richColors={true} />
       </body>
     </html>
   );

@@ -42,7 +42,8 @@ export default function AdminLoginPage() {
         return;
       }
 
-      toast.success('Welcome back, ' + json.displayName);
+      toast.success('Login Successfully');
+      toast.info('Welcome back, ' + json.displayName);
       router.push('/admin/dashboard');
       router.refresh();
     } catch {
