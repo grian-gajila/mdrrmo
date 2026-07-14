@@ -16,6 +16,7 @@ const RegisterForm = () => {
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const {
     register,
@@ -82,6 +83,7 @@ const RegisterForm = () => {
   };
 
   const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
     const supabase = await createClient();
     await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -89,6 +91,7 @@ const RegisterForm = () => {
         redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
       },
     });
+    setIsGoogleLoading(false);
   };
 
   return (
@@ -229,6 +232,7 @@ const RegisterForm = () => {
 
       <button
         type="button"
+        disabled={isGoogleLoading}
         onClick={handleGoogleSignIn}
         className="flex h-10 w-full items-center justify-center gap-2.5 rounded-lg border border-gray-200 text-sm font-semibold text-gray-600 transition-colors hover:cursor-pointer hover:bg-gray-50"
       >
