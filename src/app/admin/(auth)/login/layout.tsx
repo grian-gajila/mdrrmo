@@ -4,8 +4,8 @@ export default function LoginLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <div className="">
-      <Suspense>{children}</Suspense>
-    </div>
+    <Suspense>
+      <div className="w-full">{children}</div>
+    </Suspense>
   );
 }
