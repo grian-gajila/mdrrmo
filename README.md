@@ -186,7 +186,7 @@ AND (storage.foldername(name))[1] = auth.uid()::text
 
 ---
 
-## PASTE ORDER (recommended)
+## Recommended
 
 1. `.env.local` — fill in your keys first
 2. `drizzle.config.ts`
@@ -268,29 +268,6 @@ Admin logout    → POST /api/admin/logout → cookie.delete()
 Change password → POST /api/admin/change-password
                 → bcrypt.compare current → bcrypt.hash new → db.update
 ```
-
----
-
-## APPLICATION STATUS FLOW
-
-```
-[Volunteer submits form]
-        ↓
-    status: "pending"
-        ↓ (admin clicks Under Review)
-    status: "under_review"
-        ↓
-  ┌─────┴──────┐
-  ↓            ↓
-"approved"  "rejected"
-  ↓            ↓
-hired_volunteers  email sent (rejection reason)
-row created
-  ↓
-email sent (approval)
-```
-
----
 
 ## ENVIRONMENT VARIABLES REFERENCE
 
