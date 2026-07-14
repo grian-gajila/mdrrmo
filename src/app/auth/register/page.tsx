@@ -1,3 +1,4 @@
+import { ShieldDrawLoader } from '@/components/custom/loading';
 import { FormLayouts } from '@/components/features/user-auth/form-layouts';
 import { Forms } from '@/components/features/user-auth/forms';
 import Link from 'next/link';
@@ -6,7 +7,11 @@ import { Suspense } from 'react';
 export default function RegisterPage() {
   return (
     <Suspense
-      fallback={<div className="p-5 text-sm text-gray-500">Loading...</div>}
+      fallback={
+        <div className="h-screen w-full bg-orange-50 items-center justify-center">
+          <ShieldDrawLoader />
+        </div>
+      }
     >
       <div className="flex h-screen w-full overflow-hidden">
         <FormLayouts.SidePanel />

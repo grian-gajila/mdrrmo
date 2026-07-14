@@ -1,8 +1,9 @@
 'use client';
 
+import { ShieldSpinLoader } from '@/components/custom/loading';
 import { Icons } from '@/constant/icons';
 import UseHandleLogin from '@/hooks/use-handle-login';
-import { AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { AlertCircle, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 
 const LoginForm = () => {
@@ -81,11 +82,11 @@ const LoginForm = () => {
       <button
         type="submit"
         disabled={isLoading}
-        className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-orange-500 text-sm font-bold text-white shadow-md shadow-orange-200 transition-all duration-300 hover:cursor-pointer hover:bg-orange-400 disabled:bg-orange-300"
+        className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-orange-500 text-sm font-bold text-white shadow-md shadow-orange-200 transition-all duration-300 hover:cursor-pointer hover:bg-orange-400 disabled:bg-orange-200 "
       >
         {isLoading ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <ShieldSpinLoader size={24} color="text-white" />
             Signing in…
           </>
         ) : (
@@ -108,7 +109,7 @@ const LoginForm = () => {
         className="flex h-10 w-full items-center justify-center gap-2.5 rounded-lg border border-gray-200 text-sm font-semibold text-gray-600 transition-colors hover:cursor-pointer hover:bg-gray-50"
       >
         {isGoogleLoading ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <ShieldSpinLoader size={24} />
         ) : (
           <Icons.GoogleIcon />
         )}

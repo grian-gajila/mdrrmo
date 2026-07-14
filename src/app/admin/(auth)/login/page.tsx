@@ -1,4 +1,5 @@
 'use client';
+import { ShieldSpinLoader } from '@/components/custom/loading';
 import { images } from '@/constant/images';
 import { AdminLoginInput, adminLoginSchema } from '@/lib/validation/schema';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -185,11 +186,11 @@ export default function AdminLoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-linear-to-r from-orange-300 to-orange-500 py-3 font-semibold text-white shadow-lg shadow-orange-200 transition-all duration-300 hover:from-orange-500 hover:to-orange-300 hover:transition-all hover:duration-300 disabled:cursor-not-allowed disabled:opacity-70"
+                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-linear-to-r from-orange-300 to-orange-500 py-3 font-semibold text-white shadow-lg shadow-orange-200 transition-all duration-300 hover:transition-all hover:duration-300 disabled:opacity-70"
               >
                 {isLoading ? (
                   <>
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></div>
+                    <ShieldSpinLoader size={26} color="text-white" />
                     Signing in...
                   </>
                 ) : (
