@@ -1,5 +1,5 @@
 'use client';
-import { Layouts } from '@/components/features/landing-page/layouts';
+import { Layouts } from '@/components/landing-page/layouts';
 import { ApplyForm } from '@/types';
 import {
   AlertCircle,

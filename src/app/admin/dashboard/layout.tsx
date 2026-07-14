@@ -1,5 +1,5 @@
-import Aside from '@/components/features/admin/layouts/aside';
-import Header from '@/components/features/admin/layouts/header';
+import Aside from '@/components/admin/layouts/aside';
+import Header from '@/components/admin/layouts/header';
 import { getAdminSession } from '@/lib/auth/admin-auth';
 import { redirect } from 'next/navigation';
 

@@ -1,6 +1,6 @@
 import { ShieldDrawLoader } from '@/components/custom/loading';
-import { FormLayouts } from '@/components/features/user-auth/form-layouts';
-import { Forms } from '@/components/features/user-auth/forms';
+import { Forms } from '@/components/volunteer/auth/forms';
+import { FormLayouts } from '@/components/volunteer/auth/layouts';
 import Link from 'next/link';
 import { Suspense } from 'react';
 

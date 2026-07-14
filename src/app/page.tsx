@@ -1,6 +1,6 @@
 'use client';
-import { Layouts } from '@/components/features/landing-page/layouts';
-import { Sections } from '@/components/features/landing-page/sections';
+import { Layouts } from '@/components/landing-page/layouts';
+import { Sections } from '@/components/landing-page/sections';
 
 export default function HomePage() {
   return (
