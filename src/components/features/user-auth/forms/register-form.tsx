@@ -1,81 +1,128 @@
+'use client';
+
 import { Icons } from '@/constant/icons';
-import { AlertCircle, CheckCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
+import { RegisterInput, registerSchema } from '@/lib/validation/schema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 const RegisterForm = () => {
   const router = useRouter();
   const [showPass, setShowPass] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [form, setForm] = useState({
-    firstName: '',
-    middleName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterInput>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
   });
 
-  const strength = (() => {
-    const p = form.password;
-    if (!p) return null;
-    if (p.length < 6)
-      return { label: 'Too short', color: 'bg-red-400', pct: '25%' };
-    if (p.length < 8)
-      return { label: 'Weak', color: 'bg-orange-400', pct: '50%' };
-    if (/[A-Z]/.test(p) && /[0-9]/.test(p))
-      return { label: 'Strong', color: 'bg-green-500', pct: '100%' };
-    return { label: 'Good', color: 'bg-blue-400', pct: '75%' };
-  })();
+  const onSubmit = async (data: RegisterInput) => {
+    setIsLoading(true);
+    try {
+      const supabase = await createClient();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    if (!form.firstName || !form.lastName || !form.email || !form.password)
-      return setError('Please fill in all required fields.');
-    if (form.password !== form.confirmPassword)
-      return setError('Passwords do not match.');
-    if (form.password.length < 8)
-      return setError('Password must be at least 8 characters.');
-    setLoading(true);
-    await new Promise((r) => setTimeout(r, 1600));
-    setLoading(false);
-    router.push('/profile');
+      // 1. Sign up with Supabase — triggers confirmation email via Supabase settings
+      //    We override the email template in Supabase to call our /api/auth/send-verification
+      //    OR configure Supabase to use Resend as SMTP (recommended — see GUIDE.md)
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: {
+            first_name: data.firstName,
+            last_name: data.lastName,
+          },
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify-email`,
+        },
+      });
+
+      if (authError) throw authError;
+
+      // 2. Create volunteer profile row in our DB
+      if (authData.user) {
+        await fetch('/api/volunteer/create-profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: authData.user.id,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            email: data.email,
+          }),
+        });
+      }
+
+      // 3. Redirect to verify notice
+      router.push('/auth/verify-email?email=' + encodeURIComponent(data.email));
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error
+          ? err.message
+          : 'Registration failed. Please try again.';
+      toast.error(msg);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    const supabase = await createClient();
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      },
+    });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 p-5">
-      {error && (
-        <div className="flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 px-3 py-2.5 text-sm text-red-500">
-          <AlertCircle className="h-4 w-4 shrink-0" />
-          {error}
-        </div>
-      )}
-
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 p-5">
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
           <label className="text-xs font-semibold text-gray-700">
             First Name <span className="text-red-400">*</span>
           </label>
           <input
-            value={form.firstName}
-            onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+            {...register('firstName')}
             placeholder="Juan"
             className={fieldCls}
           />
+          {errors.firstName && (
+            <p className="flex items-center gap-1 text-xs text-red-500">
+              <AlertCircle className="h-3 w-3" /> {errors.firstName.message}
+            </p>
+          )}
         </div>
         <div className="space-y-1">
           <label className="text-xs font-semibold text-gray-700">
             Last Name <span className="text-red-400">*</span>
           </label>
           <input
-            value={form.lastName}
-            onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+            {...register('lastName')}
             placeholder="dela Cruz"
             className={fieldCls}
           />
+          {errors.lastName && (
+            <p className="flex items-center gap-1 text-xs text-red-500">
+              <AlertCircle className="h-3 w-3" /> {errors.lastName.message}
+            </p>
+          )}
         </div>
       </div>
 
@@ -85,11 +132,15 @@ const RegisterForm = () => {
         </label>
         <input
           type="email"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          {...register('email')}
           placeholder="you@email.com"
           className={fieldCls}
         />
+        {errors.email && (
+          <p className="flex items-center gap-1 text-xs text-red-500">
+            <AlertCircle className="h-3 w-3" /> {errors.email.message}
+          </p>
+        )}
       </div>
 
       <div className="space-y-1">
@@ -99,11 +150,15 @@ const RegisterForm = () => {
         <div className="relative">
           <input
             type={showPass ? 'text' : 'password'}
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
+            {...register('password')}
             placeholder="Min. 8 characters"
             className={`${fieldCls} pr-10`}
           />
+          {errors.password && (
+            <p className="flex items-center gap-1 text-xs text-red-500">
+              <AlertCircle className="h-3 w-3" /> {errors.password.message}
+            </p>
+          )}
           <button
             type="button"
             onClick={() => setShowPass(!showPass)}
@@ -117,17 +172,6 @@ const RegisterForm = () => {
             )}
           </button>
         </div>
-        {strength && (
-          <div className="space-y-1 pt-0.5">
-            <div className="h-1.5 overflow-hidden rounded-full bg-gray-100">
-              <div
-                className={`h-full rounded-full transition-all duration-300 ${strength.color}`}
-                style={{ width: strength.pct }}
-              />
-            </div>
-            <p className="text-xs text-gray-400">{strength.label}</p>
-          </div>
-        )}
       </div>
 
       <div className="space-y-1">
@@ -136,26 +180,38 @@ const RegisterForm = () => {
         </label>
         <div className="relative">
           <input
-            type={showPass ? 'text' : 'password'}
-            value={form.confirmPassword}
-            onChange={(e) =>
-              setForm({ ...form, confirmPassword: e.target.value })
-            }
+            type={showConfirm ? 'text' : 'password'}
+            {...register('confirmPassword')}
             placeholder="Re-enter password"
             className={`${fieldCls} pr-10`}
           />
-          {form.confirmPassword && form.password === form.confirmPassword && (
-            <CheckCircle className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-green-500" />
+          {errors.confirmPassword && (
+            <p className="flex items-center gap-1 text-xs text-red-500">
+              <AlertCircle className="h-3 w-3" />{' '}
+              {errors.confirmPassword.message}
+            </p>
           )}
+          <button
+            type="button"
+            onClick={() => setShowConfirm(!showConfirm)}
+            className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 transition-colors hover:cursor-pointer hover:text-gray-600"
+            aria-label="Toggle password visibility"
+          >
+            {showConfirm ? (
+              <EyeOff className="h-4 w-4" />
+            ) : (
+              <Eye className="h-4 w-4" />
+            )}
+          </button>
         </div>
       </div>
 
       <button
         type="submit"
-        disabled={loading}
+        disabled={isLoading}
         className="mt-1 flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-orange-500 text-sm font-bold text-white shadow-md shadow-orange-200 transition-all duration-300 hover:cursor-pointer hover:bg-orange-400 disabled:bg-orange-300"
       >
-        {loading ? (
+        {isLoading ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
             Creating account…
@@ -173,6 +229,7 @@ const RegisterForm = () => {
 
       <button
         type="button"
+        onClick={handleGoogleSignIn}
         className="flex h-10 w-full items-center justify-center gap-2.5 rounded-lg border border-gray-200 text-sm font-semibold text-gray-600 transition-colors hover:cursor-pointer hover:bg-gray-50"
       >
         <Icons.GoogleIcon />

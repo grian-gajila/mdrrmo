@@ -31,8 +31,8 @@ async function seed() {
   await db.insert(schema.adminUsers).values({
     username: 'admin',
     passwordHash,
-    displayName: 'MDRRMO Administrator',
-    email: 'admin@mdrrmo.gov.ph',
+    displayName: 'MDRRMOM Administrator',
+    email: 'admin@mdrrmom.gov.ph',
     role: 'admin',
   });
 

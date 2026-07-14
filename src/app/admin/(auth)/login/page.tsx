@@ -1,29 +1,54 @@
 'use client';
 import { images } from '@/constant/images';
+import { AdminLoginInput, adminLoginSchema } from '@/lib/validation/schema';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircle, Eye, EyeOff, Shield } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 export default function AdminLoginPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const sessionExpired = searchParams.get('reason') === 'session_expired';
   const [showPassword, setShowPassword] = useState(false);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    if (!username || !password) {
-      setError('Please fill in all fields.');
-      return;
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<AdminLoginInput>({
+    resolver: zodResolver(adminLoginSchema),
+  });
+
+  const onSubmit = async (data: AdminLoginInput) => {
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        toast.error(json.error ?? 'Invalid credentials');
+        return;
+      }
+
+      toast.success('Welcome back, ' + json.displayName);
+      router.push('/admin/dashboard');
+      router.refresh();
+    } catch {
+      toast.error('Something went wrong. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      window.location.href = '/admin/dashboard';
-    }, 1500);
   };
 
   return (
@@ -87,25 +112,30 @@ export default function AdminLoginPage() {
               </p>
             </div>
 
-            {error && (
-              <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {sessionExpired && (
+              <div className="mb-5 flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-700">
                 <AlertCircle className="h-4 w-4 shrink-0" />
-                {error}
+                Your session expired. Please sign in again.
               </div>
             )}
 
-            <form onSubmit={handleLogin} className="space-y-5">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-gray-700">
                   Username
                 </label>
                 <input
                   type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  {...register('username')}
                   placeholder="Enter your username"
                   className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm transition-all placeholder:text-gray-400 focus:border-transparent focus:ring-2 focus:ring-orange-500 focus:outline-none"
                 />
+                {errors.username && (
+                  <p className="flex items-center gap-1 text-xs text-red-600">
+                    <AlertCircle className="h-3 w-3" />{' '}
+                    {errors.username.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-gray-700">
@@ -114,8 +144,7 @@ export default function AdminLoginPage() {
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    {...register('password')}
                     placeholder="Enter your password"
                     className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 pr-12 text-sm transition-all placeholder:text-gray-400 focus:border-transparent focus:ring-2 focus:ring-orange-500 focus:outline-none"
                   />
@@ -131,6 +160,12 @@ export default function AdminLoginPage() {
                     )}
                   </button>
                 </div>
+                {errors.password && (
+                  <p className="flex items-center gap-1 text-xs text-red-600">
+                    <AlertCircle className="h-3 w-3" />{' '}
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
               <div className="flex items-center justify-between">
                 <label className="flex cursor-pointer items-center gap-2">
@@ -149,10 +184,10 @@ export default function AdminLoginPage() {
               </div>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={isLoading}
                 className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-linear-to-r from-orange-300 to-orange-500 py-3 font-semibold text-white shadow-lg shadow-orange-200 transition-all duration-300 hover:from-orange-500 hover:to-orange-300 hover:transition-all hover:duration-300 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {loading ? (
+                {isLoading ? (
                   <>
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></div>
                     Signing in...

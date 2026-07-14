@@ -40,14 +40,14 @@ const HeroSection = () => {
 
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
-            href="/register"
+            href="/apply"
             className="inline-flex items-center gap-2 rounded-lg bg-orange-500 px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-orange-200/60 transition-all hover:-translate-y-0.5 hover:bg-orange-600"
           >
             Apply as Volunteer
             <ChevronRight className="h-4 w-4" />
           </Link>
           <Link
-            href="/login"
+            href="/profile"
             className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-7 py-3.5 text-sm font-semibold text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50"
           >
             Track My Application

@@ -1,14 +1,13 @@
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM = process.env.RESEND_FROM_EMAIL ?? 'noreply@yourdomain.com';
+const FROM = process.env.RESEND_FROM_EMAIL ?? 'support@yourdomain.com';
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
 
-// ─── Email: Verify email address ──────────────────────────────────────────────
 export async function sendVerificationEmail(
   to: string,
   firstName: string,
-  verifyUrl: string, // Supabase provides this URL via the email link
+  verifyUrl: string,
 ) {
   await resend.emails.send({
     from: `MDRRMO Mandalay <${FROM}>`,
@@ -40,11 +39,10 @@ export async function sendVerificationEmail(
   });
 }
 
-// ─── Email: Password reset ─────────────────────────────────────────────────────
 export async function sendPasswordResetEmail(
   to: string,
   firstName: string,
-  resetUrl: string, // Supabase provides this URL
+  resetUrl: string,
 ) {
   await resend.emails.send({
     from: `MDRRMO Mandalay <${FROM}>`,
@@ -76,7 +74,6 @@ export async function sendPasswordResetEmail(
   });
 }
 
-// ─── Email: Application received ──────────────────────────────────────────────
 export async function sendApplicationReceivedEmail(
   to: string,
   firstName: string,
@@ -117,7 +114,6 @@ export async function sendApplicationReceivedEmail(
   });
 }
 
-// ─── Email: Application approved ──────────────────────────────────────────────
 export async function sendApplicationApprovedEmail(
   to: string,
   firstName: string,
@@ -146,7 +142,6 @@ export async function sendApplicationApprovedEmail(
   });
 }
 
-// ─── Email: Application rejected ──────────────────────────────────────────────
 export async function sendApplicationRejectedEmail(
   to: string,
   firstName: string,

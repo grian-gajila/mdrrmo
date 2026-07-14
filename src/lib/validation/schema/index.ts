@@ -1,7 +1,5 @@
 import { z } from 'zod';
 
-// ─── VOLUNTEER AUTH ───────────────────────────────────────────────────────────
-
 export const registerSchema = z
   .object({
     firstName: z
@@ -156,7 +154,7 @@ export const adminProfileSchema = z.object({
 
 // ─── TYPE EXPORTS ─────────────────────────────────────────────────────────────
 
-export type RegisterInput = z.infer<typeof registerSchema>;
+export type RegisterInput = z.input<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
