@@ -1,58 +1,23 @@
 'use client';
 import { ShieldSpinLoader } from '@/components/custom/loading';
 import { images } from '@/constant/images';
-import { AdminLoginInput, adminLoginSchema } from '@/lib/validation/schema';
-import { zodResolver } from '@hookform/resolvers/zod';
+import useAdminHandleLogin from '@/hooks/use-admin-handle-login';
+
 import { AlertCircle, Eye, EyeOff, Shield } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 
 export default function AdminLoginPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const sessionExpired = searchParams.get('reason') === 'session_expired';
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-
   const {
+    sessionExpired,
+    showPassword,
+    setShowPassword,
+    isLoading,
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<AdminLoginInput>({
-    resolver: zodResolver(adminLoginSchema),
-  });
-
-  const onSubmit = async (data: AdminLoginInput) => {
-    setIsLoading(true);
-    try {
-      const res = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-
-      const json = await res.json();
-
-      if (!res.ok) {
-        toast.error(json.error ?? 'Invalid credentials');
-        return;
-      }
-
-      toast.success('Login Successfully');
-      toast.info('Welcome back, ' + json.displayName);
-      router.push('/admin/dashboard');
-      router.refresh();
-    } catch {
-      toast.error('Something went wrong. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+    errors,
+    onSubmit,
+  } = useAdminHandleLogin();
   return (
     <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-orange-50 via-white to-orange-100 p-4">
       <div className="grid w-full max-w-5xl grid-cols-1 gap-0 overflow-hidden rounded-lg shadow-2xl lg:grid-cols-2">
