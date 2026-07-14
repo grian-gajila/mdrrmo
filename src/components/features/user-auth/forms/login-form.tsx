@@ -2,7 +2,7 @@
 
 import { ShieldSpinLoader } from '@/components/custom/loading';
 import { Icons } from '@/constant/icons';
-import UseHandleLogin from '@/hooks/use-handle-login';
+import useVolunteersHandleLogin from '@/hooks/use-volunteers-handle-login';
 import { AlertCircle, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 
@@ -17,7 +17,7 @@ const LoginForm = () => {
     errors,
     onSubmit,
     handleGoogleSignIn,
-  } = UseHandleLogin();
+  } = useVolunteersHandleLogin();
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-5">

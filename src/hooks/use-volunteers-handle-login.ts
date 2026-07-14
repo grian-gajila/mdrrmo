@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-export const UseHandleLogin = () => {
+export const useVolunteersHandleLogin = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirect') ?? '/profile';
@@ -82,4 +82,4 @@ export const UseHandleLogin = () => {
   };
 };
 
-export default UseHandleLogin;
+export default useVolunteersHandleLogin;

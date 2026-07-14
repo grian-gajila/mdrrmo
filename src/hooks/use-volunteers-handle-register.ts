@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-export const UseHandleRegister = () => {
+export const useVolunteersHandleRegister = () => {
   const router = useRouter();
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -104,4 +104,4 @@ export const UseHandleRegister = () => {
   };
 };
 
-export default UseHandleRegister;
+export default useVolunteersHandleRegister;

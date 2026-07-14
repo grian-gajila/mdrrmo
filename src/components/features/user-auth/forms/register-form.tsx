@@ -2,7 +2,7 @@
 
 import { ShieldSpinLoader } from '@/components/custom/loading';
 import { Icons } from '@/constant/icons';
-import UseHandleRegister from '@/hooks/use-handle-register';
+import useVolunteersHandleRegister from '@/hooks/use-volunteers-handle-register';
 import { AlertCircle, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 
@@ -19,7 +19,7 @@ const RegisterForm = () => {
     errors,
     onSubmit,
     handleGoogleSignIn,
-  } = UseHandleRegister();
+  } = useVolunteersHandleRegister();
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 p-5">
       <div className="grid grid-cols-2 gap-3">
