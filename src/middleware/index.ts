@@ -38,7 +38,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  const volunteerProtected = ['/profile', '/apply'];
+  const volunteerProtected = ['/profile'];
   const isVolunteerProtected = volunteerProtected.some((p) =>
     pathname.startsWith(p),
   );
@@ -128,8 +128,7 @@ export const config = {
   matcher: [
     '/admin/dashboard/:path*',
     '/admin/login',
-    '/profile',
-    '/apply',
+    '/profile/:path*',
     '/auth/login',
     '/auth/register',
   ],
