@@ -28,49 +28,62 @@ export const useVolunteersHandleRegister = () => {
     },
   });
 
-  const onSubmit = async (inputData: RegisterInput) => {
+  const onSubmit = async (data: RegisterInput) => {
     setIsLoading(true);
     try {
-      const { error, data } = await supabase.auth.signUp({
-        email: inputData.email,
-        password: inputData.password,
+      // 1. Sign up with Supabase — triggers confirmation email via Supabase settings
+      //    We override the email template in Supabase to call our /api/auth/send-verification
+      //    OR configure Supabase to use Resend as SMTP (recommended — see GUIDE.md)
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
         options: {
           data: {
-            first_name: inputData.firstName,
-            last_name: inputData.lastName,
+            first_name: data.firstName,
+            last_name: data.lastName,
           },
-          // emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify-email`,
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify-email`,
         },
       });
-      console.log(data);
-      if (error) {
-        toast.error(error.message);
-        setIsLoading(false);
+
+      if (authError) throw authError;
+
+      // 2. Create volunteer profile row in our DB
+      if (authData.user) {
+        await fetch('/api/volunteer/create-profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: authData.user.id,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            email: data.email,
+          }),
+        });
       }
-      setIsLoading(false);
-      router.push(
-        '/auth/verify-email?email=' + encodeURIComponent(inputData.email),
-      );
-    } catch {
-      toast.error('Network error. Please check your connection and try again.');
+
+      // 3. Redirect to verify notice
+      router.push('/auth/verify-email?email=' + encodeURIComponent(data.email));
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error
+          ? err.message
+          : 'Registration failed. Please try again.';
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
   };
+
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
-    try {
-      await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
-        },
-      });
-      setIsGoogleLoading(false);
-    } catch {
-      toast.error('Network error. Please try again.');
-      setIsGoogleLoading(false);
-    }
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      },
+    });
+    setIsGoogleLoading(false);
   };
 
   return {
