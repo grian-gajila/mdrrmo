@@ -2,7 +2,7 @@
 import { db } from '@/lib/db';
 import { volunteerApplications, volunteerProfiles } from '@/lib/db/schema';
 import { sendApplicationReceivedEmail } from '@/lib/email/resend';
-import { createClient } from '@/lib/supabase/client';
+import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { fullApplicationSchema } from '@/lib/validation/schema';
 import { eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
@@ -10,7 +10,7 @@ import { NextResponse } from 'next/server';
 // POST — submit a new application
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient();
+    const supabase = await getSupabaseBrowserClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -112,7 +112,7 @@ export async function POST(request: Request) {
 // GET — fetch current user's application
 export async function GET() {
   try {
-    const supabase = await createClient();
+    const supabase = await getSupabaseBrowserClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();

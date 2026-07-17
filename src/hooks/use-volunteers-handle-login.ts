@@ -1,4 +1,3 @@
-import { createClient } from '@/lib/supabase/client';
 import { LoginInput, loginSchema } from '@/lib/validation/schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -25,32 +24,32 @@ export const useVolunteersHandleLogin = () => {
   const onSubmit = async (data: LoginInput) => {
     setIsLoading(true);
     try {
-      const supabase = createClient();
-      const { error } = await (
-        await supabase
-      ).auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
       });
 
-      if (error) {
-        if (error.message.includes('Email not confirmed')) {
+      const json = await res.json();
+
+      if (!res.ok) {
+        if (json.error === 'EMAIL_NOT_VERIFIED') {
           toast.error('Please verify your email first. Check your inbox.');
           router.push(
-            '/auth/verify-email?email=' + encodeURIComponent(data.email),
+            '/auth/verify-email?email=' +
+              encodeURIComponent(json.email ?? data.email),
           );
           return;
         }
-        throw error;
+        toast.error(json.error ?? 'Invalid email or password.');
+        return;
       }
 
       toast.success('Welcome back!');
       router.push(redirectTo);
       router.refresh();
-    } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : 'Invalid email or password.';
-      toast.error(msg);
+    } catch {
+      toast.error('Network error. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -58,15 +57,19 @@ export const useVolunteersHandleLogin = () => {
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
-    const supabase = createClient();
-    await (
-      await supabase
-    ).auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
-      },
-    });
+    try {
+      const res = await fetch('/api/auth/google');
+      const json = await res.json();
+      if (res.ok && json.url) {
+        window.location.href = json.url;
+      } else {
+        toast.error(json.error ?? 'Could not start Google sign-in.');
+        setIsGoogleLoading(false);
+      }
+    } catch {
+      toast.error('Network error. Please try again.');
+      setIsGoogleLoading(false);
+    }
   };
 
   return {

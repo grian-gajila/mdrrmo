@@ -1,7 +1,7 @@
 // src/app/auth/forgot-password/page.tsx
 'use client';
 
-import { createClient } from '@/lib/supabase/client';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 import {
   forgotPasswordSchema,
   type ForgotPasswordInput,
@@ -28,7 +28,7 @@ export default function ForgotPasswordPage() {
   const onSubmit = async (data: ForgotPasswordInput) => {
     setIsLoading(true);
     try {
-      const supabase = createClient();
+      const supabase = createSupabaseServerClient();
 
       // Supabase sends the reset email; we configured Resend as SMTP in dashboard
       // or handle the token in /api/auth/reset-email using Supabase's hook

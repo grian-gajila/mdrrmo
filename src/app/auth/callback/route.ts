@@ -3,7 +3,7 @@
 
 import { db } from '@/lib/db';
 import { volunteerProfiles } from '@/lib/db/schema';
-import { createClient } from '@/lib/supabase/client';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
@@ -13,7 +13,7 @@ export async function GET(request: Request) {
   const next = searchParams.get('next') ?? '/profile';
 
   if (code) {
-    const supabase = await createClient();
+    const supabase = await createSupabaseServerClient();
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error && data.user) {

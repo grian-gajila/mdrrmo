@@ -1,7 +1,7 @@
 // src/app/auth/verify-email/page.tsx
 'use client';
 
-import { createClient } from '@/lib/supabase/client';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { Mail, RefreshCw } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
@@ -15,7 +15,7 @@ function VerifyEmailContent() {
   const resendEmail = async () => {
     setResending(true);
     try {
-      const supabase = createClient();
+      const supabase = createSupabaseServerClient();
       const { error } = await (
         await supabase
       ).auth.resend({
@@ -35,7 +35,7 @@ function VerifyEmailContent() {
   };
 
   return (
-    <div className="text-center">
+    <div className="text-center items-center px-6">
       <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-100">
         <Mail className="h-8 w-8 text-orange-600" />
       </div>
@@ -52,7 +52,7 @@ function VerifyEmailContent() {
         Click the link in the email to verify your account. After verification,
         you can log in and start your volunteer application.
       </p>
-      <div className="rounded-xl border border-orange-100 bg-orange-50 p-4 text-left text-sm text-orange-800">
+      <div className="rounded-lg border border-orange-100 bg-orange-50 p-4 text-left text-sm text-orange-800">
         <p className="font-semibold">Didn&apos;t receive the email?</p>
         <ul className="mt-2 space-y-1 text-orange-700">
           <li>• Check your spam or junk folder</li>
@@ -63,7 +63,7 @@ function VerifyEmailContent() {
       <button
         onClick={resendEmail}
         disabled={resending || !email}
-        className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+        className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
       >
         <RefreshCw className={`h-4 w-4 ${resending ? 'animate-spin' : ''}`} />
         {resending ? 'Resending...' : 'Resend verification email'}

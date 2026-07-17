@@ -1,7 +1,7 @@
 // src/components/auth/SignOutButton.tsx
 'use client';
 
-import { createClient } from '@/lib/supabase/client';
+import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -10,8 +10,8 @@ export function SignOutButton() {
   const router = useRouter();
 
   const handleSignOut = async () => {
-    const supabase = createClient();
-    await (await supabase).auth.signOut();
+    const supabase = getSupabaseBrowserClient();
+    await supabase.auth.signOut();
     toast.success('Signed out successfully');
     router.push('/landing');
     router.refresh();

@@ -9,19 +9,15 @@ const ADMIN_JWT_SECRET = new TextEncoder().encode(
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // ─── ADMIN ROUTE PROTECTION ─────────────────────────────────────────────────
   if (pathname.startsWith('/admin/dashboard')) {
     const token = request.cookies.get('mdrrmo_admin_session')?.value;
-
     if (!token) {
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
-
     try {
       await jwtVerify(token, ADMIN_JWT_SECRET);
       return NextResponse.next();
     } catch {
-      // Token invalid or expired
       const response = NextResponse.redirect(
         new URL('/admin/login?reason=session_expired', request.url),
       );
@@ -30,7 +26,6 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // ─── REDIRECT LOGGED-IN ADMIN AWAY FROM LOGIN ───────────────────────────────
   if (pathname === '/admin/login') {
     const token = request.cookies.get('mdrrmo_admin_session')?.value;
     if (token) {
@@ -38,12 +33,11 @@ export async function middleware(request: NextRequest) {
         await jwtVerify(token, ADMIN_JWT_SECRET);
         return NextResponse.redirect(new URL('/admin/dashboard', request.url));
       } catch {
-        // expired — let them through to the login page
+        // expired — let them through to login
       }
     }
   }
 
-  // ─── VOLUNTEER ROUTE PROTECTION ─────────────────────────────────────────────
   const volunteerProtected = ['/profile', '/apply'];
   const isVolunteerProtected = volunteerProtected.some((p) =>
     pathname.startsWith(p),
@@ -89,7 +83,6 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // ─── REDIRECT LOGGED-IN VOLUNTEER AWAY FROM AUTH PAGES ──────────────────────
   const authPages = ['/auth/login', '/auth/register'];
   const isAuthPage = authPages.some((p) => pathname.startsWith(p));
 
@@ -135,8 +128,8 @@ export const config = {
   matcher: [
     '/admin/dashboard/:path*',
     '/admin/login',
-    '/profile/:path*',
-    '/apply/:path*',
+    '/profile',
+    '/apply',
     '/auth/login',
     '/auth/register',
   ],

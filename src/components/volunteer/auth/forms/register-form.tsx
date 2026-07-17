@@ -8,8 +8,6 @@ import Link from 'next/link';
 
 const RegisterForm = () => {
   const {
-    showConfirm,
-    setShowConfirm,
     showPass,
     setShowPass,
     isLoading,
@@ -95,38 +93,6 @@ const RegisterForm = () => {
             aria-label="Toggle password visibility"
           >
             {showPass ? (
-              <EyeOff className="h-4 w-4" />
-            ) : (
-              <Eye className="h-4 w-4" />
-            )}
-          </button>
-        </div>
-      </div>
-
-      <div className="space-y-1">
-        <label className="text-xs font-semibold text-gray-700">
-          Confirm Password <span className="text-red-400">*</span>
-        </label>
-        <div className="relative">
-          <input
-            type={showConfirm ? 'text' : 'password'}
-            {...register('confirmPassword')}
-            placeholder="Re-enter password"
-            className={`${fieldCls} pr-10`}
-          />
-          {errors.confirmPassword && (
-            <p className="flex items-center gap-1 text-xs text-red-500">
-              <AlertCircle className="h-3 w-3" />{' '}
-              {errors.confirmPassword.message}
-            </p>
-          )}
-          <button
-            type="button"
-            onClick={() => setShowConfirm(!showConfirm)}
-            className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 transition-colors hover:cursor-pointer hover:text-gray-600"
-            aria-label="Toggle password visibility"
-          >
-            {showConfirm ? (
               <EyeOff className="h-4 w-4" />
             ) : (
               <Eye className="h-4 w-4" />

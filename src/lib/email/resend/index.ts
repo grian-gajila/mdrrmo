@@ -10,7 +10,7 @@ export async function sendVerificationEmail(
   verifyUrl: string,
 ) {
   await resend.emails.send({
-    from: `MDRRMO Mandalay <${FROM}>`,
+    from: `MDRRMO Mansalay <${FROM}>`,
     to,
     subject: 'Verify your MDRRMO Volunteer Portal account',
     html: `
@@ -32,7 +32,7 @@ export async function sendVerificationEmail(
         </p>
         <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
         <p style="color: #9ca3af; font-size: 12px;">
-          MDRRMO Mandalay · Municipal Hall, Mandalay, Quezon · mdrrmo@mandalay.gov.ph
+          MDRRMO Mansalay · Municipal Hall, Mansalay, Quezon · mdrrmo@mansalay.gov.ph
         </p>
       </div>
     `,
@@ -45,7 +45,7 @@ export async function sendPasswordResetEmail(
   resetUrl: string,
 ) {
   await resend.emails.send({
-    from: `MDRRMO Mandalay <${FROM}>`,
+    from: `MDRRMO Mansalay <${FROM}>`,
     to,
     subject: 'Reset your MDRRMO Volunteer Portal password',
     html: `
@@ -67,7 +67,7 @@ export async function sendPasswordResetEmail(
         </p>
         <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
         <p style="color: #9ca3af; font-size: 12px;">
-          MDRRMO Mandalay · mdrrmo@mandalay.gov.ph
+          MDRRMO Mansalay · mdrrmo@mansalay.gov.ph
         </p>
       </div>
     `,
@@ -80,7 +80,7 @@ export async function sendApplicationReceivedEmail(
   applicationId: string,
 ) {
   await resend.emails.send({
-    from: `MDRRMO Mandalay <${FROM}>`,
+    from: `MDRRMO Mansalay <${FROM}>`,
     to,
     subject: 'Your volunteer application has been received — MDRRMO Mandalay',
     html: `
@@ -107,7 +107,7 @@ export async function sendApplicationReceivedEmail(
         </a>
         <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
         <p style="color: #9ca3af; font-size: 12px;">
-          MDRRMO Mandalay · mdrrmo@mandalay.gov.ph
+          MDRRMO Mansalay · mdrrmo@mansalay.gov.ph
         </p>
       </div>
     `,
@@ -119,7 +119,7 @@ export async function sendApplicationApprovedEmail(
   firstName: string,
 ) {
   await resend.emails.send({
-    from: `MDRRMO Mandalay <${FROM}>`,
+    from: `MDRRMO Mansalay <${FROM}>`,
     to,
     subject: '🎉 Your MDRRMO volunteer application has been approved!',
     html: `
@@ -136,7 +136,7 @@ export async function sendApplicationApprovedEmail(
           View Your Profile
         </a>
         <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
-        <p style="color: #9ca3af; font-size: 12px;">MDRRMO Mandalay · mdrrmo@mandalay.gov.ph</p>
+        <p style="color: #9ca3af; font-size: 12px;">MDRRMO Mansalay · mdrrmo@mansalay.gov.ph</p>
       </div>
     `,
   });
@@ -152,21 +152,54 @@ export async function sendApplicationRejectedEmail(
     to,
     subject: 'Update on your MDRRMO volunteer application',
     html: `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
-        <div style="background: #4b5563; padding: 24px; border-radius: 12px; text-align: center; margin-bottom: 24px;">
-          <h1 style="color: white; margin: 0;">Application Update</h1>
-        </div>
-        <h2 style="color: #1f2937;">Hi ${firstName},</h2>
-        <p style="color: #6b7280; line-height: 1.6;">
-          After careful review, we are unable to approve your volunteer application at this time.
-        </p>
-        ${reason ? `<div style="background: #f9fafb; border-left: 4px solid #f97316; padding: 16px; margin: 16px 0;"><p style="margin: 0; color: #374151;"><strong>Reason:</strong> ${reason}</p></div>` : ''}
-        <p style="color: #6b7280; line-height: 1.6;">
-          You are welcome to re-apply after addressing any noted concerns. For questions, please contact our office directly at mdrrmo@mandalay.gov.ph.
-        </p>
-        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
-        <p style="color: #9ca3af; font-size: 12px;">MDRRMO Mandalay · mdrrmo@mandalay.gov.ph</p>
+     <div
+      style="
+        font-family: sans-serif;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 24px;
+      "
+    >
+      <div
+        style="
+          background: red;
+          padding: 24px;
+          border-radius: 12px;
+          text-align: center;
+          margin-bottom: 24px;
+        "
+      >
+        <h1 style="color: white; margin: 0">Application Update</h1>
       </div>
+      <h2 style="color: #1f2937">Hi ${firstName},</h2>
+      <p style="color: #6b7280; line-height: 1.6">
+        After careful review, we are unable to approve your volunteer
+        application at this time.
+      </p>
+      ${
+        reason
+          ? `<div
+        style="
+          background: #f9fafb;
+          border-left: 4px solid #f97316;
+          padding: 16px;
+          margin: 16px 0;
+        "
+        ><p style="margin: 0; color: #374151"
+          ><strong>Reason:</strong> ${reason}</p
+        ></div
+      >`
+          : ''
+      }
+      <p style="color: #6b7280; line-height: 1.6">
+        You are welcome to re-apply after addressing any noted concerns. For
+        questions, please contact our office directly at mdrrmo@mandalay.gov.ph.
+      </p>
+      <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0" />
+      <p style="color: #9ca3af; font-size: 12px"
+        >MDRRMO Mandalay · mdrrmo@mandalay.gov.ph</p
+      >
+    </div>
     `,
   });
 }

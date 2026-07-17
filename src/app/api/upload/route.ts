@@ -2,7 +2,7 @@
 // Handles document uploads to Supabase Storage
 // Volunteers must be authenticated to upload
 
-import { createClient } from '@/lib/supabase/client';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
 const ALLOWED_TYPES = [
@@ -24,7 +24,7 @@ const BUCKET_MAP: Record<string, string> = {
 export async function POST(request: Request) {
   try {
     // Check auth
-    const supabase = await createClient();
+    const supabase = await createSupabaseServerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();

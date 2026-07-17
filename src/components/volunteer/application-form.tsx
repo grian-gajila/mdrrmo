@@ -23,6 +23,7 @@ import {
   Upload,
   User,
 } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -92,7 +93,6 @@ export function ApplicationFormClient({
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<ApplicationStep1Input>({
     resolver: zodResolver(applicationStep1Schema),
@@ -117,7 +117,7 @@ export function ApplicationFormClient({
         </div>
         <div className={`rounded-2xl border p-6 ${cfg.bg}`}>
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-white/60">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/60">
               <Icon className={`h-6 w-6 ${cfg.color}`} />
             </div>
             <div>
@@ -295,7 +295,7 @@ export function ApplicationFormClient({
         <form onSubmit={handleSubmit(onStep1Submit)} className="space-y-0">
           <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
             {/* Section header */}
-            <div className="bg-gradient-to-r from-orange-500 to-red-600 px-6 py-5">
+            <div className="bg-linear-to-r from-orange-500 to-red-600 px-6 py-5">
               <div className="flex items-center gap-3">
                 <User className="h-5 w-5 text-white" />
                 <h2 className="font-bold text-white">Personal Information</h2>
@@ -308,9 +308,9 @@ export function ApplicationFormClient({
             <div className="space-y-6 p-6">
               {/* Photo upload */}
               <div className="flex items-center gap-5 rounded-xl border border-orange-100 bg-orange-50 p-4">
-                <label className="flex h-20 w-20 flex-shrink-0 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-orange-300 bg-white hover:bg-orange-50 transition-colors">
+                <label className="flex h-20 w-20 shrink-0 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-orange-300 bg-white hover:bg-orange-50 transition-colors">
                   {docs.photoUrl ? (
-                    <img
+                    <Image
                       src={docs.photoUrl}
                       alt="Profile"
                       className="h-full w-full rounded-xl object-cover"
@@ -627,7 +627,7 @@ export function ApplicationFormClient({
       {/* ── STEP 2: Documents ─────────────────────────────── */}
       {step === 2 && (
         <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-          <div className="bg-gradient-to-r from-orange-500 to-red-600 px-6 py-5">
+          <div className="bg-linear-to-r from-orange-500 to-red-600 px-6 py-5">
             <div className="flex items-center gap-3">
               <FileText className="h-5 w-5 text-white" />
               <h2 className="font-bold text-white">Upload Documents</h2>
@@ -639,7 +639,7 @@ export function ApplicationFormClient({
 
           <div className="space-y-4 p-6">
             <div className="flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 p-4">
-              <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
+              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
               <p className="text-sm text-blue-700">
                 All documents must be clear and legible. Accepted formats: JPG,
                 PNG, PDF. Maximum file size: 5 MB each.
@@ -695,7 +695,7 @@ export function ApplicationFormClient({
                       href={docs[doc.key]}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex flex-shrink-0 items-center gap-1 text-xs font-medium text-green-600 hover:text-green-700"
+                      className="flex shrink-0 items-center gap-1 text-xs font-medium text-green-600 hover:text-green-700"
                     >
                       <CheckCircle className="h-3.5 w-3.5" /> View{' '}
                       <ExternalLink className="h-3 w-3" />
@@ -762,7 +762,7 @@ export function ApplicationFormClient({
       {/* ── STEP 3: Review & Submit ───────────────────────── */}
       {step === 3 && step1Data && (
         <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-          <div className="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-5">
+          <div className="bg-linear-to-r from-green-500 to-emerald-600 px-6 py-5">
             <div className="flex items-center gap-3">
               <CheckCircle className="h-5 w-5 text-white" />
               <h2 className="font-bold text-white">Review & Submit</h2>
@@ -774,7 +774,7 @@ export function ApplicationFormClient({
 
           <div className="space-y-5 p-6">
             <div className="flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 p-4">
-              <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
+              <CheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
               <div>
                 <p className="text-sm font-semibold text-green-800">
                   Your application is ready to submit

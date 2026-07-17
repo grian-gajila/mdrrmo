@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { db } from '@/lib/db';
 import { volunteerApplications, volunteerProfiles } from '@/lib/db/schema';
-import { createClient } from '@/lib/supabase/client';
+import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { eq } from 'drizzle-orm';
 import { Bell, ChevronDown, FileText, Home, User } from 'lucide-react';
 import Link from 'next/link';
@@ -24,7 +24,7 @@ const nav = [
 export default async function DisplayLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const supabase = await createClient();
+  const supabase = await getSupabaseBrowserClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

@@ -3,7 +3,7 @@
 // The URL contains #access_token and #type=recovery fragments
 'use client';
 
-import { createClient } from '@/lib/supabase/client';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 import {
   resetPasswordSchema,
   type ResetPasswordInput,
@@ -28,7 +28,7 @@ export default function ResetPasswordPage() {
     let isMounted = true;
 
     async function validateSession() {
-      const supabase = await createClient();
+      const supabase = await createSupabaseServerClient();
 
       const {
         data: { session },
@@ -61,7 +61,7 @@ export default function ResetPasswordPage() {
   const onSubmit = async (data: ResetPasswordInput) => {
     setIsLoading(true);
     try {
-      const supabase = createClient();
+      const supabase = createSupabaseServerClient();
       const { error } = await (
         await supabase
       ).auth.updateUser({
