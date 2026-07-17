@@ -58,14 +58,18 @@ export const UseHandleLogin = () => {
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
-    await (
-      await supabase
-    ).auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
-      },
-    });
+    try {
+      await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+        },
+      });
+      setIsGoogleLoading(false);
+    } catch (error) {
+      toast.error(`Error: ${error}`);
+      setIsGoogleLoading(false);
+    }
   };
 
   return {

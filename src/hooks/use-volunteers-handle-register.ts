@@ -77,13 +77,18 @@ export const useVolunteersHandleRegister = () => {
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
-      },
-    });
-    setIsGoogleLoading(false);
+    try {
+      await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+        },
+      });
+      setIsGoogleLoading(false);
+    } catch (error) {
+      toast.error(`Error: ${error}`);
+      setIsGoogleLoading(false);
+    }
   };
 
   return {
