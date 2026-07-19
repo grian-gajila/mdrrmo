@@ -107,7 +107,7 @@ const AuthButton = ({ parentStyle, link1, link2 }: Props) => {
         Sign In
       </Link>
       <Link
-        href="/auth/register"
+        href="/profile/apply"
         className={`rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-orange-600 ${link2}`}
       >
         Apply Now

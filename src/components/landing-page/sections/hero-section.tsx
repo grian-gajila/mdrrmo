@@ -40,7 +40,7 @@ const HeroSection = () => {
 
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
-            href="/apply"
+            href="/profile/apply"
             className="inline-flex items-center gap-2 rounded-lg bg-orange-500 px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-orange-200/60 transition-all hover:-translate-y-0.5 hover:bg-orange-600"
           >
             Apply as Volunteer

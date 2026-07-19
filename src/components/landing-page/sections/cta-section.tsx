@@ -12,7 +12,7 @@ const CtaSection = () => {
           Join over 200 volunteers already protecting lives in our municipality.
         </p>
         <Link
-          href="/register"
+          href="/auth/register"
           className="inline-flex items-center gap-2 rounded-lg  bg-white px-7 py-3.5 text-sm font-extrabold text-orange-500 transition-all hover:bg-orange-50"
         >
           Start Your Application

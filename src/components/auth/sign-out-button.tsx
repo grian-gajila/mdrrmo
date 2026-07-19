@@ -13,17 +13,17 @@ export function SignOutButton() {
     const supabase = getSupabaseBrowserClient();
     await supabase.auth.signOut();
     toast.success('Signed out successfully');
-    router.push('/landing');
+    router.push('/');
     router.refresh();
   };
 
   return (
     <button
       onClick={handleSignOut}
-      className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+      className="flex items-center gap-2 py-2 w-full hover:cursor-pointer rounded-lg px-3 text-sm font-medium border bg-red-50 hover:bg-red-100 border-red-500 transition-all"
     >
-      <LogOut className="h-4 w-4" />
-      <span className="hidden sm:block">Sign Out</span>
+      <LogOut className="h-4 w-4 text-red-500" />
+      <span className="text-red-500">Sign Out</span>
     </button>
   );
 }

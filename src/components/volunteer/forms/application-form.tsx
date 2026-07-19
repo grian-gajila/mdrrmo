@@ -245,7 +245,7 @@ export function ApplicationFormClient({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mx-auto w-full py-10 md:py-0 md:pb-10">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">
           Volunteer Application
@@ -293,7 +293,7 @@ export function ApplicationFormClient({
       {/* ── STEP 1: Personal Details ──────────────────────── */}
       {step === 1 && (
         <form onSubmit={handleSubmit(onStep1Submit)} className="space-y-0">
-          <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm">
             {/* Section header */}
             <div className="bg-linear-to-r from-orange-500 to-red-600 px-6 py-5">
               <div className="flex items-center gap-3">
@@ -307,13 +307,13 @@ export function ApplicationFormClient({
 
             <div className="space-y-6 p-6">
               {/* Photo upload */}
-              <div className="flex items-center gap-5 rounded-xl border border-orange-100 bg-orange-50 p-4">
-                <label className="flex h-20 w-20 shrink-0 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-orange-300 bg-white hover:bg-orange-50 transition-colors">
+              <div className="flex items-center gap-5 rounded-lg border border-orange-100 bg-orange-50 p-4">
+                <label className="flex h-20 w-20 shrink-0 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-orange-300 bg-white hover:bg-orange-50 transition-colors">
                   {docs.photoUrl ? (
                     <Image
                       src={docs.photoUrl}
                       alt="Profile"
-                      className="h-full w-full rounded-xl object-cover"
+                      className="h-full w-full rounded-lg object-cover"
                     />
                   ) : uploadingKey === 'photo' ? (
                     <Loader2 className="h-5 w-5 animate-spin text-orange-400" />
@@ -350,7 +350,7 @@ export function ApplicationFormClient({
                   </label>
                   <select
                     {...register('gender')}
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
                   >
                     <option>Male</option>
                     <option>Female</option>
@@ -367,7 +367,7 @@ export function ApplicationFormClient({
                     placeholder="21"
                     min={18}
                     max={70}
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                   {errors.age && (
                     <p className="text-xs text-red-600">{errors.age.message}</p>
@@ -380,7 +380,7 @@ export function ApplicationFormClient({
                   <input
                     {...register('dateOfBirth')}
                     type="date"
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                   {errors.dateOfBirth && (
                     <p className="text-xs text-red-600">
@@ -416,7 +416,7 @@ export function ApplicationFormClient({
                     <input
                       {...register(f.field)}
                       placeholder={f.placeholder}
-                      className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
                     />
                     {errors[f.field] && (
                       <p className="text-xs text-red-600">
@@ -436,7 +436,7 @@ export function ApplicationFormClient({
                   <input
                     {...register('healthStatus')}
                     placeholder="Good / Excellent"
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                   {errors.healthStatus && (
                     <p className="text-xs text-red-600">
@@ -450,7 +450,7 @@ export function ApplicationFormClient({
                   </label>
                   <select
                     {...register('maritalStatus')}
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
                   >
                     <option>Single</option>
                     <option>Married</option>
@@ -465,7 +465,7 @@ export function ApplicationFormClient({
                   <input
                     {...register('politicalStatus')}
                     placeholder="e.g. Civilian"
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
               </div>
@@ -479,7 +479,7 @@ export function ApplicationFormClient({
                   <input
                     {...register('idNumber')}
                     placeholder="XXX-XXXX-XXX-XXX"
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 font-mono text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 font-mono text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                   {errors.idNumber && (
                     <p className="text-xs text-red-600">
@@ -493,7 +493,7 @@ export function ApplicationFormClient({
                   </label>
                   <select
                     {...register('idCardType')}
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
                   >
                     <option>National ID</option>
                     <option>Voter&apos;s ID</option>
@@ -519,7 +519,7 @@ export function ApplicationFormClient({
                 <input
                   {...register('currentAddress')}
                   placeholder="Sitio, Barangay, Municipality, Province"
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
                 {errors.currentAddress && (
                   <p className="text-xs text-red-600">
@@ -536,7 +536,7 @@ export function ApplicationFormClient({
                   <input
                     {...register('contactNumber')}
                     placeholder="09XXXXXXXXX"
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                   {errors.contactNumber && (
                     <p className="text-xs text-red-600">
@@ -551,7 +551,7 @@ export function ApplicationFormClient({
                   <input
                     {...register('homePhone')}
                     placeholder="(042) XXX-XXXX"
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
               </div>
@@ -591,7 +591,7 @@ export function ApplicationFormClient({
                       <input
                         {...register(f.field)}
                         placeholder={f.placeholder}
-                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
                       />
                       {errors[f.field] && (
                         <p className="text-xs text-red-600">
@@ -609,13 +609,13 @@ export function ApplicationFormClient({
               <button
                 type="button"
                 onClick={() => router.push('/profile')}
-                className="flex items-center gap-2 rounded-xl bg-gray-100 px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-200 transition-colors"
+                className="flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-200 transition-colors"
               >
                 <ArrowLeft className="h-4 w-4" /> Back
               </button>
               <button
                 type="submit"
-                className="flex items-center gap-2 rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-200 hover:bg-orange-600 transition-colors"
+                className="flex items-center gap-2 rounded-lg bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-200 hover:bg-orange-600 transition-colors"
               >
                 Continue <ArrowRight className="h-4 w-4" />
               </button>
@@ -626,7 +626,7 @@ export function ApplicationFormClient({
 
       {/* ── STEP 2: Documents ─────────────────────────────── */}
       {step === 2 && (
-        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm">
           <div className="bg-linear-to-r from-orange-500 to-red-600 px-6 py-5">
             <div className="flex items-center gap-3">
               <FileText className="h-5 w-5 text-white" />
@@ -638,7 +638,7 @@ export function ApplicationFormClient({
           </div>
 
           <div className="space-y-4 p-6">
-            <div className="flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 p-4">
+            <div className="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4">
               <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
               <p className="text-sm text-blue-700">
                 All documents must be clear and legible. Accepted formats: JPG,
@@ -674,7 +674,7 @@ export function ApplicationFormClient({
             ].map((doc) => (
               <div
                 key={doc.key}
-                className="rounded-xl border border-gray-200 p-5"
+                className="rounded-lg border border-gray-200 p-5"
               >
                 <div className="mb-3 flex items-start justify-between gap-3">
                   <div>
@@ -702,7 +702,7 @@ export function ApplicationFormClient({
                     </a>
                   )}
                 </div>
-                <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-6 hover:border-orange-300 hover:bg-orange-50 transition-all">
+                <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-200 py-6 hover:border-orange-300 hover:bg-orange-50 transition-all">
                   {uploadingKey === doc.key.replace('Url', '') ? (
                     <>
                       <Loader2 className="h-5 w-5 animate-spin text-orange-500" />
@@ -739,7 +739,7 @@ export function ApplicationFormClient({
           <div className="flex items-center justify-between border-t border-gray-100 px-6 py-4">
             <button
               onClick={() => setStep(1)}
-              className="flex items-center gap-2 rounded-xl bg-gray-100 px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-200 transition-colors"
+              className="flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-200 transition-colors"
             >
               <ArrowLeft className="h-4 w-4" /> Previous
             </button>
@@ -751,7 +751,7 @@ export function ApplicationFormClient({
                 }
                 setStep(3);
               }}
-              className="flex items-center gap-2 rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-200 hover:bg-orange-600 transition-colors"
+              className="flex items-center gap-2 rounded-lg bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-200 hover:bg-orange-600 transition-colors"
             >
               Continue <ArrowRight className="h-4 w-4" />
             </button>
@@ -761,7 +761,7 @@ export function ApplicationFormClient({
 
       {/* ── STEP 3: Review & Submit ───────────────────────── */}
       {step === 3 && step1Data && (
-        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm">
           <div className="bg-linear-to-r from-green-500 to-emerald-600 px-6 py-5">
             <div className="flex items-center gap-3">
               <CheckCircle className="h-5 w-5 text-white" />
@@ -773,7 +773,7 @@ export function ApplicationFormClient({
           </div>
 
           <div className="space-y-5 p-6">
-            <div className="flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 p-4">
+            <div className="flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4">
               <CheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
               <div>
                 <p className="text-sm font-semibold text-green-800">
@@ -821,7 +821,7 @@ export function ApplicationFormClient({
                 ],
               },
             ].map((section) => (
-              <div key={section.title} className="rounded-xl bg-gray-50 p-4">
+              <div key={section.title} className="rounded-lg bg-gray-50 p-4">
                 <div className="mb-3 flex items-center gap-2">
                   <section.icon className="h-4 w-4 text-orange-500" />
                   <span className="text-sm font-bold text-gray-900">
@@ -842,7 +842,7 @@ export function ApplicationFormClient({
             ))}
 
             {/* Docs summary */}
-            <div className="rounded-xl bg-gray-50 p-4">
+            <div className="rounded-lg bg-gray-50 p-4">
               <div className="mb-3 flex items-center gap-2">
                 <FileText className="h-4 w-4 text-orange-500" />
                 <span className="text-sm font-bold text-gray-900">
@@ -894,14 +894,14 @@ export function ApplicationFormClient({
           <div className="flex items-center justify-between border-t border-gray-100 px-6 py-4">
             <button
               onClick={() => setStep(2)}
-              className="flex items-center gap-2 rounded-xl bg-gray-100 px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-200 transition-colors"
+              className="flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-200 transition-colors"
             >
               <ArrowLeft className="h-4 w-4" /> Previous
             </button>
             <button
               onClick={onFinalSubmit}
               disabled={isSubmitting}
-              className="flex items-center gap-2 rounded-xl bg-green-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-200 hover:bg-green-600 disabled:opacity-70 transition-colors"
+              className="flex items-center gap-2 rounded-lg bg-green-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-200 hover:bg-green-600 disabled:opacity-70 transition-colors"
             >
               {isSubmitting ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
