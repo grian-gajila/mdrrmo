@@ -1,6 +1,4 @@
-// src/app/apply/page.tsx
-// Protected — requires volunteer to be logged in
-import { ApplicationFormClient } from '@/components/volunteer/application-form';
+import { ApplicationFormClient } from '@/components/volunteer/forms/application-form';
 import { db } from '@/lib/db';
 import { volunteerApplications } from '@/lib/db/schema';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';

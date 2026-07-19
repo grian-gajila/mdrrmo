@@ -1,3 +1,6 @@
+// src/hooks/useVolunteersHandleLogin.ts
+'use client';
+
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { LoginInput, loginSchema } from '@/lib/validation/schema';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -6,10 +9,9 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-export const UseHandleLogin = () => {
+export const useVolunteersHandleLogin = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get('redirect') ?? '/profile';
   const [showPass, setShowPass] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -21,36 +23,35 @@ export const UseHandleLogin = () => {
     formState: { errors },
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '' },
   });
 
   const onSubmit = async (data: LoginInput) => {
     setIsLoading(true);
     try {
-      const { error } = await (
-        await supabase
-      ).auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
+      const { error } = await supabase.auth.signInWithPassword(data);
 
       if (error) {
-        if (error.message.includes('Email not confirmed')) {
-          toast.error('Please verify your email first. Check your inbox.');
+        if (error.message.toLowerCase().includes('email not confirmed')) {
+          toast.error('Please verify your email first.');
           router.push(
             '/auth/verify-email?email=' + encodeURIComponent(data.email),
           );
           return;
         }
+        if (error.message.toLowerCase().includes('invalid login credentials')) {
+          toast.error('Incorrect email or password.');
+          return;
+        }
         throw error;
       }
 
-      toast.success('Welcome back!');
-      router.push(redirectTo);
+      router.push(searchParams.get('redirect') || '/profile');
       router.refresh();
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : 'Invalid email or password.';
-      toast.error(msg);
+      toast.error(
+        err instanceof Error ? err.message : 'Login failed. Please try again.',
+      );
     } finally {
       setIsLoading(false);
     }
@@ -62,10 +63,9 @@ export const UseHandleLogin = () => {
       await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+          redirectTo: `${window.location.origin}/auth/callback?next=/profile`,
         },
       });
-      setIsGoogleLoading(false);
     } catch (error) {
       toast.error(`Error: ${error}`);
       setIsGoogleLoading(false);
@@ -85,4 +85,4 @@ export const UseHandleLogin = () => {
   };
 };
 
-export default UseHandleLogin;
+export default useVolunteersHandleLogin;

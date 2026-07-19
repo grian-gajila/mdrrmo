@@ -1,6 +1,5 @@
+import { Auth } from '@/components/auth';
 import { ShieldDrawLoader } from '@/components/custom/loading';
-import { Forms } from '@/components/volunteer/auth/forms';
-import { FormLayouts } from '@/components/volunteer/auth/layouts';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
@@ -14,13 +13,13 @@ export default function RegisterPage() {
       }
     >
       <div className="flex h-screen w-full overflow-hidden">
-        <FormLayouts.SidePanel />
+        <Auth.SidePanel />
         <div className="flex w-full flex-col items-center h-screen justify-center overflow-y-auto bg-linear-to-b from-orange-100 to-white px-6 py-10 lg:w-1/2">
           <div className="w-full max-w-md">
             <div className="overflow-hidden rounded-lg border border-gray-100 bg-white shadow-lg shadow-gray-100">
-              <FormLayouts.FormHeader description=" Join the MDRRMO Volunteer Program" />
+              <Auth.FormHeader description=" Join the MDRRMO Volunteer Program" />
 
-              <Forms.RegisterForm />
+              <Auth.RegisterForm />
             </div>
 
             <p className="mt-5 text-center text-sm text-gray-400">

@@ -1,3 +1,6 @@
+'use client';
+
+import { registerVolunteer } from '@/app/auth/register/action';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { RegisterInput, registerSchema } from '@/lib/validation/schema';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -20,49 +23,17 @@ export const useVolunteersHandleRegister = () => {
     formState: { errors },
   } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
-    defaultValues: {
-      firstName: '',
-      lastName: '',
-      email: '',
-      password: '',
-    },
+    defaultValues: { firstName: '', lastName: '', email: '', password: '' },
   });
 
   const onSubmit = async (data: RegisterInput) => {
     setIsLoading(true);
     try {
-      // 1. Sign up with Supabase — triggers confirmation email via Supabase settings
-      //    We override the email template in Supabase to call our /api/auth/send-verification
-      //    OR configure Supabase to use Resend as SMTP (recommended — see GUIDE.md)
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          data: {
-            first_name: data.firstName,
-            last_name: data.lastName,
-          },
-          emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify-email`,
-        },
-      });
-
-      if (authError) throw authError;
-
-      // 2. Create volunteer profile row in our DB
-      if (authData.user) {
-        await fetch('/api/volunteer/create-profile', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id: authData.user.id,
-            firstName: data.firstName,
-            lastName: data.lastName,
-            email: data.email,
-          }),
-        });
+      const result = await registerVolunteer(data);
+      if (!result.success) {
+        toast.error(result.error ?? 'Registration failed. Please try again.');
+        return;
       }
-
-      // 3. Redirect to verify notice
       router.push('/auth/verify-email?email=' + encodeURIComponent(data.email));
     } catch (err: unknown) {
       const msg =
@@ -81,10 +52,9 @@ export const useVolunteersHandleRegister = () => {
       await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+          redirectTo: `${window.location.origin}/auth/callback?next=/profile`,
         },
       });
-      setIsGoogleLoading(false);
     } catch (error) {
       toast.error(`Error: ${error}`);
       setIsGoogleLoading(false);

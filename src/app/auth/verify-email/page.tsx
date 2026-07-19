@@ -1,11 +1,11 @@
 // src/app/auth/verify-email/page.tsx
 'use client';
 
-import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { Mail, RefreshCw } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
 import { toast } from 'sonner';
+import { resendVerificationEmail } from './action';
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
@@ -15,20 +15,15 @@ function VerifyEmailContent() {
   const resendEmail = async () => {
     setResending(true);
     try {
-      const supabase = createSupabaseServerClient();
-      const { error } = await (
-        await supabase
-      ).auth.resend({
-        type: 'signup',
-        email,
-        options: {
-          emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
-        },
-      });
-      if (error) throw error;
+      const result = await resendVerificationEmail(email);
+      if (!result.success) throw new Error(result.error);
       toast.success('Verification email resent! Check your inbox.');
-    } catch {
-      toast.error('Failed to resend. Please try again in a few minutes.');
+    } catch (err) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : 'Failed to resend. Please try again in a few minutes.',
+      );
     } finally {
       setResending(false);
     }
