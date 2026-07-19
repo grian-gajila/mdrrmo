@@ -1,6 +1,7 @@
 // src/app/auth/verify-email/page.tsx
 'use client';
 
+import { ShieldDrawLoader } from '@/components/custom/loading';
 import { Mail, RefreshCw } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
@@ -71,7 +72,9 @@ export default function VerifyEmailPage() {
   return (
     <Suspense
       fallback={
-        <div className="text-center text-sm text-gray-500">Loading...</div>
+        <div className="h-screen w-full bg-orange-50 items-center justify-center">
+          <ShieldDrawLoader />
+        </div>
       }
     >
       <VerifyEmailContent />

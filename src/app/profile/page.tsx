@@ -5,7 +5,7 @@ import {
   volunteerApplications,
   volunteerProfiles,
 } from '@/lib/db/schema';
-import { getSupabaseBrowserClient } from '@/lib/supabase/client';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { eq } from 'drizzle-orm';
 import {
   AlertCircle,
@@ -48,7 +48,7 @@ const statusConfig = {
 };
 
 export default async function ProfilePage() {
-  const supabase = await getSupabaseBrowserClient();
+  const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -122,7 +122,7 @@ export default async function ProfilePage() {
             Start your volunteer application to join MDRRMO Mansalay
           </p>
           <Link
-            href="/apply"
+            href="/profile/apply"
             className="mt-4 inline-flex items-center gap-2 rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-200 hover:bg-orange-600 transition-colors"
           >
             Apply Now <ChevronRight className="h-4 w-4" />

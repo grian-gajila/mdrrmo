@@ -23,13 +23,12 @@ export async function registerVolunteer(
 
   const supabaseAdmin = getSupabaseAdminClient();
 
-  const { error } = await supabaseAdmin.auth.admin.generateLink({
-    type: 'signup',
+  const { error } = await supabaseAdmin.auth.signUp({
     email,
     password,
     options: {
       data: { first_name: firstName, last_name: lastName },
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/profile`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/profile`,
     },
   });
 

@@ -1,12 +1,12 @@
 import { ApplicationFormClient } from '@/components/volunteer/forms/application-form';
 import { db } from '@/lib/db';
 import { volunteerApplications } from '@/lib/db/schema';
-import { getSupabaseBrowserClient } from '@/lib/supabase/client';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { eq } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
 
 export default async function ApplyPage() {
-  const supabase = await getSupabaseBrowserClient();
+  const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

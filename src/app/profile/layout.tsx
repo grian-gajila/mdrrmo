@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { db } from '@/lib/db';
 import { volunteerApplications, volunteerProfiles } from '@/lib/db/schema';
-import { getSupabaseBrowserClient } from '@/lib/supabase/client';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { eq } from 'drizzle-orm';
 import { Bell, ChevronDown, FileText, Home, User } from 'lucide-react';
 import Link from 'next/link';
@@ -24,7 +24,8 @@ const nav = [
 export default async function DisplayLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const supabase = await getSupabaseBrowserClient();
+  const supabase = await createSupabaseServerClient();
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -137,7 +138,7 @@ export default async function DisplayLayout({
               )}
               {!application && (
                 <Link
-                  href="/apply"
+                  href="/profile/apply"
                   className="mt-2 rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700 hover:bg-orange-200 transition-colors"
                 >
                   Apply Now →
