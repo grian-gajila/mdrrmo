@@ -16,17 +16,24 @@ export async function GET(request: Request) {
       const user = data.user;
       const meta = user.user_metadata;
 
-      await db
-        .insert(volunteerProfiles)
-        .values({
-          id: user.id,
-          firstName: meta.first_name ?? meta.given_name ?? 'User',
-          lastName: meta.last_name ?? meta.family_name ?? '',
-          email: user.email!,
-          emailVerified: !!user.email_confirmed_at,
-          avatarUrl: meta.avatar_url ?? null,
-        })
-        .onConflictDoNothing({ target: volunteerProfiles.id });
+      try {
+        await db
+          .insert(volunteerProfiles)
+          .values({
+            id: user.id,
+            firstName: meta.first_name ?? meta.given_name ?? 'User',
+            lastName: meta.last_name ?? meta.family_name ?? '',
+            email: user.email!,
+            emailVerified: !!user.email_confirmed_at,
+            avatarUrl: meta.avatar_url ?? null,
+          })
+          .onConflictDoUpdate({
+            target: volunteerProfiles.id,
+            set: { emailVerified: !!user.email_confirmed_at },
+          });
+      } catch (err) {
+        console.error('Profile upsert in callback failed:', err);
+      }
 
       return NextResponse.redirect(`${origin}${next}`);
     }

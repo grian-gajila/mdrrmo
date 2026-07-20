@@ -6,6 +6,7 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { db } from '@/lib/db';
@@ -87,7 +88,7 @@ export default async function DisplayLayout({
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuItem className="hover:bg-none">
                     <div className="flex flex-col border-b  border-gray-50">
-                      <p className="truncate text-xs font-bold text-gray-900">
+                      <p className="truncate text-lg font-bold text-gray-900">
                         {profile
                           ? `${profile.firstName} ${profile.lastName}`
                           : user.email}
@@ -97,6 +98,12 @@ export default async function DisplayLayout({
                           ? `${profile.firstName} ${profile.lastName}`
                           : user.email}
                       </p>
+                    </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="block md:hidden" />
+                  <DropdownMenuItem className="mt-6 block md:hidden">
+                    <div className="w-full">
+                      <SignOutButton />
                     </div>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
@@ -159,7 +166,7 @@ export default async function DisplayLayout({
               Back to Home
             </Link>
           </nav>
-          <div className="py-6">
+          <div className="py-6 md:block hidden">
             <SignOutButton />
           </div>
         </aside>
