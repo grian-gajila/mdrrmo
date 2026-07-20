@@ -14,6 +14,7 @@ import { volunteerApplications, volunteerProfiles } from '@/lib/db/schema';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { eq } from 'drizzle-orm';
 import { ChevronDown, FileText, Home, User } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
@@ -71,9 +72,20 @@ export default async function DisplayLayout({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 transition-colors hover:cursor-pointer">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-linear-to-br from-orange-400 to-red-500 text-xs font-bold text-white">
-                    {profile?.firstName?.charAt(0) ??
-                      user.email?.charAt(0).toLocaleUpperCase()}
+                  <div
+                    className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white ${profile.avatarUrl ? 'bg-none' : 'bg-linear-to-br from-orange-400 to-orange-600'}`}
+                  >
+                    {profile.avatarUrl ? (
+                      <Image
+                        className="rounded-full w-7 h-7"
+                        width={0}
+                        height={0}
+                        src={`${profile.avatarUrl}`}
+                        alt={`${profile.avatarUrl}`}
+                      />
+                    ) : (
+                      <span>{user.email?.charAt(0)}</span>
+                    )}
                   </div>
                   <span className="hidden text-sm font-semibold text-gray-700 sm:block">
                     {profile
@@ -94,9 +106,7 @@ export default async function DisplayLayout({
                           : user.email}
                       </p>
                       <p className="truncate text-xs text-gray-400">
-                        {profile
-                          ? `${profile.firstName} ${profile.lastName}`
-                          : user.email}
+                        {profile ? `${profile.email}` : user.email}
                       </p>
                     </div>
                   </DropdownMenuItem>
@@ -117,9 +127,20 @@ export default async function DisplayLayout({
         <aside className="mb-6 lg:mb-0 lg:w-64 lg:shrink-0">
           <div className="mb-4 rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
             <div className="mb-4 flex flex-col items-center text-center">
-              <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-lg bg-linear-to-br from-orange-400 to-orange-600 text-2xl font-bold text-white">
-                {profile?.firstName?.charAt(0) ??
-                  user.email?.charAt(0).toUpperCase()}
+              <div
+                className={`mb-3 flex h-16 w-16 items-center justify-center rounded-lg  text-2xl font-bold text-white ${profile.avatarUrl ? 'bg-none' : 'bg-linear-to-br from-orange-400 to-orange-600'}`}
+              >
+                {profile.avatarUrl ? (
+                  <Image
+                    className="rounded-full w-16 h-16"
+                    width={0}
+                    height={0}
+                    src={`${profile.avatarUrl}`}
+                    alt={`${profile.avatarUrl}`}
+                  />
+                ) : (
+                  <span>{user.email?.charAt(0)}</span>
+                )}
               </div>
               <p className="font-bold text-gray-900">
                 {profile

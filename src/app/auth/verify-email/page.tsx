@@ -101,7 +101,7 @@ function VerifyEmailContent() {
           <button
             onClick={resendEmail}
             disabled={resending || !email}
-            className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg border border-stone-200 bg-white py-3.5 text-sm font-semibold text-stone-700 transition-all hover:border-stone-300 hover:bg-stone-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+            className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg border border-stone-200 bg-white py-3.5 text-sm font-semibold text-stone-700 transition-all hover:border-stone-300 hover:bg-stone-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus-visible:ring-2 hover:cursor-pointer focus-visible:ring-orange-500 focus-visible:ring-offset-2"
           >
             <RefreshCw
               className={`h-4 w-4 ${resending ? 'animate-spin' : ''}`}
