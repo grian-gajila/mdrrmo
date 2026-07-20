@@ -1,17 +1,8 @@
-// src/app/api/upload/route.ts
-// Handles document uploads to Supabase Storage
-// Volunteers must be authenticated to upload
-
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
-const ALLOWED_TYPES = [
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'application/pdf',
-];
-const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+const ALLOWED_TYPES = ['image/jpeg', 'image/png'];
+const MAX_SIZE_BYTES = 2 * 1024 * 1024;
 
 const BUCKET_MAP: Record<string, string> = {
   photo: 'volunteer-photos',
@@ -23,7 +14,6 @@ const BUCKET_MAP: Record<string, string> = {
 
 export async function POST(request: Request) {
   try {
-    // Check auth
     const supabase = await createSupabaseServerClient();
     const {
       data: { user },
@@ -44,7 +34,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate type
     if (!ALLOWED_TYPES.includes(file.type)) {
       return NextResponse.json(
         { error: 'File type not allowed. Use JPG, PNG, or PDF.' },
@@ -52,7 +41,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate size
     if (file.size > MAX_SIZE_BYTES) {
       return NextResponse.json(
         { error: 'File too large. Maximum size is 5 MB.' },
@@ -65,11 +53,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid file type' }, { status: 400 });
     }
 
-    // Build storage path: userId/type/timestamp.ext
     const ext = file.name.split('.').pop() ?? 'bin';
     const path = `${user.id}/${type}/${Date.now()}.${ext}`;
 
-    // Upload to Supabase Storage
     const bytes = await file.arrayBuffer();
     const { error: uploadError } = await supabase.storage
       .from(bucket)
@@ -80,7 +66,6 @@ export async function POST(request: Request) {
 
     if (uploadError) throw uploadError;
 
-    // Get signed URL (valid 1 year — for admin viewing)
     const { data: signedData, error: signedError } = await supabase.storage
       .from(bucket)
       .createSignedUrl(path, 60 * 60 * 24 * 365);

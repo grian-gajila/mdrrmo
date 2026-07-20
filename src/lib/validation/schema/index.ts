@@ -70,6 +70,9 @@ export const adminChangePasswordSchema = z
 // ─── VOLUNTEER APPLICATION ────────────────────────────────────────────────────
 
 export const applicationStep1Schema = z.object({
+  firstName: z.string().min(2, 'First name is required'),
+  middleName: z.string().min(2, 'Middle name is required'),
+  lastName: z.string().min(2, 'Last name is required'),
   gender: z.enum(['Male', 'Female', 'Prefer not to say']),
   age: z
     .number()
@@ -91,17 +94,22 @@ export const applicationStep1Schema = z.object({
     .min(5, 'ID number must be at least 5 characters')
     .max(30, 'ID number too long'),
   idCardType: z.string().min(1, 'ID card type is required'),
-  currentAddress: z.string().min(10, 'Please provide your full address'),
+  sitio: z.string().min(2, 'Sitio is required'),
+  barangay: z.string().min(2, 'Barangay is required'),
+  municipality: z.string().min(2, 'Municipality is required'),
+  province: z.string().min(2, 'Province is required'),
   contactNumber: z
     .string()
     .regex(/^09\d{9}$/, 'Phone number must be in format 09XXXXXXXXX'),
   homePhone: z.string().optional(),
+  email: z.string().email('Please enter a valid email address').toLowerCase(),
   emergencyName: z.string().min(2, 'Emergency contact name is required'),
   emergencyRelation: z.string().min(1, 'Relation is required'),
   emergencyContact: z
     .string()
     .regex(/^09\d{9}$/, 'Must be a valid phone number (09XXXXXXXXX)'),
   emergencyAddress: z.string().min(5, 'Address is required'),
+  volunteeringExperience: z.string().optional(),
 });
 
 export const applicationStep2Schema = z.object({

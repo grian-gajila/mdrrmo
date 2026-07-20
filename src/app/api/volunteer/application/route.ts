@@ -1,16 +1,14 @@
-// src/app/api/volunteer/application/route.ts
 import { db } from '@/lib/db';
 import { volunteerApplications, volunteerProfiles } from '@/lib/db/schema';
 import { sendApplicationReceivedEmail } from '@/lib/email/resend';
-import { getSupabaseBrowserClient } from '@/lib/supabase/client';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { fullApplicationSchema } from '@/lib/validation/schema';
 import { eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
-// POST — submit a new application
 export async function POST(request: Request) {
   try {
-    const supabase = await getSupabaseBrowserClient();
+    const supabase = await createSupabaseServerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -19,7 +17,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check for existing application
     const existing = await db
       .select({ id: volunteerApplications.id })
       .from(volunteerApplications)
@@ -45,11 +42,13 @@ export async function POST(request: Request) {
 
     const data = parsed.data;
 
-    // Insert application
     const [application] = await db
       .insert(volunteerApplications)
       .values({
         volunteerId: user.id,
+        firstName: data.firstName,
+        middleName: data.middleName,
+        lastName: data.lastName,
         gender: data.gender,
         age: data.age,
         dateOfBirth: data.dateOfBirth,
@@ -61,15 +60,20 @@ export async function POST(request: Request) {
         maritalStatus: data.maritalStatus,
         idNumber: data.idNumber,
         idCardType: data.idCardType,
-        currentAddress: data.currentAddress,
+        sitio: data.sitio,
+        barangay: data.barangay,
+        municipality: data.municipality,
+        province: data.province,
         contactNumber: data.contactNumber,
         homePhone: data.homePhone,
+        email: data.email,
         emergencyContact: {
           name: data.emergencyName,
           relation: data.emergencyRelation,
           contactNumber: data.emergencyContact,
           address: data.emergencyAddress,
         },
+        volunteeringExperience: data.volunteeringExperience,
         validIdUrl: data.validIdUrl,
         trainingCertUrl: data.trainingCertUrl,
         barangayClearanceUrl: data.barangayClearanceUrl,
@@ -79,7 +83,6 @@ export async function POST(request: Request) {
       })
       .returning({ id: volunteerApplications.id });
 
-    // Load profile for email
     const profile = await db
       .select({ firstName: volunteerProfiles.firstName })
       .from(volunteerProfiles)
@@ -87,14 +90,12 @@ export async function POST(request: Request) {
       .limit(1)
       .then((r) => r[0] ?? null);
 
-    // Send confirmation email via Resend
     if (user.email) {
       await sendApplicationReceivedEmail(
         user.email,
         profile?.firstName ?? 'Volunteer',
         application.id,
       ).catch((err) => {
-        // Don't fail the request if email fails
         console.error('Email send error:', err);
       });
     }
@@ -109,10 +110,9 @@ export async function POST(request: Request) {
   }
 }
 
-// GET — fetch current user's application
 export async function GET() {
   try {
-    const supabase = await getSupabaseBrowserClient();
+    const supabase = await createSupabaseServerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();

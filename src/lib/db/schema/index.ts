@@ -31,7 +31,7 @@ export const volunteerStatusEnum = pgEnum('volunteer_status', [
 ]);
 
 export const volunteerProfiles = pgTable('volunteer_profiles', {
-  id: uuid('id').primaryKey(), // = Supabase auth.users.id
+  id: uuid('id').primaryKey(),
   firstName: text('first_name').notNull(),
   lastName: text('last_name').notNull(),
   email: text('email').notNull().unique(),
@@ -47,7 +47,9 @@ export const volunteerApplications = pgTable('volunteer_applications', {
     .references(() => volunteerProfiles.id, { onDelete: 'cascade' })
     .notNull(),
 
-  // Personal Information
+  firstName: text('first_name').notNull(),
+  middleName: text('middle_name').notNull(),
+  lastName: text('last_name').notNull(),
   gender: text('gender').notNull(),
   age: integer('age').notNull(),
   dateOfBirth: text('date_of_birth').notNull(),
@@ -58,16 +60,17 @@ export const volunteerApplications = pgTable('volunteer_applications', {
   healthStatus: text('health_status').notNull(),
   maritalStatus: text('marital_status').notNull(),
 
-  // Identification
   idNumber: text('id_number').notNull(),
   idCardType: text('id_card_type').notNull(),
 
-  // Contact
-  currentAddress: text('current_address').notNull(),
+  sitio: text('sitio').notNull(),
+  barangay: text('barangay').notNull(),
+  municipality: text('municipality').notNull(),
+  province: text('province').notNull(),
   contactNumber: text('contact_number').notNull(),
   homePhone: text('home_phone'),
+  email: text('email').notNull(),
 
-  // Emergency Contact (stored as JSONB)
   emergencyContact: jsonb('emergency_contact').$type<{
     name: string;
     relation: string;
@@ -75,14 +78,14 @@ export const volunteerApplications = pgTable('volunteer_applications', {
     address: string;
   }>(),
 
-  // Documents (Supabase Storage URLs)
+  volunteeringExperience: text('volunteering_experience'),
+
   validIdUrl: text('valid_id_url'),
   trainingCertUrl: text('training_cert_url'),
   barangayClearanceUrl: text('barangay_clearance_url'),
   medicalCertUrl: text('medical_cert_url'),
   photoUrl: text('photo_url'),
 
-  // Status
   status: applicationStatusEnum('status').default('pending').notNull(),
   reviewedBy: integer('reviewed_by').references(() => adminUsers.id),
   reviewedAt: timestamp('reviewed_at'),
