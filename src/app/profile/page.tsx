@@ -1,4 +1,3 @@
-// src/app/profile/page.tsx
 import { db } from '@/lib/db';
 import {
   hiredVolunteers,

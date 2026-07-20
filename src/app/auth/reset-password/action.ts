@@ -1,4 +1,3 @@
-// src/app/auth/reset-password/actions.ts
 'use server';
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
@@ -18,8 +17,6 @@ export async function updatePassword(
     };
   }
 
-  // Requires the recovery session created when the user clicked the email link —
-  // middleware guarantees this route can't be reached without one.
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.updateUser({
     password: parsed.data.password,

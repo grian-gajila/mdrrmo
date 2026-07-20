@@ -40,9 +40,7 @@ export async function middleware(request: NextRequest) {
       try {
         await jwtVerify(token, ADMIN_JWT_SECRET);
         return NextResponse.redirect(new URL('/admin/dashboard', request.url));
-      } catch {
-        // expired — let them through to login
-      }
+      } catch {}
     }
   }
 
@@ -103,6 +101,7 @@ export const config = {
     '/profile/:path*',
     '/auth/login',
     '/auth/register',
+    '/auth/verify-email',
     '/auth/forgot-password',
     '/auth/reset-password',
   ],

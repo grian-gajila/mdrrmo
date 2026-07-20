@@ -12,13 +12,18 @@ import { db } from '@/lib/db';
 import { volunteerApplications, volunteerProfiles } from '@/lib/db/schema';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { eq } from 'drizzle-orm';
-import { Bell, ChevronDown, FileText, Home, User } from 'lucide-react';
+import { ChevronDown, FileText, Home, User } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 const nav = [
   { href: '/profile', label: 'My Profile', icon: User, exact: true },
-  { href: '/apply', label: 'My Application', icon: FileText, exact: false },
+  {
+    href: '/profile/apply',
+    label: 'My Application',
+    icon: FileText,
+    exact: false,
+  },
 ];
 
 export default async function DisplayLayout({
@@ -41,7 +46,6 @@ export default async function DisplayLayout({
     .limit(1)
     .then((rows) => rows[0] ?? null);
 
-  // Load application status
   const application = await db
     .select({ status: volunteerApplications.status })
     .from(volunteerApplications)
@@ -63,11 +67,6 @@ export default async function DisplayLayout({
           <Shared.Brand />
 
           <div className="flex items-center gap-2">
-            <button className="relative flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-gray-100">
-              <Bell className="h-4 w-4 text-gray-500" />
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full border border-white bg-red-500" />
-            </button>
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 transition-colors hover:cursor-pointer">
@@ -153,7 +152,7 @@ export default async function DisplayLayout({
               </Link>
             ))}
             <Link
-              href="/landing"
+              href="/"
               className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
             >
               <Home className="h-4 w-4 shrink-0" />

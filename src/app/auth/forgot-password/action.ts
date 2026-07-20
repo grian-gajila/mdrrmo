@@ -24,7 +24,6 @@ export async function requestPasswordReset(
     redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/auth/reset-password`,
   });
 
-  // Always report success — don't leak whether an email is registered.
   if (error) console.error('resetPasswordForEmail error:', error.message);
 
   return { success: true };

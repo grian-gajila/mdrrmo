@@ -13,7 +13,6 @@ export default async function ApplyPage() {
 
   if (!user) redirect('/auth/login?redirect=/apply');
 
-  // Check if already submitted
   const existing = await db
     .select({
       id: volunteerApplications.id,

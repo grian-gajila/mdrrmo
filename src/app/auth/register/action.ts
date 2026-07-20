@@ -1,4 +1,3 @@
-// src/app/auth/register/actions.ts
 'use server';
 
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';

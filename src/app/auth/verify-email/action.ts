@@ -1,4 +1,3 @@
-// src/app/auth/verify-email/actions.ts
 'use server';
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';

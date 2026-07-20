@@ -102,7 +102,7 @@ const AuthButton = ({ parentStyle, link1, link2 }: Props) => {
     <div className={` items-center gap-2 ${parentStyle}`}>
       <Link
         href="/auth/login"
-        className={` px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-orange-500 ${link1}`}
+        className={` px-4 py-2 text-sm font-medium rounded-lg text-gray-600 transition-colors hover:bg-gray-50 hover:text-orange-500 ${link1}`}
       >
         Sign In
       </Link>
