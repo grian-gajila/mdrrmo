@@ -1,8 +1,8 @@
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM = process.env.RESEND_FROM_EMAIL ?? 'support@yourdomain.com';
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+const FROM = process.env.RESEND_FROM_EMAIL;
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL;
 
 export async function sendApplicationReceivedEmail(
   to: string,
@@ -12,7 +12,7 @@ export async function sendApplicationReceivedEmail(
   await resend.emails.send({
     from: `MDRRMO Mansalay <${FROM}>`,
     to,
-    subject: 'Your volunteer application has been received — MDRRMO Mandalay',
+    subject: 'Your volunteer application has been received — MDRRMO Mansalay',
     html: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
         <div style="background: linear-gradient(135deg, #f97316, #dc2626); padding: 24px; border-radius: 12px; text-align: center; margin-bottom: 24px;">

@@ -1,5 +1,5 @@
 {
-  "id": "98af5a93-81e5-43a9-be05-2d7ff9ca6a07",
+  "id": "162be01c-1095-4eee-9029-9bc286f33301",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -352,6 +352,24 @@
           "primaryKey": false,
           "notNull": true
         },
+        "first_name": {
+          "name": "first_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "middle_name": {
+          "name": "middle_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "last_name": {
+          "name": "last_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "gender": {
           "name": "gender",
           "type": "text",
@@ -419,8 +437,26 @@
           "primaryKey": false,
           "notNull": true
         },
-        "current_address": {
-          "name": "current_address",
+        "sitio": {
+          "name": "sitio",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "barangay": {
+          "name": "barangay",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "municipality": {
+          "name": "municipality",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "province": {
+          "name": "province",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -437,21 +473,39 @@
           "primaryKey": false,
           "notNull": false
         },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "emergency_contact": {
           "name": "emergency_contact",
           "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },
-        "valid_id_url": {
-          "name": "valid_id_url",
+        "volunteering_experience": {
+          "name": "volunteering_experience",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valid_id_front_url": {
+          "name": "valid_id_front_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valid_id_back_url": {
+          "name": "valid_id_back_url",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
         "training_cert_url": {
           "name": "training_cert_url",
-          "type": "text",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },
@@ -463,7 +517,7 @@
         },
         "medical_cert_url": {
           "name": "medical_cert_url",
-          "type": "text",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },

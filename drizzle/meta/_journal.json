@@ -5,36 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1783801717988,
-      "tag": "0000_noisy_prowler",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1784556493806,
-      "tag": "0001_clever_terror",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1784561553184,
-      "tag": "0002_youthful_the_executioner",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1784567714171,
-      "tag": "0003_amazing_malcolm_colcord",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1784609929188,
-      "tag": "0004_wooden_the_call",
+      "when": 1784620380812,
+      "tag": "0000_young_miek",
       "breakpoints": true
     }
   ]

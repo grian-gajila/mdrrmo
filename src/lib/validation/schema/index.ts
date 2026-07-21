@@ -115,9 +115,15 @@ export const applicationStep1Schema = z.object({
 export const applicationStep2Schema = z.object({
   validIdFrontUrl: z.string().min(1, 'Valid ID front view is required'),
   validIdBackUrl: z.string().min(1, 'Valid ID back view is required'),
-  trainingCertUrl: z.string().min(1, 'Training certificate is required').max(5),
+  trainingCertUrls: z
+    .array(z.string().min(1))
+    .min(1, 'At least one training certificate is required')
+    .max(5, 'You can upload up to 5 training certificates'),
   barangayClearanceUrl: z.string().min(1, 'Barangay clearance is required'),
-  medicalCertUrl: z.string().min(1, 'Medical certificate is required').max(5),
+  medicalCertUrls: z
+    .array(z.string().min(1))
+    .min(1, 'At least one medical certificate is required')
+    .max(5, 'You can upload up to 5 medical certificates'),
   photoUrl: z.string().min(1, 'Profile Picture is required'),
 });
 

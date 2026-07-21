@@ -15,6 +15,7 @@ import {
   CheckCircle,
   Clock,
   ExternalLink,
+  Eye,
   FileIcon,
   FileText,
   Heart,
@@ -30,7 +31,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -39,6 +40,45 @@ type ExistingApp = {
   status: 'pending' | 'under_review' | 'approved' | 'rejected';
   submittedAt: Date | null;
 } | null;
+
+type FullApplication = {
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  gender: string;
+  age: number;
+  dateOfBirth: string;
+  nationality: string;
+  nativePlace: string;
+  educationLevel: string;
+  politicalStatus: string | null;
+  healthStatus: string;
+  maritalStatus: string;
+  idNumber: string;
+  idCardType: string;
+  sitio: string;
+  barangay: string;
+  municipality: string;
+  province: string;
+  contactNumber: string;
+  homePhone: string | null;
+  email: string;
+  emergencyContact: {
+    name: string;
+    relation: string;
+    contactNumber: string;
+    address: string;
+  } | null;
+  volunteeringExperience: string | null;
+  validIdFrontUrl: string | null;
+  validIdBackUrl: string | null;
+  trainingCertUrl: string[] | null;
+  barangayClearanceUrl: string | null;
+  medicalCertUrl: string[] | null;
+  photoUrl: string | null;
+  status: 'pending' | 'under_review' | 'approved' | 'rejected';
+  submittedAt: string;
+};
 
 const steps = [
   { id: 1, title: 'Personal Details', icon: User },
@@ -114,6 +154,10 @@ export function ApplicationFormClient({
   const [step1Data, setStep1Data] = useState<ApplicationStep1Input | null>(
     null,
   );
+  const [certified, setCertified] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewData, setPreviewData] = useState<FullApplication | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
 
   const {
     register,
@@ -210,18 +254,42 @@ export function ApplicationFormClient({
     },
   ];
 
+  const openPreview = async () => {
+    setShowPreview(true);
+    if (previewData) return;
+
+    setPreviewLoading(true);
+    try {
+      const res = await fetch('/api/volunteer/application');
+      const json = await res.json();
+
+      if (!res.ok || !json.application) {
+        toast.error(json.error ?? 'Could not load your application.');
+        setShowPreview(false);
+        return;
+      }
+
+      setPreviewData(json.application as FullApplication);
+    } catch {
+      toast.error('Could not load your application. Please try again.');
+      setShowPreview(false);
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
   if (existingApplication) {
     const cfg = statusConfig[existingApplication.status];
     const Icon = cfg.icon;
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 w-full">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">My Application</h1>
           <p className="mt-0.5 text-sm text-gray-500">
             Track your volunteer application status
           </p>
         </div>
-        <div className={`rounded-2xl border p-6 ${cfg.bg}`}>
+        <div className={`rounded-lg border p-6 ${cfg.bg}`}>
           <div className="flex items-start gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/60">
               <Icon className={`h-6 w-6 ${cfg.color}`} />
@@ -252,6 +320,23 @@ export function ApplicationFormClient({
             </div>
           </div>
         </div>
+
+        <button
+          type="button"
+          onClick={openPreview}
+          className="flex w-full items-center justify-center gap-2 rounded-lg hover:cursor-pointer border border-gray-200 bg-white py-3 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:border-orange-300 hover:text-orange-600"
+        >
+          <Eye className="h-4 w-4" />
+          Preview Submitted Application
+        </button>
+
+        {showPreview && (
+          <ApplicationPreviewModal
+            data={previewData}
+            loading={previewLoading}
+            onClose={() => setShowPreview(false)}
+          />
+        )}
       </div>
     );
   }
@@ -365,6 +450,19 @@ export function ApplicationFormClient({
     }));
   };
 
+  const getMissingDocumentMessage = (): string | null => {
+    if (!docs.photoUrl) return 'Please upload your profile photo first.';
+    if (!docs.validIdFrontUrl || !docs.validIdBackUrl)
+      return 'Please upload both sides of your Valid ID first.';
+    if (docs.trainingCertUrls.length === 0)
+      return 'Please upload at least one training certificate first.';
+    if (!docs.barangayClearanceUrl)
+      return 'Please upload your Barangay Clearance first.';
+    if (docs.medicalCertUrls.length === 0)
+      return 'Please upload at least one medical certificate first.';
+    return null;
+  };
+
   const onStep1Submit = (data: ApplicationStep1Input) => {
     setStep1Data(data);
     console.log(data);
@@ -373,9 +471,14 @@ export function ApplicationFormClient({
 
   const onFinalSubmit = async () => {
     if (!step1Data) return;
-    if (!docs.validIdFrontUrl || !docs.validIdBackUrl) {
-      toast.error('Please upload both sides of your Valid ID first.');
+    const missingDocMessage = getMissingDocumentMessage();
+    if (missingDocMessage) {
+      toast.error(missingDocMessage);
       setStep(2);
+      return;
+    }
+    if (!certified) {
+      toast.error('Please certify that your information is true and correct.');
       return;
     }
 
@@ -1085,14 +1188,9 @@ export function ApplicationFormClient({
             </button>
             <button
               onClick={() => {
-                if (
-                  !docs.validIdFrontUrl ||
-                  !docs.validIdBackUrl ||
-                  !docs.trainingCertUrls ||
-                  !docs.medicalCertUrls ||
-                  !docs.barangayClearanceUrl
-                ) {
-                  toast.error(`Please upload all required files to continue.`);
+                const missingDocMessage = getMissingDocumentMessage();
+                if (missingDocMessage) {
+                  toast.error(missingDocMessage);
                   return;
                 }
                 setStep(3);
@@ -1263,7 +1361,8 @@ export function ApplicationFormClient({
             <label className="flex cursor-pointer items-start gap-3">
               <input
                 type="checkbox"
-                required
+                checked={certified}
+                onChange={(e) => setCertified(e.target.checked)}
                 className="mt-0.5 h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500"
               />
               <span className="text-sm text-gray-600">
@@ -1318,7 +1417,7 @@ function SingleUploadSlot({
   if (uploading) {
     return (
       <div
-        className={`flex ${compact ? 'h-24' : 'h-32'} w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-orange-200 bg-orange-50/50 text-center`}
+        className={`flex ${compact ? 'h-24' : 'h-32'} w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-orange-200 bg-orange-50/50 text-center`}
       >
         <Loader2 className="mb-2 h-6 w-6 animate-spin text-orange-500" />
         <p className="text-sm font-medium text-orange-600">Uploading...</p>
@@ -1328,7 +1427,7 @@ function SingleUploadSlot({
 
   if (url) {
     return (
-      <div className="flex items-center gap-3 rounded-xl border border-green-100 bg-green-50 px-4 py-3">
+      <div className="flex items-center gap-3 rounded-lg border border-green-100 bg-green-50 px-4 py-3">
         <CheckCircle className="h-5 w-5 shrink-0 text-green-500" />
 
         <div className="flex-1 overflow-hidden">
@@ -1363,7 +1462,7 @@ function SingleUploadSlot({
 
   return (
     <label
-      className={`flex ${compact ? 'h-24' : 'h-32'} w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 text-center transition-all hover:border-orange-300 hover:bg-orange-50`}
+      className={`flex ${compact ? 'h-24' : 'h-32'} w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 text-center transition-all hover:border-orange-300 hover:bg-orange-50`}
     >
       <Upload className="mb-2 h-6 w-6 text-gray-300" />
       {label && (
@@ -1410,7 +1509,7 @@ function MultiUploadSlot({
           {urls.map((url, i) => (
             <div
               key={url}
-              className="flex items-center gap-2 overflow-hidden rounded-xl border border-green-100 bg-green-50 py-2.5 pl-3 pr-2"
+              className="flex items-center gap-2 overflow-hidden rounded-lg border border-green-100 bg-green-50 py-2.5 pl-3 pr-2"
             >
               <CheckCircle className="h-4 w-4 shrink-0 text-green-500" />
               <a
@@ -1436,12 +1535,12 @@ function MultiUploadSlot({
 
       {canAddMore &&
         (uploading ? (
-          <div className="flex h-24 w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-orange-200 bg-orange-50/50 text-center">
+          <div className="flex h-24 w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-orange-200 bg-orange-50/50 text-center">
             <Loader2 className="mb-1.5 h-5 w-5 animate-spin text-orange-500" />
             <p className="text-xs font-medium text-orange-600">Uploading...</p>
           </div>
         ) : (
-          <label className="flex h-24 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 text-center transition-all hover:border-orange-300 hover:bg-orange-50">
+          <label className="flex h-24 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 text-center transition-all hover:border-orange-300 hover:bg-orange-50">
             <Upload className="mb-1.5 h-5 w-5 text-gray-300" />
             <p className="text-xs text-gray-500">
               {urls.length > 0 ? (
@@ -1471,5 +1570,254 @@ function MultiUploadSlot({
           </label>
         ))}
     </div>
+  );
+}
+
+type ApplicationPreviewModalProps = {
+  data: FullApplication | null;
+  loading: boolean;
+  onClose: () => void;
+};
+
+function ApplicationPreviewModal({
+  data,
+  loading,
+  onClose,
+}: ApplicationPreviewModalProps) {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  const sections = data
+    ? [
+        {
+          title: 'Basic Information',
+          icon: User,
+          items: [
+            { l: 'First Name', v: data.firstName },
+            { l: 'Middle Name', v: data.middleName },
+            { l: 'Last Name', v: data.lastName },
+            { l: 'Gender', v: data.gender },
+            { l: 'Age', v: `${data.age} years old` },
+            { l: 'Date of Birth', v: data.dateOfBirth },
+            { l: 'Nationality', v: data.nationality },
+            { l: 'Native Language', v: data.nativePlace },
+            { l: 'Education', v: data.educationLevel },
+            { l: 'Health Status', v: data.healthStatus },
+            { l: 'Marital Status', v: data.maritalStatus },
+            { l: 'Political Status', v: data.politicalStatus },
+          ],
+        },
+        {
+          title: 'Identification',
+          icon: IdCard,
+          items: [
+            { l: 'ID Number', v: data.idNumber },
+            { l: 'ID Type', v: data.idCardType },
+          ],
+        },
+        {
+          title: 'Contact & Address',
+          icon: MapPinHouse,
+          items: [
+            { l: 'Sitio', v: data.sitio },
+            { l: 'Barangay', v: data.barangay },
+            { l: 'Municipality', v: data.municipality },
+            { l: 'Province', v: data.province },
+            { l: 'Contact Number', v: data.contactNumber },
+            { l: 'Home Phone', v: data.homePhone },
+            { l: 'Email Address', v: data.email },
+          ],
+        },
+        {
+          title: 'Emergency Contact',
+          icon: Heart,
+          items: [
+            { l: 'Name', v: data.emergencyContact?.name },
+            { l: 'Relation', v: data.emergencyContact?.relation },
+            { l: 'Contact', v: data.emergencyContact?.contactNumber },
+            { l: 'Address', v: data.emergencyContact?.address },
+          ],
+        },
+        {
+          title: 'Experience',
+          icon: Workflow,
+          items: [
+            {
+              l: 'Volunteering Experience',
+              v: data.volunteeringExperience,
+            },
+          ],
+        },
+      ]
+    : [];
+
+  const documents = data
+    ? [
+        data.photoUrl && { url: data.photoUrl, label: 'Profile Photo' },
+        data.validIdFrontUrl && {
+          url: data.validIdFrontUrl,
+          label: 'Valid ID (Front)',
+        },
+        data.validIdBackUrl && {
+          url: data.validIdBackUrl,
+          label: 'Valid ID (Back)',
+        },
+        data.barangayClearanceUrl && {
+          url: data.barangayClearanceUrl,
+          label: 'Barangay Clearance',
+        },
+        ...(data.trainingCertUrl ?? []).map((url, i) => ({
+          url,
+          label: `Training Cert ${i + 1}`,
+        })),
+        ...(data.medicalCertUrl ?? []).map((url, i) => ({
+          url,
+          label: `Medical Cert ${i + 1}`,
+        })),
+      ].filter((d): d is { url: string; label: string } => Boolean(d))
+    : [];
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-lg bg-white shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between border-b border-gray-100 px-6 py-4">
+          <div>
+            <h2 className="text-lg font-bold text-gray-900">
+              {data
+                ? `${data.firstName} ${data.lastName}`
+                : 'Application Preview'}
+            </h2>
+            {data && (
+              <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                <span
+                  className={`inline-flex rounded-full border px-2 py-0.5 text-[11px] font-semibold ${statusConfig[data.status].bg} ${statusConfig[data.status].color}`}
+                >
+                  {statusConfig[data.status].label}
+                </span>
+                <span className="text-xs text-gray-400">
+                  Submitted{' '}
+                  {new Date(data.submittedAt).toLocaleDateString('en-PH', {
+                    dateStyle: 'long',
+                  })}
+                </span>
+              </div>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close preview"
+            className="shrink-0 rounded-full p-1.5 hover:cursor-pointer text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="overflow-y-auto p-6">
+          {loading && !data ? (
+            <div className="flex flex-col items-center justify-center gap-3 py-16">
+              <Loader2 className="h-6 w-6 animate-spin text-orange-500" />
+              <p className="text-sm text-gray-500">
+                Loading your application...
+              </p>
+            </div>
+          ) : data ? (
+            <div className="space-y-5">
+              {sections.map((section) => (
+                <div key={section.title} className="rounded-lg bg-gray-50 p-4">
+                  <div className="mb-3 flex items-center gap-2">
+                    <section.icon className="h-4 w-4 text-orange-500" />
+                    <span className="text-sm font-bold text-gray-900">
+                      {section.title}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    {section.items.map((item) => (
+                      <div key={item.l}>
+                        <p className="text-xs text-gray-400">{item.l}</p>
+                        <p className="mt-0.5 text-sm font-medium text-gray-800">
+                          {item.v || '—'}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              <div className="rounded-lg bg-gray-50 p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-orange-500" />
+                  <span className="text-sm font-bold text-gray-900">
+                    Documents
+                  </span>
+                </div>
+                {documents.length > 0 ? (
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    {documents.map((doc) => (
+                      <DocumentThumb
+                        key={doc.url}
+                        url={doc.url}
+                        label={doc.label}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-400">No documents on file.</p>
+                )}
+              </div>
+            </div>
+          ) : (
+            <p className="py-16 text-center text-sm text-gray-500">
+              Couldn&apos;t load your application.
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+type DocumentThumbProps = {
+  url: string;
+  label: string;
+};
+
+function DocumentThumb({ url, label }: DocumentThumbProps) {
+  const isPdf = /\.pdf($|\?)/i.test(url);
+
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group block overflow-hidden rounded-lg border border-gray-200 transition-colors hover:border-orange-300"
+    >
+      {isPdf ? (
+        <div className="flex h-24 flex-col items-center justify-center gap-1.5 bg-gray-50">
+          <FileText className="h-6 w-6 text-gray-400" />
+          <span className="text-xs font-medium text-gray-500">View PDF</span>
+        </div>
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={url} alt={label} className="h-24 w-full object-cover" />
+      )}
+      <div className="flex items-center justify-between gap-1 border-t border-gray-100 bg-white px-2.5 py-1.5">
+        <span className="truncate text-xs font-medium text-gray-600">
+          {label}
+        </span>
+        <ExternalLink className="h-3 w-3 shrink-0 text-gray-400 transition-colors group-hover:text-orange-500" />
+      </div>
+    </a>
   );
 }
