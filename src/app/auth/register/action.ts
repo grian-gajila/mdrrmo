@@ -22,7 +22,7 @@ export async function registerVolunteer(
 
   const supabaseAdmin = getSupabaseAdminClient();
 
-  const { error, data } = await supabaseAdmin.auth.admin.generateLink({
+  const { error } = await supabaseAdmin.auth.admin.generateLink({
     type: 'signup',
     email,
     password,
@@ -31,8 +31,6 @@ export async function registerVolunteer(
       redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/profile`,
     },
   });
-
-  console.log(data);
 
   if (error) {
     if (error.message.toLowerCase().includes('already registered')) {

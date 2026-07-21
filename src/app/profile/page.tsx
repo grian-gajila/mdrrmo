@@ -89,9 +89,10 @@ export default async function ProfilePage() {
       {application && statusCfg ? (
         <div className={`rounded-lg border p-5 ${statusCfg.class}`}>
           <div className="flex items-start gap-4">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-white/60">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-orange-500 bg-white/60">
               <statusCfg.icon className={`h-6 w-6 ${statusCfg.iconClass}`} />
             </div>
+
             <div className="flex-1">
               <p className="font-bold">Application Status: {statusCfg.label}</p>
               <p className="mt-0.5 text-sm opacity-80">

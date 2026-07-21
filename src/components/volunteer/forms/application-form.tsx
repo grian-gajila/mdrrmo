@@ -36,7 +36,6 @@ import {
   Workflow,
   X,
 } from 'lucide-react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -108,16 +107,16 @@ export function ApplicationFormClient({
     const cfg = statusConfig[existingApplication.status];
     const Icon = cfg.icon;
     return (
-      <div className="space-y-6 w-full">
+      <div className="w-full pb-10">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">My Application</h1>
           <p className="mt-0.5 text-sm text-gray-500">
             Track your volunteer application status
           </p>
         </div>
-        <div className={`rounded-lg border p-6 ${cfg.bg}`}>
+        <div className={`rounded-lg border p-6 mt-4 mb-2 ${cfg.bg}`}>
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/60">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-orange-500 bg-white/60">
               <Icon className={`h-6 w-6 ${cfg.color}`} />
             </div>
             <div>
@@ -150,7 +149,7 @@ export function ApplicationFormClient({
         <button
           type="button"
           onClick={openPreview}
-          className="flex w-full items-center justify-center gap-2 rounded-lg hover:cursor-pointer border border-gray-200 bg-white py-3 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:border-orange-300 hover:text-orange-600"
+          className="flex w-full items-center justify-center gap-2 rounded-lg hover:cursor-pointer border border-gray-200 bg-white py-3 text-sm font-semibold text-gray-700 transition-colors hover:border-orange-300 hover:text-orange-600"
         >
           <Eye className="h-4 w-4" />
           Preview Submitted Application
@@ -333,7 +332,7 @@ export function ApplicationFormClient({
   };
 
   return (
-    <div className="mx-auto pb-10 w-full ">
+    <div className="space-y-6 w-full py-10 md:py-0 md:pb-10 mx-auto overflow-hidden">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">
           Volunteer Application
@@ -342,7 +341,7 @@ export function ApplicationFormClient({
           Disaster Relief Volunteer Registration Form
         </p>
       </div>
-      <div className="py-10 flex items-start justify-center mx-auto">
+      <div className="py-10 flex items-start overflow-hidden justify-center mx-auto">
         {steps.map((s, i) => (
           <div key={s.id} className="flex items-start">
             <button className="flex lg:w-28 md:w-28 w-24 flex-col items-center gap-2">
@@ -366,7 +365,7 @@ export function ApplicationFormClient({
 
             {i < steps.length - 1 && (
               <div
-                className={`mx-1 mt-5 h-0.5 lg:w-60 md:w-40 sm:w-20 w-5 transition-colors ${step > s.id ? 'bg-green-400' : 'bg-gray-200'}`}
+                className={`mx-1 mt-5 h-0.5 lg:w-40 md:w-35 sm:w-20 w-5 transition-colors ${step > s.id ? 'bg-green-400' : 'bg-gray-200'}`}
               />
             )}
           </div>
@@ -386,16 +385,15 @@ export function ApplicationFormClient({
               </p>
             </div>
 
-            <div className="space-y-6 p-6">
+            <div className="space-y-6 p-6 mx-auto flex-wrap">
               <div className="flex items-center gap-5 rounded-lg border border-orange-100 bg-orange-50 p-4">
                 <label className="flex h-20 w-20 shrink-0 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-orange-300 bg-white hover:bg-orange-50 transition-colors">
                   {docs.photoUrl ? (
-                    <Image
-                      width={0}
-                      height={0}
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
                       src={docs.photoUrl}
                       alt="Profile"
-                      className="h-full w-full rounded-lg object-cover"
+                      className="h-full w-full rounded-lg object-contain"
                     />
                   ) : uploadingKeys.has('photo') ? (
                     <ShieldSpinLoader size={26} color="text-orange-500" />
@@ -878,10 +876,10 @@ export function ApplicationFormClient({
             </p>
           </div>
 
-          <div className="space-y-4 p-6">
+          <div className="space-y-4 sm:p-6 p-4">
             <div className="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4">
               <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
-              <p className="text-sm text-blue-700">
+              <p className="sm:text-sm text-xs text-blue-700">
                 All documents must be clear and legible. Accepted formats: JPG
                 and PNG. Maximum file size: 5 MB each.
               </p>
@@ -903,42 +901,43 @@ export function ApplicationFormClient({
               return (
                 <div
                   key={doc.label}
-                  className="rounded-2xl border border-gray-200 bg-white p-5 transition-all hover:border-orange-200 hover:shadow-sm"
+                  className="rounded-lg border border-gray-200 bg-white p-4 transition-all hover:border-orange-200 hover:shadow-sm sm:p-5"
                 >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex gap-3">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-50">
+                  <div className="flex sm:hidden h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-50 md:h-11 md:w-11 md:rounded-lg">
+                    <doc.icon className="h-5 w-5 text-orange-500" />
+                  </div>
+                  <div className="flex items-start justify-between gap-3 sm:gap-4">
+                    <div className="flex min-w-0 flex-1 gap-3">
+                      <div className="sm:flex hidden h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-50 md:h-11 md:w-11 md:rounded-lg">
                         <doc.icon className="h-5 w-5 text-orange-500" />
                       </div>
-
                       <div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="text-sm font-bold text-gray-900">
+                        <div className="flex items-center gap-2">
+                          <h3 className="sm:text-sm text-[12px] font-bold text-gray-900">
                             {doc.label}
                           </h3>
 
                           {doc.required && (
-                            <span className="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-500">
+                            <p className="shrink-0 whitespace-nowrap rounded-full bg-red-50 px-2 py-0.5 text-[8px] sm:text-xs font-bold text-red-500 ">
                               Required
+                            </p>
+                          )}
+
+                          {isComplete && (
+                            <span className=" right-5 shrink-0 flex justify-end items-center gap-1 whitespace-nowrap rounded-full bg-green-50 px-2.5 py-1 sm:text-xs text-[8px] font-semibold text-green-600 sm:px-3">
+                              <CheckCircle className="h-3.5 w-3.5" />
+                              {completedLabel}
                             </span>
                           )}
                         </div>
-
-                        <p className="mt-1 text-xs leading-5 text-gray-500">
+                        <p className="mt-1 text-[10px] md text-xs text-wrap leading-5 text-gray-500  sm:text-sm">
                           {doc.desc}
                         </p>
                       </div>
                     </div>
-
-                    {isComplete && (
-                      <span className="flex shrink-0 items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-600">
-                        <CheckCircle className="h-3.5 w-3.5" />
-                        {completedLabel}
-                      </span>
-                    )}
                   </div>
 
-                  <div className="mt-5">
+                  <div className="mt-4 sm:mt-5">
                     {doc.kind === 'single' && (
                       <SingleUploadSlot
                         url={docs[doc.key]}
@@ -1212,7 +1211,7 @@ export function ApplicationFormClient({
               className="flex items-center gap-2 hover:cursor-pointer rounded-lg bg-green-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-200 hover:bg-green-600 disabled:opacity-70 transition-colors"
             >
               {isSubmitting ? (
-                <ShieldSpinLoader size={26} color="text-orange-500" />
+                <ShieldSpinLoader size={26} color="text-white" />
               ) : (
                 <CheckCircle className="h-4 w-4" />
               )}
@@ -1245,7 +1244,9 @@ function SingleUploadSlot({
       <div
         className={`flex ${compact ? 'h-24' : 'h-32'} w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-orange-200 bg-orange-50/50 text-center`}
       >
-        <ShieldSpinLoader size={26} color="text-orange-500 mb-2" />
+        <div className="flex items-center mb-2 justify-center">
+          <ShieldSpinLoader size={26} color="text-orange-500" />
+        </div>
         <p className="text-sm font-medium text-orange-600">Uploading...</p>
       </div>
     );
@@ -1266,14 +1267,14 @@ function SingleUploadSlot({
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 truncate text-sm font-medium text-green-700 hover:text-orange-600"
+            className="inline-flex items-center gap-1 truncate sm:text-sm text-[10px] md font-medium text-green-700 hover:text-orange-600"
           >
             View document
             <ExternalLink className="h-3.5 w-3.5 shrink-0" />
           </a>
         </div>
 
-        <label className="shrink-0 cursor-pointer rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 transition hover:border-orange-300 hover:text-orange-600">
+        <label className="shrink-0 cursor-pointer rounded-lg border border-gray-200 bg-white  py-1 px-3 text-xs font-medium text-gray-600 transition hover:border-orange-300 hover:text-orange-600">
           Replace
           <input
             type="file"
@@ -1335,14 +1336,14 @@ function MultiUploadSlot({
           {urls.map((url, i) => (
             <div
               key={url}
-              className="flex items-center gap-2 overflow-hidden rounded-lg border border-green-100 bg-green-50 py-2.5 pl-3 pr-2"
+              className="flex items-center gap-2 overflow-hidden rounded-lg border border-green-100 bg-green-50 p-1"
             >
               <CheckCircle className="h-4 w-4 shrink-0 text-green-500" />
               <a
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 truncate text-xs font-medium text-green-700 hover:text-orange-600"
+                className="flex-1 truncate sm:text-sm text-[10px] font-medium text-green-700 hover:text-orange-600"
               >
                 {itemLabel} {i + 1}
               </a>
@@ -1362,7 +1363,9 @@ function MultiUploadSlot({
       {canAddMore &&
         (uploading ? (
           <div className="flex h-24 w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-orange-200 bg-orange-50/50 text-center">
-            <ShieldSpinLoader size={26} color="text-orange-500 mb-1.5" />
+            <div className="flex items-center justify-center mb-1.5">
+              <ShieldSpinLoader size={26} color="text-orange-500" />
+            </div>
             <p className="text-xs font-medium text-orange-600">Uploading...</p>
           </div>
         ) : (
@@ -1623,27 +1626,29 @@ function DocumentThumb({ url, label }: DocumentThumbProps) {
   const isPdf = /\.pdf($|\?)/i.test(url);
 
   return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group block overflow-hidden rounded-lg border border-gray-200 transition-colors hover:border-orange-300"
-    >
-      {isPdf ? (
-        <div className="flex h-24 flex-col items-center justify-center gap-1.5 bg-gray-50">
-          <FileText className="h-6 w-6 text-gray-400" />
-          <span className="text-xs font-medium text-gray-500">View PDF</span>
+    <div>
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group block overflow-hidden rounded-lg border border-gray-200 transition-colors hover:border-orange-300"
+      >
+        {isPdf ? (
+          <div className="flex h-24 flex-col items-center justify-center gap-1.5 bg-gray-50">
+            <FileText className="h-6 w-6 text-gray-400" />
+            <span className="text-xs font-medium text-gray-500">View PDF</span>
+          </div>
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={url} alt={label} className="h-24 w-full object-cover" />
+        )}
+        <div className="flex items-center justify-between gap-1 border-t border-gray-100 bg-white px-2.5 py-1.5">
+          <span className="truncate text-xs font-medium text-gray-600">
+            {label}
+          </span>
+          <ExternalLink className="h-3 w-3 shrink-0 text-gray-400 transition-colors group-hover:text-orange-500" />
         </div>
-      ) : (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={url} alt={label} className="h-24 w-full object-cover" />
-      )}
-      <div className="flex items-center justify-between gap-1 border-t border-gray-100 bg-white px-2.5 py-1.5">
-        <span className="truncate text-xs font-medium text-gray-600">
-          {label}
-        </span>
-        <ExternalLink className="h-3 w-3 shrink-0 text-gray-400 transition-colors group-hover:text-orange-500" />
-      </div>
-    </a>
+      </a>
+    </div>
   );
 }

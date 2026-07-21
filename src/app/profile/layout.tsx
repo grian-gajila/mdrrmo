@@ -14,7 +14,6 @@ import { volunteerApplications, volunteerProfiles } from '@/lib/db/schema';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { eq } from 'drizzle-orm';
 import { ChevronDown, FileText, Home, User } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
@@ -73,15 +72,14 @@ export default async function DisplayLayout({
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 transition-colors hover:cursor-pointer">
                   <div
-                    className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white ${profile.avatarUrl ? 'bg-none' : 'bg-linear-to-br from-orange-400 to-orange-600'}`}
+                    className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white ${profile && profile.avatarUrl ? 'bg-none' : ' bg-linear-to-br from-orange-400 to-orange-600'}`}
                   >
-                    {profile.avatarUrl ? (
-                      <Image
-                        className="rounded-full w-7 h-7"
-                        width={0}
-                        height={0}
-                        src={`${profile.avatarUrl}`}
-                        alt={`${profile.avatarUrl}`}
+                    {profile && profile.avatarUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        className="rounded-full w-7 h-7 object-contain"
+                        src={profile.avatarUrl}
+                        alt={profile.avatarUrl}
                       />
                     ) : (
                       <span>{user.email?.charAt(0)}</span>
@@ -111,7 +109,7 @@ export default async function DisplayLayout({
                     </div>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="block md:hidden" />
-                  <DropdownMenuItem className="mt-6 block md:hidden">
+                  <DropdownMenuItem className="mt-6 block lg:hidden">
                     <div className="w-full">
                       <SignOutButton />
                     </div>
@@ -128,15 +126,14 @@ export default async function DisplayLayout({
           <div className="mb-4 rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
             <div className="mb-4 flex flex-col items-center text-center">
               <div
-                className={`mb-3 flex h-16 w-16 items-center justify-center rounded-lg  text-2xl font-bold text-white ${profile.avatarUrl ? 'bg-none' : 'bg-linear-to-br from-orange-400 to-orange-600'}`}
+                className={`mb-3 flex h-16 w-16 items-center justify-center rounded-lg  text-2xl font-bold text-white ${profile && profile.avatarUrl ? 'bg-none' : 'bg-linear-to-br from-orange-400 to-orange-600'}`}
               >
-                {profile.avatarUrl ? (
-                  <Image
-                    className="rounded-full w-16 h-16"
-                    width={0}
-                    height={0}
-                    src={`${profile.avatarUrl}`}
-                    alt={`${profile.avatarUrl}`}
+                {profile && profile.avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    className="rounded-full w-16 h-16 object-contain"
+                    src={profile.avatarUrl}
+                    alt={profile.avatarUrl}
                   />
                 ) : (
                   <span>{user.email?.charAt(0)}</span>
@@ -187,7 +184,7 @@ export default async function DisplayLayout({
               Back to Home
             </Link>
           </nav>
-          <div className="py-6 md:block hidden">
+          <div className="py-6 lg:block hidden">
             <SignOutButton />
           </div>
         </aside>
