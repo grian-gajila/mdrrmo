@@ -1,3 +1,5 @@
+import { LucideIcon } from 'lucide-react';
+
 export type {
   adminUsers,
   announcements,
@@ -14,32 +16,102 @@ export type ActionResult =
   | { ok: false; error: string; fields?: Record<string, string[]> };
 
 export type UserRole = 'VOLUNTEER' | 'ADMIN';
-export type ApplicantStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'HIRED';
 
-export interface ApplyForm {
-  name: string;
+export type ExistingApp = {
+  id: string;
+  status: 'pending' | 'under_review' | 'approved' | 'rejected';
+  submittedAt: Date | null;
+} | null;
+
+export type UploadedDocs = {
+  validIdFrontUrl?: string;
+  validIdBackUrl?: string;
+  trainingCertUrls: string[];
+  barangayClearanceUrl?: string;
+  medicalCertUrls: string[];
+  photoUrl?: string;
+};
+
+export type SingleDocKey =
+  | 'photoUrl'
+  | 'validIdFrontUrl'
+  | 'validIdBackUrl'
+  | 'barangayClearanceUrl';
+
+export type ApplicationFormClientProps = {
+  existingApplication: ExistingApp;
+  userData: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  } | null;
+};
+
+export type DocumentItem =
+  | {
+      kind: 'single';
+      key: 'barangayClearanceUrl';
+      uploadType: string;
+      label: string;
+      desc: string;
+      icon: LucideIcon;
+      required: boolean;
+    }
+  | {
+      kind: 'sides';
+      front: { key: 'validIdFrontUrl'; uploadType: string; label: string };
+      back: { key: 'validIdBackUrl'; uploadType: string; label: string };
+      label: string;
+      desc: string;
+      icon: LucideIcon;
+      required: boolean;
+    }
+  | {
+      kind: 'multiple';
+      key: 'trainingCertUrls' | 'medicalCertUrls';
+      uploadType: string;
+      itemLabel: string;
+      label: string;
+      desc: string;
+      icon: LucideIcon;
+      required: boolean;
+    };
+
+export type FullApplication = {
+  firstName: string;
+  middleName: string;
+  lastName: string;
   gender: string;
-  age: string;
-  dob: string;
+  age: number;
+  dateOfBirth: string;
   nationality: string;
   nativePlace: string;
   educationLevel: string;
-  politicalStatus: string;
+  politicalStatus: string | null;
   healthStatus: string;
-  idNumber: string;
-  idType: string;
-  currentAddress: string;
-  contactNumber: string;
-  homePhone: string;
   maritalStatus: string;
-  volunteerExperience: string;
-  familyInfo: string;
-  emergencyName: string;
-  emergencyRelation: string;
-  emergencyContact: string;
-  emergencyAddress: string;
-  validId: File | null;
-  trainingCert: File | null;
-  photo: File | null;
-  agreed: boolean;
-}
+  idNumber: string;
+  idCardType: string;
+  sitio: string;
+  barangay: string;
+  municipality: string;
+  province: string;
+  contactNumber: string;
+  homePhone: string | null;
+  email: string;
+  emergencyContact: {
+    name: string;
+    relation: string;
+    contactNumber: string;
+    address: string;
+  } | null;
+  volunteeringExperience: string | null;
+  validIdFrontUrl: string | null;
+  validIdBackUrl: string | null;
+  trainingCertUrl: string[] | null;
+  barangayClearanceUrl: string | null;
+  medicalCertUrl: string[] | null;
+  photoUrl: string | null;
+  status: 'pending' | 'under_review' | 'approved' | 'rejected';
+  submittedAt: string;
+};
