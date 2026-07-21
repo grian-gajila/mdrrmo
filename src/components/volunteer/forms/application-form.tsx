@@ -1,5 +1,6 @@
 'use client';
 
+import { ShieldSpinLoader } from '@/components/custom/loading';
 import {
   documentTypes,
   statusConfig,
@@ -28,7 +29,6 @@ import {
   FileText,
   Heart,
   IdCard,
-  Loader2,
   MapPinHouse,
   Phone,
   Upload,
@@ -398,7 +398,7 @@ export function ApplicationFormClient({
                       className="h-full w-full rounded-lg object-cover"
                     />
                   ) : uploadingKeys.has('photo') ? (
-                    <Loader2 className="h-5 w-5 animate-spin text-orange-400" />
+                    <ShieldSpinLoader size={26} color="text-orange-500" />
                   ) : (
                     <Camera className="h-6 w-6 text-orange-400" />
                   )}
@@ -1212,7 +1212,7 @@ export function ApplicationFormClient({
               className="flex items-center gap-2 hover:cursor-pointer rounded-lg bg-green-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-200 hover:bg-green-600 disabled:opacity-70 transition-colors"
             >
               {isSubmitting ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <ShieldSpinLoader size={26} color="text-orange-500" />
               ) : (
                 <CheckCircle className="h-4 w-4" />
               )}
@@ -1245,7 +1245,7 @@ function SingleUploadSlot({
       <div
         className={`flex ${compact ? 'h-24' : 'h-32'} w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-orange-200 bg-orange-50/50 text-center`}
       >
-        <Loader2 className="mb-2 h-6 w-6 animate-spin text-orange-500" />
+        <ShieldSpinLoader size={26} color="text-orange-500 mb-2" />
         <p className="text-sm font-medium text-orange-600">Uploading...</p>
       </div>
     );
@@ -1362,7 +1362,7 @@ function MultiUploadSlot({
       {canAddMore &&
         (uploading ? (
           <div className="flex h-24 w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-orange-200 bg-orange-50/50 text-center">
-            <Loader2 className="mb-1.5 h-5 w-5 animate-spin text-orange-500" />
+            <ShieldSpinLoader size={26} color="text-orange-500 mb-1.5" />
             <p className="text-xs font-medium text-orange-600">Uploading...</p>
           </div>
         ) : (
@@ -1553,7 +1553,7 @@ function ApplicationPreviewModal({
         <div className="overflow-y-auto p-6">
           {loading && !data ? (
             <div className="flex flex-col items-center justify-center gap-3 py-16">
-              <Loader2 className="h-6 w-6 animate-spin text-orange-500" />
+              <ShieldSpinLoader size={26} color="text-orange-500" />
               <p className="text-sm text-gray-500">
                 Loading your application...
               </p>

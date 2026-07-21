@@ -3,6 +3,22 @@ import * as schema from '@/lib/db/schema';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
+function extractGoogleName(meta: Record<string, unknown>) {
+  const givenName = meta.given_name as string | undefined;
+  const familyName = meta.family_name as string | undefined;
+  if (givenName || familyName) {
+    return { firstName: givenName ?? '', lastName: familyName ?? '' };
+  }
+
+  const fullName = (meta.full_name ?? meta.name) as string | undefined;
+  if (fullName) {
+    const [firstName, ...rest] = fullName.trim().split(/\s+/);
+    return { firstName: firstName || 'User', lastName: rest.join(' ') };
+  }
+
+  return { firstName: 'User', lastName: '' };
+}
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
@@ -30,13 +46,18 @@ export async function GET(request: Request) {
   const user = data.user;
   const meta = user.user_metadata;
 
+  const { firstName, lastName } =
+    meta.first_name || meta.last_name
+      ? { firstName: meta.first_name ?? '', lastName: meta.last_name ?? '' }
+      : extractGoogleName(meta);
+
   try {
     await db
       .insert(schema.volunteerProfiles)
       .values({
         id: user.id,
-        firstName: meta.first_name ?? 'Volunteer',
-        lastName: meta.last_name ?? 'User',
+        firstName,
+        lastName,
         email: user.email!,
         emailVerified: !!user.email_confirmed_at,
         avatarUrl: meta.avatar_url ?? null,
