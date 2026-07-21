@@ -6,7 +6,8 @@ const MAX_SIZE_BYTES = 2 * 1024 * 1024;
 
 const BUCKET_MAP: Record<string, string> = {
   photo: 'volunteer-photos',
-  validId: 'volunteer-documents',
+  validIdFront: 'volunteer-documents',
+  validIdBack: 'volunteer-documents',
   trainingCert: 'volunteer-documents',
   barangayClearance: 'volunteer-documents',
   medicalCert: 'volunteer-documents',

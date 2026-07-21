@@ -26,6 +26,7 @@ import {
   Upload,
   User,
   Workflow,
+  X,
 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -72,13 +73,22 @@ const statusConfig = {
   },
 };
 
+const MAX_MULTI_FILES = 5;
+
 type UploadedDocs = {
-  validIdUrl?: string;
-  trainingCertUrl?: string;
+  validIdFrontUrl?: string;
+  validIdBackUrl?: string;
+  trainingCertUrls: string[];
   barangayClearanceUrl?: string;
-  medicalCertUrl?: string;
+  medicalCertUrls: string[];
   photoUrl?: string;
 };
+
+type SingleDocKey =
+  | 'photoUrl'
+  | 'validIdFrontUrl'
+  | 'validIdBackUrl'
+  | 'barangayClearanceUrl';
 
 type ApplicationFormClientProps = {
   existingApplication: ExistingApp;
@@ -96,8 +106,11 @@ export function ApplicationFormClient({
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [uploadingKey, setUploadingKey] = useState<string | null>(null);
-  const [docs, setDocs] = useState<UploadedDocs>({});
+  const [uploadingKeys, setUploadingKeys] = useState<Set<string>>(new Set());
+  const [docs, setDocs] = useState<UploadedDocs>({
+    trainingCertUrls: [],
+    medicalCertUrls: [],
+  });
   const [step1Data, setStep1Data] = useState<ApplicationStep1Input | null>(
     null,
   );
@@ -118,40 +131,80 @@ export function ApplicationFormClient({
     },
   });
 
-  type DocumentItem = {
-    key: keyof typeof docs;
-    label: string;
-    desc: string;
-    icon: LucideIcon;
-    required: boolean;
-  };
+  type DocumentItem =
+    | {
+        kind: 'single';
+        key: 'barangayClearanceUrl';
+        uploadType: string;
+        label: string;
+        desc: string;
+        icon: LucideIcon;
+        required: boolean;
+      }
+    | {
+        kind: 'sides';
+        front: { key: 'validIdFrontUrl'; uploadType: string; label: string };
+        back: { key: 'validIdBackUrl'; uploadType: string; label: string };
+        label: string;
+        desc: string;
+        icon: LucideIcon;
+        required: boolean;
+      }
+    | {
+        kind: 'multiple';
+        key: 'trainingCertUrls' | 'medicalCertUrls';
+        uploadType: string;
+        itemLabel: string;
+        label: string;
+        desc: string;
+        icon: LucideIcon;
+        required: boolean;
+      };
 
   const documentTypes: DocumentItem[] = [
     {
-      key: 'validIdUrl' as const,
+      kind: 'sides',
+      front: {
+        key: 'validIdFrontUrl',
+        uploadType: 'validIdFront',
+        label: 'Front',
+      },
+      back: {
+        key: 'validIdBackUrl',
+        uploadType: 'validIdBack',
+        label: 'Back',
+      },
       label: 'Valid Government ID',
-      desc: "National ID, Voter's ID, Driver's License, or Passport",
+      desc: "National ID, Voter's ID, Driver's License, or Passport — front and back",
       icon: IdCard,
       required: true,
     },
     {
-      key: 'trainingCertUrl' as const,
+      kind: 'multiple',
+      key: 'trainingCertUrls',
+      uploadType: 'trainingCert',
+      itemLabel: 'Certificate',
       label: 'Training Certificate',
-      desc: 'Disaster response, first aid, or relevant certification',
+      desc: 'Disaster response, first aid, or relevant certifications — add as many as you have',
       icon: FileText,
       required: true,
     },
     {
-      key: 'barangayClearanceUrl' as const,
+      kind: 'single',
+      key: 'barangayClearanceUrl',
+      uploadType: 'barangayClearance',
       label: 'Barangay Clearance',
       desc: 'Issued within the last 3 months from your barangay',
       icon: FileIcon,
       required: true,
     },
     {
-      key: 'medicalCertUrl' as const,
+      kind: 'multiple',
+      key: 'medicalCertUrls',
+      uploadType: 'medicalCert',
+      itemLabel: 'Certificate',
       label: 'Medical Certificate',
-      desc: 'Fit-to-work certificate from a licensed physician',
+      desc: 'Fit-to-work certificate(s) from a licensed physician — add as many as you have',
       icon: Stethoscope,
       required: true,
     },
@@ -207,7 +260,6 @@ export function ApplicationFormClient({
     file: File,
     type: string,
   ): Promise<string | null> => {
-    setUploadingKey(type);
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -220,33 +272,97 @@ export function ApplicationFormClient({
       const json = await res.json();
 
       if (!res.ok) {
-        toast.error(json.error ?? 'Upload failed');
+        toast.error(json.error ?? `Failed to upload ${file.name}`);
         return null;
       }
 
       return json.url as string;
     } catch {
-      toast.error('Upload failed. Please try again.');
+      toast.error(`Failed to upload ${file.name}. Please try again.`);
       return null;
-    } finally {
-      setUploadingKey(null);
     }
+  };
+
+  const setUploading = (key: string, value: boolean) => {
+    setUploadingKeys((prev) => {
+      const next = new Set(prev);
+      if (value) {
+        next.add(key);
+      } else {
+        next.delete(key);
+      }
+      return next;
+    });
   };
 
   const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
-    docKey: keyof UploadedDocs,
+    docKey: SingleDocKey,
+    uploadType: string,
+    successLabel = 'Document',
   ) => {
     const file = e.target.files?.[0];
+    e.target.value = '';
     if (!file) return;
 
-    const url = await uploadFile(file, docKey.replace('Url', ''));
+    setUploading(uploadType, true);
+    const url = await uploadFile(file, uploadType);
+    setUploading(uploadType, false);
+
     if (url) {
       setDocs((prev) => ({ ...prev, [docKey]: url }));
-      toast.success(
-        `${docKey.replace('Url', '').replace(/([A-Z])/g, ' $1')} uploaded!`,
+      toast.success(`${successLabel} uploaded!`);
+    }
+  };
+
+  const handleMultiFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    docKey: 'trainingCertUrls' | 'medicalCertUrls',
+    uploadType: string,
+  ) => {
+    const files = Array.from(e.target.files ?? []);
+    e.target.value = '';
+    if (files.length === 0) return;
+
+    const remainingSlots = MAX_MULTI_FILES - docs[docKey].length;
+    if (remainingSlots <= 0) {
+      toast.error(`You can upload up to ${MAX_MULTI_FILES} files.`);
+      return;
+    }
+
+    const filesToUpload = files.slice(0, remainingSlots);
+    if (files.length > filesToUpload.length) {
+      toast.error(
+        `Only ${remainingSlots} more file${remainingSlots > 1 ? 's' : ''} can be added (max ${MAX_MULTI_FILES}).`,
       );
     }
+
+    setUploading(uploadType, true);
+    const results = await Promise.all(
+      filesToUpload.map((file) => uploadFile(file, uploadType)),
+    );
+    setUploading(uploadType, false);
+
+    const newUrls = results.filter((u): u is string => Boolean(u));
+    if (newUrls.length > 0) {
+      setDocs((prev) => ({
+        ...prev,
+        [docKey]: [...prev[docKey], ...newUrls],
+      }));
+      toast.success(
+        `${newUrls.length} file${newUrls.length > 1 ? 's' : ''} uploaded!`,
+      );
+    }
+  };
+
+  const removeMultiFile = (
+    docKey: 'trainingCertUrls' | 'medicalCertUrls',
+    url: string,
+  ) => {
+    setDocs((prev) => ({
+      ...prev,
+      [docKey]: prev[docKey].filter((u) => u !== url),
+    }));
   };
 
   const onStep1Submit = (data: ApplicationStep1Input) => {
@@ -257,8 +373,8 @@ export function ApplicationFormClient({
 
   const onFinalSubmit = async () => {
     if (!step1Data) return;
-    if (!docs.validIdUrl) {
-      toast.error('Valid ID is required. Please upload it first.');
+    if (!docs.validIdFrontUrl || !docs.validIdBackUrl) {
+      toast.error('Please upload both sides of your Valid ID first.');
       setStep(2);
       return;
     }
@@ -352,7 +468,7 @@ export function ApplicationFormClient({
                       alt="Profile"
                       className="h-full w-full rounded-lg object-cover"
                     />
-                  ) : uploadingKey === 'photo' ? (
+                  ) : uploadingKeys.has('photo') ? (
                     <Loader2 className="h-5 w-5 animate-spin text-orange-400" />
                   ) : (
                     <Camera className="h-6 w-6 text-orange-400" />
@@ -362,7 +478,9 @@ export function ApplicationFormClient({
                     type="file"
                     className="hidden"
                     accept=".pdf,.jpg,.jpeg,.png"
-                    onChange={(e) => handleFileChange(e, 'photoUrl')}
+                    onChange={(e) =>
+                      handleFileChange(e, 'photoUrl', 'photo', 'Photo')
+                    }
                   />
                 </label>
                 <div>
@@ -840,110 +958,122 @@ export function ApplicationFormClient({
               </p>
             </div>
 
-            {documentTypes.map((doc) => (
-              <div
-                key={doc.key}
-                className="rounded-2xl border border-gray-200 bg-white p-5 transition-all hover:border-orange-200 hover:shadow-sm"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex gap-3">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-50">
-                      <doc.icon className="h-5 w-5 text-orange-500" />
-                    </div>
+            {documentTypes.map((doc) => {
+              let isComplete: boolean;
+              let completedLabel = 'Uploaded';
 
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-sm font-bold text-gray-900">
-                          {doc.label}
-                        </h3>
+              if (doc.kind === 'single') {
+                isComplete = Boolean(docs[doc.key]);
+              } else if (doc.kind === 'sides') {
+                isComplete = Boolean(docs[doc.front.key] && docs[doc.back.key]);
+              } else {
+                isComplete = docs[doc.key].length > 0;
+                completedLabel = `${docs[doc.key].length} uploaded`;
+              }
 
-                        <span className="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-500">
-                          Required
-                        </span>
+              return (
+                <div
+                  key={doc.label}
+                  className="rounded-2xl border border-gray-200 bg-white p-5 transition-all hover:border-orange-200 hover:shadow-sm"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex gap-3">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-50">
+                        <doc.icon className="h-5 w-5 text-orange-500" />
                       </div>
 
-                      <p className="mt-1 text-xs leading-5 text-gray-500">
-                        {doc.desc}
-                      </p>
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="text-sm font-bold text-gray-900">
+                            {doc.label}
+                          </h3>
+
+                          {doc.required && (
+                            <span className="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-500">
+                              Required
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="mt-1 text-xs leading-5 text-gray-500">
+                          {doc.desc}
+                        </p>
+                      </div>
                     </div>
+
+                    {isComplete && (
+                      <span className="flex shrink-0 items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-600">
+                        <CheckCircle className="h-3.5 w-3.5" />
+                        {completedLabel}
+                      </span>
+                    )}
                   </div>
 
-                  {docs[doc.key] && (
-                    <span className="flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-600">
-                      <CheckCircle className="h-3.5 w-3.5" />
-                      Uploaded
-                    </span>
-                  )}
-                </div>
-
-                <div className="mt-5">
-                  {docs[doc.key] ? (
-                    <div className="flex items-center gap-3 rounded-xl border border-green-100 bg-green-50 px-4 py-3">
-                      <CheckCircle className="h-5 w-5 shrink-0 text-green-500" />
-
-                      <div className="flex-1 overflow-hidden">
-                        <p className="truncate text-sm font-medium text-green-700">
-                          Document uploaded successfully
-                        </p>
-
-                        <a
-                          href={docs[doc.key]}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-orange-600 hover:text-orange-700"
-                        >
-                          View Document
-                          <ExternalLink className="h-3.5 w-3.5" />
-                        </a>
-                      </div>
-
-                      <label className="cursor-pointer rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 transition hover:border-orange-300 hover:text-orange-600">
-                        Replace
-                        <input
-                          type="file"
-                          className="hidden"
-                          accept=".pdf,.jpg,.jpeg,.png"
-                          onChange={(e) => handleFileChange(e, doc.key)}
-                        />
-                      </label>
-                    </div>
-                  ) : (
-                    <label className="flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 transition-all hover:border-orange-300 hover:bg-orange-50">
-                      {uploadingKey === doc.key.replace('Url', '') ? (
-                        <>
-                          <Loader2 className="mb-2 h-6 w-6 animate-spin text-orange-500" />
-                          <p className="text-sm font-medium text-orange-600">
-                            Uploading...
-                          </p>
-                        </>
-                      ) : (
-                        <>
-                          <Upload className="mb-2 h-6 w-6 text-gray-300" />
-
-                          <p className="text-sm text-gray-500">
-                            Drag & drop or{' '}
-                            <span className="font-semibold text-orange-500">
-                              browse files
-                            </span>
-                          </p>
-
-                          <p className="mt-1 text-xs text-gray-400">
-                            JPG, PNG • Maximum 5 MB
-                          </p>
-                        </>
-                      )}
-
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept=".pdf,.jpg,.jpeg,.png"
-                        onChange={(e) => handleFileChange(e, doc.key)}
+                  <div className="mt-5">
+                    {doc.kind === 'single' && (
+                      <SingleUploadSlot
+                        url={docs[doc.key]}
+                        uploading={uploadingKeys.has(doc.uploadType)}
+                        onChange={(e) =>
+                          handleFileChange(
+                            e,
+                            doc.key,
+                            doc.uploadType,
+                            doc.label,
+                          )
+                        }
                       />
-                    </label>
-                  )}
+                    )}
+
+                    {doc.kind === 'sides' && (
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <SingleUploadSlot
+                          label={doc.front.label}
+                          compact
+                          url={docs[doc.front.key]}
+                          uploading={uploadingKeys.has(doc.front.uploadType)}
+                          onChange={(e) =>
+                            handleFileChange(
+                              e,
+                              doc.front.key,
+                              doc.front.uploadType,
+                              `${doc.label} (${doc.front.label})`,
+                            )
+                          }
+                        />
+                        <SingleUploadSlot
+                          label={doc.back.label}
+                          compact
+                          url={docs[doc.back.key]}
+                          uploading={uploadingKeys.has(doc.back.uploadType)}
+                          onChange={(e) =>
+                            handleFileChange(
+                              e,
+                              doc.back.key,
+                              doc.back.uploadType,
+                              `${doc.label} (${doc.back.label})`,
+                            )
+                          }
+                        />
+                      </div>
+                    )}
+
+                    {doc.kind === 'multiple' && (
+                      <MultiUploadSlot
+                        urls={docs[doc.key]}
+                        uploading={uploadingKeys.has(doc.uploadType)}
+                        max={MAX_MULTI_FILES}
+                        itemLabel={doc.itemLabel}
+                        onAdd={(e) =>
+                          handleMultiFileChange(e, doc.key, doc.uploadType)
+                        }
+                        onRemove={(url) => removeMultiFile(doc.key, url)}
+                      />
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="flex items-center justify-between border-t border-gray-100 px-6 py-4">
@@ -955,8 +1085,14 @@ export function ApplicationFormClient({
             </button>
             <button
               onClick={() => {
-                if (!docs.validIdUrl) {
-                  toast.error('Please upload your Valid ID to continue.');
+                if (
+                  !docs.validIdFrontUrl ||
+                  !docs.validIdBackUrl ||
+                  !docs.trainingCertUrls ||
+                  !docs.medicalCertUrls ||
+                  !docs.barangayClearanceUrl
+                ) {
+                  toast.error(`Please upload all required files to continue.`);
                   return;
                 }
                 setStep(3);
@@ -1086,23 +1222,36 @@ export function ApplicationFormClient({
               </div>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {[
-                  { label: 'Valid ID', key: 'validIdUrl' as const },
-                  { label: 'Training Cert', key: 'trainingCertUrl' as const },
+                  {
+                    label: 'Valid ID (Front & Back)',
+                    done: Boolean(docs.validIdFrontUrl && docs.validIdBackUrl),
+                  },
+                  {
+                    label: docs.trainingCertUrls.length
+                      ? `Training Cert (${docs.trainingCertUrls.length})`
+                      : 'Training Cert',
+                    done: docs.trainingCertUrls.length > 0,
+                  },
                   {
                     label: 'Barangay Clearance',
-                    key: 'barangayClearanceUrl' as const,
+                    done: Boolean(docs.barangayClearanceUrl),
                   },
-                  { label: 'Medical Cert', key: 'medicalCertUrl' as const },
+                  {
+                    label: docs.medicalCertUrls.length
+                      ? `Medical Cert (${docs.medicalCertUrls.length})`
+                      : 'Medical Cert',
+                    done: docs.medicalCertUrls.length > 0,
+                  },
                 ].map((d) => (
                   <div
-                    key={d.key}
-                    className={`flex items-center gap-1.5 rounded-lg p-2.5 ${docs[d.key] ? 'bg-green-100' : 'bg-gray-100'}`}
+                    key={d.label}
+                    className={`flex items-center gap-1.5 rounded-lg p-2.5 ${d.done ? 'bg-green-100' : 'bg-gray-100'}`}
                   >
                     <CheckCircle
-                      className={`h-3.5 w-3.5 ${docs[d.key] ? 'text-green-600' : 'text-gray-400'}`}
+                      className={`h-3.5 w-3.5 ${d.done ? 'text-green-600' : 'text-gray-400'}`}
                     />
                     <span
-                      className={`text-xs font-medium ${docs[d.key] ? 'text-green-700' : 'text-gray-400'}`}
+                      className={`text-xs font-medium ${d.done ? 'text-green-700' : 'text-gray-400'}`}
                     >
                       {d.label}
                     </span>
@@ -1147,6 +1296,180 @@ export function ApplicationFormClient({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+type SingleUploadSlotProps = {
+  url?: string;
+  label?: string;
+  compact?: boolean;
+  uploading: boolean;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+};
+
+function SingleUploadSlot({
+  url,
+  label,
+  compact,
+  uploading,
+  onChange,
+}: SingleUploadSlotProps) {
+  if (uploading) {
+    return (
+      <div
+        className={`flex ${compact ? 'h-24' : 'h-32'} w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-orange-200 bg-orange-50/50 text-center`}
+      >
+        <Loader2 className="mb-2 h-6 w-6 animate-spin text-orange-500" />
+        <p className="text-sm font-medium text-orange-600">Uploading...</p>
+      </div>
+    );
+  }
+
+  if (url) {
+    return (
+      <div className="flex items-center gap-3 rounded-xl border border-green-100 bg-green-50 px-4 py-3">
+        <CheckCircle className="h-5 w-5 shrink-0 text-green-500" />
+
+        <div className="flex-1 overflow-hidden">
+          {label && (
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-green-700/70">
+              {label}
+            </p>
+          )}
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 truncate text-sm font-medium text-green-700 hover:text-orange-600"
+          >
+            View document
+            <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+          </a>
+        </div>
+
+        <label className="shrink-0 cursor-pointer rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 transition hover:border-orange-300 hover:text-orange-600">
+          Replace
+          <input
+            type="file"
+            className="hidden"
+            accept=".pdf,.jpg,.jpeg,.png"
+            onChange={onChange}
+          />
+        </label>
+      </div>
+    );
+  }
+
+  return (
+    <label
+      className={`flex ${compact ? 'h-24' : 'h-32'} w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 text-center transition-all hover:border-orange-300 hover:bg-orange-50`}
+    >
+      <Upload className="mb-2 h-6 w-6 text-gray-300" />
+      {label && (
+        <p className="mb-0.5 text-xs font-semibold text-gray-600">{label}</p>
+      )}
+      <p className="px-2 text-sm text-gray-500">
+        Drag & drop or{' '}
+        <span className="font-semibold text-orange-500">browse</span>
+      </p>
+      <p className="mt-1 text-xs text-gray-400">JPG, PNG • Max 5 MB</p>
+      <input
+        type="file"
+        className="hidden"
+        accept=".pdf,.jpg,.jpeg,.png"
+        onChange={onChange}
+      />
+    </label>
+  );
+}
+
+type MultiUploadSlotProps = {
+  urls: string[];
+  uploading: boolean;
+  max: number;
+  itemLabel: string;
+  onAdd: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onRemove: (url: string) => void;
+};
+
+function MultiUploadSlot({
+  urls,
+  uploading,
+  max,
+  itemLabel,
+  onAdd,
+  onRemove,
+}: MultiUploadSlotProps) {
+  const canAddMore = urls.length < max;
+
+  return (
+    <div className="space-y-3">
+      {urls.length > 0 && (
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {urls.map((url, i) => (
+            <div
+              key={url}
+              className="flex items-center gap-2 overflow-hidden rounded-xl border border-green-100 bg-green-50 py-2.5 pl-3 pr-2"
+            >
+              <CheckCircle className="h-4 w-4 shrink-0 text-green-500" />
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 truncate text-xs font-medium text-green-700 hover:text-orange-600"
+              >
+                {itemLabel} {i + 1}
+              </a>
+              <button
+                type="button"
+                onClick={() => onRemove(url)}
+                aria-label={`Remove ${itemLabel.toLowerCase()} ${i + 1}`}
+                className="shrink-0 rounded-full p-1 text-green-400 transition-colors hover:bg-green-100 hover:text-red-500"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {canAddMore &&
+        (uploading ? (
+          <div className="flex h-24 w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-orange-200 bg-orange-50/50 text-center">
+            <Loader2 className="mb-1.5 h-5 w-5 animate-spin text-orange-500" />
+            <p className="text-xs font-medium text-orange-600">Uploading...</p>
+          </div>
+        ) : (
+          <label className="flex h-24 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 text-center transition-all hover:border-orange-300 hover:bg-orange-50">
+            <Upload className="mb-1.5 h-5 w-5 text-gray-300" />
+            <p className="text-xs text-gray-500">
+              {urls.length > 0 ? (
+                <>
+                  Add another{' '}
+                  <span className="font-semibold text-orange-500">file</span>
+                </>
+              ) : (
+                <>
+                  Drag & drop or{' '}
+                  <span className="font-semibold text-orange-500">
+                    browse files
+                  </span>
+                </>
+              )}
+            </p>
+            <p className="mt-1 text-[11px] text-gray-400">
+              Up to {max} files • JPG, PNG
+            </p>
+            <input
+              type="file"
+              multiple
+              className="hidden"
+              accept=".pdf,.jpg,.jpeg,.png"
+              onChange={onAdd}
+            />
+          </label>
+        ))}
     </div>
   );
 }

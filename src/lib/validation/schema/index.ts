@@ -113,11 +113,12 @@ export const applicationStep1Schema = z.object({
 });
 
 export const applicationStep2Schema = z.object({
-  validIdUrl: z.string().min(1, 'Valid ID is required'),
-  trainingCertUrl: z.string().optional(),
-  barangayClearanceUrl: z.string().optional(),
-  medicalCertUrl: z.string().optional(),
-  photoUrl: z.string().optional(),
+  validIdFrontUrl: z.string().min(1, 'Valid ID front view is required'),
+  validIdBackUrl: z.string().min(1, 'Valid ID back view is required'),
+  trainingCertUrl: z.string().min(1, 'Training certificate is required').max(5),
+  barangayClearanceUrl: z.string().min(1, 'Barangay clearance is required'),
+  medicalCertUrl: z.string().min(1, 'Medical certificate is required').max(5),
+  photoUrl: z.string().min(1, 'Profile Picture is required'),
 });
 
 export const fullApplicationSchema = applicationStep1Schema.merge(
