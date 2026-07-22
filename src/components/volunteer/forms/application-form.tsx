@@ -6,17 +6,9 @@ import {
   statusConfig,
   steps,
 } from '@/data/volunteer/application-details';
-import {
-  applicationStep1Schema,
-  type ApplicationStep1Input,
-} from '@/lib/validation/schema';
-import {
-  ApplicationFormClientProps,
-  FullApplication,
-  SingleDocKey,
-  UploadedDocs,
-} from '@/types';
-import { zodResolver } from '@hookform/resolvers/zod';
+import useVolunteerApplicationPreview from '@/hooks/use-volunteer-application-preview';
+import useVolunteerSubmitApplication from '@/hooks/use-volunteer-submit-application';
+import { ApplicationFormClientProps, FullApplication } from '@/types';
 import {
   AlertCircle,
   ArrowLeft,
@@ -37,71 +29,46 @@ import {
   X,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useEffect } from 'react';
 import { toast } from 'sonner';
-
-const MAX_MULTI_FILES = 5;
 
 export function ApplicationFormClient({
   existingApplication,
   userData,
 }: ApplicationFormClientProps) {
   const router = useRouter();
-  const [step, setStep] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [uploadingKeys, setUploadingKeys] = useState<Set<string>>(new Set());
-  const [docs, setDocs] = useState<UploadedDocs>({
-    trainingCertUrls: [],
-    medicalCertUrls: [],
-  });
-  const [step1Data, setStep1Data] = useState<ApplicationStep1Input | null>(
-    null,
-  );
-  const [certified, setCertified] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
-  const [previewData, setPreviewData] = useState<FullApplication | null>(null);
-  const [previewLoading, setPreviewLoading] = useState(false);
+  const {
+    openPreview,
+    previewData,
+    previewLoading,
+    showPreview,
+    setShowPreview,
+  } = useVolunteerApplicationPreview();
 
   const {
+    docs,
+    step,
+    setStep,
+    step1Data,
+    isSubmitting,
+    uploadingKeys,
+    certified,
+    setCertified,
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<ApplicationStep1Input>({
-    resolver: zodResolver(applicationStep1Schema),
-    defaultValues: {
-      gender: 'Male',
-      maritalStatus: 'Single',
-      nationality: 'Filipino',
-      firstName: userData?.firstName,
-      lastName: userData?.lastName,
-      email: userData?.email,
-    },
+    errors,
+    handleFileChange,
+    handleMultiFileChange,
+    removeMultiFile,
+    onStep1Submit,
+    onFinalSubmit,
+    MAX_MULTI_FILES,
+    getMissingDocumentMessage,
+  } = useVolunteerSubmitApplication({
+    firstName: userData?.firstName,
+    lastName: userData?.lastName,
+    email: userData?.email,
   });
-
-  const openPreview = async () => {
-    setShowPreview(true);
-    if (previewData) return;
-
-    setPreviewLoading(true);
-    try {
-      const res = await fetch('/api/volunteer/application');
-      const json = await res.json();
-
-      if (!res.ok || !json.application) {
-        toast.error(json.error ?? 'Could not load your application.');
-        setShowPreview(false);
-        return;
-      }
-
-      setPreviewData(json.application as FullApplication);
-    } catch {
-      toast.error('Could not load your application. Please try again.');
-      setShowPreview(false);
-    } finally {
-      setPreviewLoading(false);
-    }
-  };
 
   if (existingApplication) {
     const cfg = statusConfig[existingApplication.status];
@@ -165,171 +132,6 @@ export function ApplicationFormClient({
       </div>
     );
   }
-
-  const uploadFile = async (
-    file: File,
-    type: string,
-  ): Promise<string | null> => {
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('type', type);
-
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      const json = await res.json();
-
-      if (!res.ok) {
-        toast.error(json.error ?? `Failed to upload ${file.name}`);
-        return null;
-      }
-
-      return json.url as string;
-    } catch {
-      toast.error(`Failed to upload ${file.name}. Please try again.`);
-      return null;
-    }
-  };
-
-  const setUploading = (key: string, value: boolean) => {
-    setUploadingKeys((prev) => {
-      const next = new Set(prev);
-      if (value) {
-        next.add(key);
-      } else {
-        next.delete(key);
-      }
-      return next;
-    });
-  };
-
-  const handleFileChange = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-    docKey: SingleDocKey,
-    uploadType: string,
-    successLabel = 'Document',
-  ) => {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-    if (!file) return;
-
-    setUploading(uploadType, true);
-    const url = await uploadFile(file, uploadType);
-    setUploading(uploadType, false);
-
-    if (url) {
-      setDocs((prev) => ({ ...prev, [docKey]: url }));
-      toast.success(`${successLabel} uploaded!`);
-    }
-  };
-
-  const handleMultiFileChange = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-    docKey: 'trainingCertUrls' | 'medicalCertUrls',
-    uploadType: string,
-  ) => {
-    const files = Array.from(e.target.files ?? []);
-    e.target.value = '';
-    if (files.length === 0) return;
-
-    const remainingSlots = MAX_MULTI_FILES - docs[docKey].length;
-    if (remainingSlots <= 0) {
-      toast.error(`You can upload up to ${MAX_MULTI_FILES} files.`);
-      return;
-    }
-
-    const filesToUpload = files.slice(0, remainingSlots);
-    if (files.length > filesToUpload.length) {
-      toast.error(
-        `Only ${remainingSlots} more file${remainingSlots > 1 ? 's' : ''} can be added (max ${MAX_MULTI_FILES}).`,
-      );
-    }
-
-    setUploading(uploadType, true);
-    const results = await Promise.all(
-      filesToUpload.map((file) => uploadFile(file, uploadType)),
-    );
-    setUploading(uploadType, false);
-
-    const newUrls = results.filter((u): u is string => Boolean(u));
-    if (newUrls.length > 0) {
-      setDocs((prev) => ({
-        ...prev,
-        [docKey]: [...prev[docKey], ...newUrls],
-      }));
-      toast.success(
-        `${newUrls.length} file${newUrls.length > 1 ? 's' : ''} uploaded!`,
-      );
-    }
-  };
-
-  const removeMultiFile = (
-    docKey: 'trainingCertUrls' | 'medicalCertUrls',
-    url: string,
-  ) => {
-    setDocs((prev) => ({
-      ...prev,
-      [docKey]: prev[docKey].filter((u) => u !== url),
-    }));
-  };
-
-  const getMissingDocumentMessage = (): string | null => {
-    if (!docs.photoUrl) return 'Please upload your profile photo first.';
-    if (!docs.validIdFrontUrl || !docs.validIdBackUrl)
-      return 'Please upload both sides of your Valid ID first.';
-    if (docs.trainingCertUrls.length === 0)
-      return 'Please upload at least one training certificate first.';
-    if (!docs.barangayClearanceUrl)
-      return 'Please upload your Barangay Clearance first.';
-    if (docs.medicalCertUrls.length === 0)
-      return 'Please upload at least one medical certificate first.';
-    return null;
-  };
-
-  const onStep1Submit = (data: ApplicationStep1Input) => {
-    setStep1Data(data);
-    console.log(data);
-    setStep(2);
-  };
-
-  const onFinalSubmit = async () => {
-    if (!step1Data) return;
-    const missingDocMessage = getMissingDocumentMessage();
-    if (missingDocMessage) {
-      toast.error(missingDocMessage);
-      setStep(2);
-      return;
-    }
-    if (!certified) {
-      toast.error('Please certify that your information is true and correct.');
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const res = await fetch('/api/volunteer/application', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...step1Data, ...docs }),
-      });
-
-      const json = await res.json();
-      if (!res.ok) {
-        toast.error(json.error ?? 'Submission failed');
-        return;
-      }
-
-      toast.success('Application submitted successfully!');
-      router.push('/profile');
-      router.refresh();
-    } catch {
-      toast.error('Submission failed. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   return (
     <div className="space-y-6 w-full py-10 md:py-0 md:pb-10 mx-auto overflow-hidden">
@@ -1211,7 +1013,7 @@ export function ApplicationFormClient({
               className="flex items-center gap-2 hover:cursor-pointer rounded-lg bg-green-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-200 hover:bg-green-600 disabled:opacity-70 transition-colors"
             >
               {isSubmitting ? (
-                <ShieldSpinLoader size={26} color="text-white" />
+                <ShieldSpinLoader size={24} color="text-white" />
               ) : (
                 <CheckCircle className="h-4 w-4" />
               )}
