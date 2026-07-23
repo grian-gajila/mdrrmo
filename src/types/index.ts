@@ -17,12 +17,6 @@ export type ActionResult =
 
 export type UserRole = 'VOLUNTEER' | 'ADMIN';
 
-export type ExistingApp = {
-  id: string;
-  status: 'pending' | 'under_review' | 'approved' | 'rejected';
-  submittedAt: Date | null;
-} | null;
-
 export type UploadedDocs = {
   validIdFrontUrl?: string;
   validIdBackUrl?: string;
@@ -38,6 +32,12 @@ export type SingleDocKey =
   | 'validIdBackUrl'
   | 'barangayClearanceUrl';
 
+export type ExistingApp = {
+  id: string;
+  status: 'pending' | 'under_review' | 'approved' | 'rejected';
+  submittedAt: Date | null;
+} | null;
+
 export type ApplicationFormClientProps = {
   existingApplication: ExistingApp;
   userData: {
@@ -45,6 +45,19 @@ export type ApplicationFormClientProps = {
     lastName: string;
     email: string;
   } | null;
+};
+
+export type AdminPayload = {
+  id: number;
+  username: string;
+  displayName: string;
+  role: string;
+  lastLoginAt: Date | null;
+};
+
+export type AdminAsideProps = {
+  admin: AdminPayload;
+  pending: number;
 };
 
 export type DocumentItem =

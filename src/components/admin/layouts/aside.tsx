@@ -7,9 +7,9 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
 import navigation from '@/data/admin/navigation';
-import { AdminPayload } from '@/lib/auth/admin-auth';
+import { AdminAsideProps } from '@/types';
 
-const Aside = ({ admin }: { admin: AdminPayload }) => {
+function Aside({ admin, pending }: AdminAsideProps) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -85,7 +85,7 @@ const Aside = ({ admin }: { admin: AdminPayload }) => {
                   <span
                     className={`ml-auto rounded-full px-2 py-0.5 text-xs font-bold ${active ? 'bg-white/20 text-white' : 'bg-orange-100 text-orange-500'}`}
                   >
-                    11
+                    {pending}
                   </span>
                 )}
               </Link>
@@ -102,6 +102,6 @@ const Aside = ({ admin }: { admin: AdminPayload }) => {
       </aside>
     </>
   );
-};
+}
 
 export default Aside;

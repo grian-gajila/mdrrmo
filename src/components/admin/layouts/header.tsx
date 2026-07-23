@@ -1,6 +1,6 @@
 'use client';
 
-import { AdminPayload } from '@/lib/auth/admin-auth';
+import { AdminPayload } from '@/types';
 import { Bell, ChevronDown, LogOut, Search, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';

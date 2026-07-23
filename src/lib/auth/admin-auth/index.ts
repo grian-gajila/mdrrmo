@@ -1,3 +1,4 @@
+import type { AdminPayload } from '@/types';
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
@@ -6,14 +7,6 @@ const JWT_SECRET = new TextEncoder().encode(
   process.env.ADMIN_JWT_SECRET ?? 'fallback-dev-secret-change-in-production',
 );
 const EXPIRES_IN = '8h'; // admin session duration
-
-export type AdminPayload = {
-  id: number;
-  username: string;
-  displayName: string;
-  role: string;
-  lastLoginAt: Date | null;
-};
 
 // ─── Sign a new admin JWT ─────────────────────────────────────────────────────
 export async function signAdminToken(payload: AdminPayload): Promise<string> {
