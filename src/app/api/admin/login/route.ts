@@ -59,6 +59,7 @@ export async function POST(request: Request) {
       username: admin.username,
       displayName: admin.displayName,
       role: admin.role,
+      lastLoginAt: admin.lastLoginAt,
     });
 
     return NextResponse.json({

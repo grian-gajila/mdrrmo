@@ -12,6 +12,7 @@ export type AdminPayload = {
   username: string;
   displayName: string;
   role: string;
+  lastLoginAt: Date | null;
 };
 
 // ─── Sign a new admin JWT ─────────────────────────────────────────────────────
