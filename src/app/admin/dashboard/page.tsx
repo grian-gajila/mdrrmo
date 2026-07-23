@@ -39,6 +39,7 @@ export default async function DashboardPage() {
     totalApplicants,
     pendingApplicants,
     approvedApplicants,
+    rejectApplicants,
     totalHired,
     recentApplications,
     activeAnnouncements,
@@ -56,6 +57,11 @@ export default async function DashboardPage() {
       .select({ count: count() })
       .from(volunteerApplications)
       .where(eq(volunteerApplications.status, 'approved'))
+      .then((r) => r[0].count),
+    db
+      .select({ count: count() })
+      .from(volunteerApplications)
+      .where(eq(volunteerApplications.status, 'rejected'))
       .then((r) => r[0].count),
     db
       .select({ count: count() })
@@ -324,11 +330,18 @@ export default async function DashboardPage() {
                   label: 'Applications received',
                   value: String(totalApplicants),
                 },
-                { label: 'Approved', value: String(approvedApplicants) },
+                {
+                  label: 'Verified Applicants',
+                  value: String(approvedApplicants),
+                },
                 { label: 'Active volunteers', value: String(totalHired) },
                 {
                   label: 'Active announcements',
                   value: String(activeAnnouncements),
+                },
+                {
+                  label: 'Rejected applicants',
+                  value: String(rejectApplicants),
                 },
               ].map((item) => (
                 <div
