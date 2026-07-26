@@ -57,7 +57,6 @@ export type AdminPayload = {
 
 export type AdminAsideProps = {
   admin: AdminPayload;
-  pending: number;
 };
 
 export type DocumentItem =
@@ -91,9 +90,11 @@ export type DocumentItem =
     };
 
 export type FullApplication = {
+  id: string;
   firstName: string;
   middleName: string;
   lastName: string;
+  email: string;
   gender: string;
   age: number;
   dateOfBirth: string;
@@ -111,7 +112,6 @@ export type FullApplication = {
   province: string;
   contactNumber: string;
   homePhone: string | null;
-  email: string;
   emergencyContact: {
     name: string;
     relation: string;
@@ -125,6 +125,6 @@ export type FullApplication = {
   barangayClearanceUrl: string | null;
   medicalCertUrl: string[] | null;
   photoUrl: string | null;
+  submittedAt: Date | null;
   status: 'pending' | 'under_review' | 'approved' | 'rejected';
-  submittedAt: string;
 };

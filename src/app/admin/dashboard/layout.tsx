@@ -1,7 +1,6 @@
 import Aside from '@/components/admin/layouts/aside';
 import Header from '@/components/admin/layouts/header';
 import { getAdminSession } from '@/lib/auth/admin-auth';
-import { getPendingApplicants } from '@/lib/db/queries/get-pending-applicants.queries';
 import { redirect } from 'next/navigation';
 
 export default async function DashboardLayout({
@@ -13,11 +12,10 @@ export default async function DashboardLayout({
   if (!admin) {
     redirect('/admin/login');
   }
-  const pending = await getPendingApplicants();
 
   return (
     <div className="flex h-screen w-full bg-gray-50">
-      <Aside admin={admin} pending={pending} />
+      <Aside admin={admin} />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header admin={admin} />
 

@@ -82,9 +82,9 @@ export const volunteerApplications = pgTable('volunteer_applications', {
 
   validIdFrontUrl: text('valid_id_front_url'),
   validIdBackUrl: text('valid_id_back_url'),
-  trainingCertUrl: jsonb('training_cert_url'),
+  trainingCertUrl: jsonb('training_cert_url').$type<string[]>(),
   barangayClearanceUrl: text('barangay_clearance_url'),
-  medicalCertUrl: jsonb('medical_cert_url'),
+  medicalCertUrl: jsonb('medical_cert_url').$type<string[]>(),
   photoUrl: text('photo_url'),
 
   status: applicationStatusEnum('status').default('pending').notNull(),

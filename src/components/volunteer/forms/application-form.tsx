@@ -18,11 +18,14 @@ import {
   CheckCircle,
   ExternalLink,
   Eye,
+  FileIcon,
   FileText,
   Heart,
   IdCard,
+  LucideIcon,
   MapPinHouse,
   Phone,
+  Stethoscope,
   Upload,
   User,
   Workflow,
@@ -83,7 +86,7 @@ export function ApplicationFormClient({
         </div>
         <div className={`rounded-lg border p-6 mt-4 mb-2 ${cfg.bg}`}>
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-orange-500 bg-white/60">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border  bg-white/60">
               <Icon className={`h-6 w-6 ${cfg.color}`} />
             </div>
             <div>
@@ -1287,32 +1290,6 @@ function ApplicationPreviewModal({
       ]
     : [];
 
-  const documents = data
-    ? [
-        data.photoUrl && { url: data.photoUrl, label: 'Profile Photo' },
-        data.validIdFrontUrl && {
-          url: data.validIdFrontUrl,
-          label: 'Valid ID (Front)',
-        },
-        data.validIdBackUrl && {
-          url: data.validIdBackUrl,
-          label: 'Valid ID (Back)',
-        },
-        data.barangayClearanceUrl && {
-          url: data.barangayClearanceUrl,
-          label: 'Barangay Clearance',
-        },
-        ...(data.trainingCertUrl ?? []).map((url, i) => ({
-          url,
-          label: `Training Cert ${i + 1}`,
-        })),
-        ...(data.medicalCertUrl ?? []).map((url, i) => ({
-          url,
-          label: `Medical Cert ${i + 1}`,
-        })),
-      ].filter((d): d is { url: string; label: string } => Boolean(d))
-    : [];
-
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
@@ -1336,12 +1313,14 @@ function ApplicationPreviewModal({
                 >
                   {statusConfig[data.status].label}
                 </span>
-                <span className="text-xs text-gray-400">
-                  Submitted{' '}
-                  {new Date(data.submittedAt).toLocaleDateString('en-PH', {
-                    dateStyle: 'long',
-                  })}
-                </span>
+                {data.submittedAt ? (
+                  <span className="text-xs text-gray-400">
+                    Submitted{' '}
+                    {new Date(data.submittedAt).toLocaleDateString('en-PH', {
+                      dateStyle: 'long',
+                    })}
+                  </span>
+                ) : null}
               </div>
             )}
           </div>
@@ -1385,28 +1364,22 @@ function ApplicationPreviewModal({
                   </div>
                 </div>
               ))}
-
-              <div className="rounded-lg bg-gray-50 p-4">
-                <div className="mb-3 flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-orange-500" />
-                  <span className="text-sm font-bold text-gray-900">
-                    Documents
-                  </span>
-                </div>
-                {documents.length > 0 ? (
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                    {documents.map((doc) => (
-                      <DocumentThumb
-                        key={doc.url}
-                        url={doc.url}
-                        label={doc.label}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-xs text-gray-400">No documents on file.</p>
-                )}
+              <div className="mb-3 flex items-center gap-2">
+                <FileText className="h-4 w-4 text-orange-500" />
+                <span className="text-sm font-bold text-gray-900">
+                  Documents
+                </span>
               </div>
+              <DocumentReview
+                docs={{
+                  photoUrl: data.photoUrl,
+                  validIdFrontUrl: data.validIdFrontUrl,
+                  validIdBackUrl: data.validIdBackUrl,
+                  trainingCertUrls: data.trainingCertUrl,
+                  barangayClearanceUrl: data.barangayClearanceUrl,
+                  medicalCertUrls: data.medicalCertUrl,
+                }}
+              />
             </div>
           ) : (
             <p className="py-16 text-center text-sm text-gray-500">
@@ -1419,14 +1392,26 @@ function ApplicationPreviewModal({
   );
 }
 
+interface DocumentSet {
+  photoUrl?: string | null;
+  validIdFrontUrl?: string | null;
+  validIdBackUrl?: string | null;
+  trainingCertUrls?: string[] | null;
+  barangayClearanceUrl?: string | null;
+  medicalCertUrls?: string[] | null;
+}
+
+function isImageUrl(url: string) {
+  return /\.(jpe?g|png|gif|webp|bmp)(\?.*)?$/i.test(url);
+}
+
 type DocumentThumbProps = {
   url: string;
-  label: string;
+  label?: string;
 };
 
 function DocumentThumb({ url, label }: DocumentThumbProps) {
-  const isPdf = /\.pdf($|\?)/i.test(url);
-
+  const isImage = isImageUrl(url);
   return (
     <div>
       <a
@@ -1435,22 +1420,125 @@ function DocumentThumb({ url, label }: DocumentThumbProps) {
         rel="noopener noreferrer"
         className="group block overflow-hidden rounded-lg border border-gray-200 transition-colors hover:border-orange-300"
       >
-        {isPdf ? (
-          <div className="flex h-24 flex-col items-center justify-center gap-1.5 bg-gray-50">
-            <FileText className="h-6 w-6 text-gray-400" />
-            <span className="text-xs font-medium text-gray-500">View PDF</span>
+        <div className="relative aspect-4/3 w-full bg-gray-100">
+          {isImage ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={url} alt={label} className="h-24 w-full object-cover" />
+          ) : (
+            <div className="flex h-24 flex-col items-center justify-center gap-1.5 bg-gray-50">
+              <FileText className="h-6 w-6 text-gray-400" />
+              <span className="text-xs font-medium text-gray-500">
+                PDF Document
+              </span>
+            </div>
+          )}
+          <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all group-hover:bg-black/40 group-hover:opacity-100">
+            <span className="flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-gray-900">
+              <ExternalLink className="h-3.5 w-3.5" /> View full size
+            </span>
           </div>
-        ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={url} alt={label} className="h-24 w-full object-cover" />
-        )}
-        <div className="flex items-center justify-between gap-1 border-t border-gray-100 bg-white px-2.5 py-1.5">
-          <span className="truncate text-xs font-medium text-gray-600">
-            {label}
-          </span>
-          <ExternalLink className="h-3 w-3 shrink-0 text-gray-400 transition-colors group-hover:text-orange-500" />
         </div>
+        {label && (
+          <div className="border-t border-gray-100 px-2.5 py-1.5 text-center text-xs font-medium text-gray-600">
+            {label}
+          </div>
+        )}
       </a>
+    </div>
+  );
+}
+
+interface CategoryProps {
+  icon: LucideIcon;
+  title: string;
+  emptyText: string;
+  documents: { url: string; label: string }[];
+}
+
+function DocumentCategory({
+  icon: Icon,
+  title,
+  emptyText,
+  documents,
+}: CategoryProps) {
+  return (
+    <div className="rounded-lg bg-gray-50 p-4">
+      <div className="mb-3 flex items-center gap-2">
+        <Icon className="h-4 w-4 text-orange-500" />
+        <span className="text-sm font-bold text-gray-900">{title}</span>
+      </div>
+      {documents.length > 0 ? (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {documents.map((doc) => (
+            <DocumentThumb key={doc.url} url={doc.url} label={doc.label} />
+          ))}
+        </div>
+      ) : (
+        <p className="text-xs text-gray-400">{emptyText}</p>
+      )}
+    </div>
+  );
+}
+
+export function DocumentReview({ docs }: { docs: DocumentSet }) {
+  const trainingCerts = docs.trainingCertUrls ?? [];
+  const medicalCerts = docs.medicalCertUrls ?? [];
+
+  return (
+    <div className="space-y-4">
+      <DocumentCategory
+        icon={Camera}
+        title="Profile Photo"
+        emptyText="No profile photo on file."
+        documents={
+          docs.photoUrl ? [{ url: docs.photoUrl, label: 'Profile Photo' }] : []
+        }
+      />
+
+      <DocumentCategory
+        icon={IdCard}
+        title="Valid Government ID"
+        emptyText="No ID on file."
+        documents={[
+          ...(docs.validIdFrontUrl
+            ? [{ url: docs.validIdFrontUrl, label: 'Front' }]
+            : []),
+          ...(docs.validIdBackUrl
+            ? [{ url: docs.validIdBackUrl, label: 'Back' }]
+            : []),
+        ]}
+      />
+
+      <DocumentCategory
+        icon={FileText}
+        title={`Training Certificate${trainingCerts.length === 1 ? '' : 's'} (${trainingCerts.length})`}
+        emptyText="No training certificates on file."
+        documents={trainingCerts.map((url, i) => ({
+          url,
+          label: `Certificate ${i + 1}`,
+        }))}
+      />
+
+      <DocumentCategory
+        icon={FileIcon}
+        title="Barangay Clearance"
+        emptyText="No barangay clearance on file."
+        documents={
+          docs.barangayClearanceUrl
+            ? [{ url: docs.barangayClearanceUrl, label: 'Barangay Clearance' }]
+            : []
+        }
+      />
+
+      <DocumentCategory
+        icon={Stethoscope}
+        title={`Medical Certificate${medicalCerts.length === 1 ? '' : 's'} (${medicalCerts.length})`}
+        emptyText="No medical certificates on file."
+        documents={medicalCerts.map((url, i) => ({
+          url,
+          label: `Certificate ${i + 1}`,
+        }))}
+      />
     </div>
   );
 }

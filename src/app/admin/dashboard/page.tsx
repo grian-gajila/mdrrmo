@@ -209,7 +209,7 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="overflow-hidden rounded-lg border mb-10 min-h-40 h-40 border-gray-100 bg-white shadow-sm lg:col-span-2">
+        <div className="overflow-hidden rounded-lg border mb-10 min-h-40 h-fit border-gray-100 bg-white shadow-sm lg:col-span-2">
           <div className="flex items-center justify-between border-b border-gray-100 p-5">
             <h3 className="text-sm font-medium text-gray-700">
               Recent Applicants
@@ -228,13 +228,13 @@ export default async function DashboardPage() {
                 key={i}
                 className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-gray-50"
               >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-orange-500">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
                   {applicant.avatar && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={`${applicant.avatar}`}
                       alt={`${applicant.avatar}`}
-                      className="rounded-lg h-9 w-9 object-contain"
+                      className="rounded-full h-9 w-9 object-cover"
                     />
                   )}
                 </div>

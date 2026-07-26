@@ -9,7 +9,7 @@ import { useState } from 'react';
 import navigation from '@/data/admin/navigation';
 import { AdminAsideProps } from '@/types';
 
-function Aside({ admin, pending }: AdminAsideProps) {
+function Aside({ admin }: AdminAsideProps) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -81,13 +81,6 @@ function Aside({ admin, pending }: AdminAsideProps) {
                   style={{ width: '18px', height: '18px' }}
                 />
                 <span>{item.name}</span>
-                {item.name === 'Applicants' && (
-                  <span
-                    className={`ml-auto rounded-full px-2 py-0.5 text-xs font-bold ${active ? 'bg-white/20 text-white' : 'bg-orange-100 text-orange-500'}`}
-                  >
-                    {pending}
-                  </span>
-                )}
               </Link>
             );
           })}
