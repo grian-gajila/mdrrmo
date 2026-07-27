@@ -74,10 +74,12 @@ export default async function ApplicantsPage({
   };
 
   return (
-    <ApplicantsTable
-      applicants={rows}
-      counts={counts}
-      currentStatus={statusFilter ?? 'all'}
-    />
+    <div className="w-full mb-10">
+      <ApplicantsTable
+        applicants={rows}
+        counts={counts}
+        currentStatus={statusFilter ?? 'all'}
+      />
+    </div>
   );
 }

@@ -43,5 +43,9 @@ export default async function HiredVolunteersPage() {
     )
     .orderBy(desc(hiredVolunteers.hiredAt));
 
-  return <VerifiedVolunteersClient volunteers={rows} />;
+  return (
+    <div className="w-full mb-0">
+      <VerifiedVolunteersClient volunteers={rows} />
+    </div>
+  );
 }
