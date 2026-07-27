@@ -16,7 +16,7 @@ export async function sendApplicationReceivedEmail(
     html: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
         <div style="background: linear-gradient(135deg, #f97316, #dc2626); padding: 24px; border-radius: 12px; text-align: center; margin-bottom: 24px;">
-          <h1 style="color: white; margin: 0; font-size: 24px;">MDRRMO Mandalay</h1>
+          <h1 style="color: white; margin: 0; font-size: 24px;">MDRRMO Mansalay</h1>
           <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0;">Application Received</p>
         </div>
         <h2 style="color: #1f2937;">Hi ${firstName}, we got your application!</h2>
@@ -59,7 +59,7 @@ export async function sendApplicationApprovedEmail(
         </div>
         <h2 style="color: #1f2937;">Congratulations, ${firstName}!</h2>
         <p style="color: #6b7280; line-height: 1.6;">
-          Your volunteer application has been <strong style="color: #16a34a;">approved</strong> by MDRRMO Mandalay. Welcome to the team! You will be contacted by our staff for the next steps including orientation and deployment scheduling.
+          Your volunteer application has been <strong style="color: #16a34a;">approved</strong> by MDRRMO Mansalay. Welcome to the team! You will be contacted by our staff for the next steps including orientation and deployment scheduling.
         </p>
         <a href="${APP_URL}/profile"
           style="display: inline-block; background: #f97316; color: white; font-weight: 600; padding: 12px 28px; border-radius: 8px; text-decoration: none;">
@@ -78,7 +78,7 @@ export async function sendApplicationRejectedEmail(
   reason?: string,
 ) {
   await resend.emails.send({
-    from: `MDRRMO Mandalay <${FROM}>`,
+    from: `MDRRMO Mansalay <${FROM}>`,
     to,
     subject: 'Update on your MDRRMO volunteer application',
     html: `
@@ -123,11 +123,11 @@ export async function sendApplicationRejectedEmail(
       }
       <p style="color: #6b7280; line-height: 1.6">
         You are welcome to re-apply after addressing any noted concerns. For
-        questions, please contact our office directly at mdrrmo@mandalay.gov.ph.
+        questions, please contact our office directly at mdrrmo@mansalay.gov.ph.
       </p>
       <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0" />
       <p style="color: #9ca3af; font-size: 12px"
-        >MDRRMO Mandalay · mdrrmo@mandalay.gov.ph</p
+        >MDRRMO Mansalay · mdrrmo@mansalay.gov.ph</p
       >
     </div>
     `,
