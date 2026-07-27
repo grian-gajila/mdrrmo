@@ -136,7 +136,7 @@ export default async function DashboardPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-6">
+    <div className="mx-auto w-full space-y-6 p-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
@@ -157,7 +157,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {pendingApplicants && (
+      {pendingApplicants ? (
         <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-5 py-4">
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
           <div className="flex-1">
@@ -177,7 +177,7 @@ export default async function DashboardPage() {
             Review now <ChevronRight className="h-3 w-3" />
           </Link>
         </div>
-      )}
+      ) : null}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (

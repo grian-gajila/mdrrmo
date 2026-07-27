@@ -1,7 +1,6 @@
 'use client';
 import { FullApplication } from '@/types';
 import {
-  Check,
   CheckCircle,
   ChevronLeft,
   ChevronRight,
@@ -239,7 +238,9 @@ export function ApplicantsTable({
                           </div>
                           <div>
                             <div className="text-sm font-semibold text-gray-900">
-                              {applicant.firstName} {applicant.lastName}
+                              {applicant.firstName}{' '}
+                              {applicant.middleName.charAt(0)}.{' '}
+                              {applicant.lastName}
                             </div>
                             <div className="mt-0.5 text-xs text-gray-400">
                               {applicant.email}
@@ -252,7 +253,7 @@ export function ApplicantsTable({
                           {applicant.contactNumber}
                         </div>
                         <div className="mt-0.5 text-xs text-gray-400">
-                          {applicant.barangay}
+                          {applicant.barangay}, {applicant.municipality}
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -276,19 +277,35 @@ export function ApplicantsTable({
                           {cfg.label}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center justify-center rounded-full bg-green-100 w-8 h-8 p-2">
-                          {applicant.barangayClearanceUrl &&
-                          applicant.medicalCertUrl &&
-                          applicant.validIdBackUrl &&
-                          applicant.validIdFrontUrl &&
-                          applicant.trainingCertUrl ? (
-                            <span className="text-xs">
-                              <Check className="text-green-500 h-5 w-5" />
+                      <td className="px-6 max-w-60 py-4">
+                        <div className="flex items-center gap-1 justify-center flex-wrap">
+                          {[
+                            {
+                              tag: 'Valid Id',
+                            },
+                            {
+                              tag: 'Barangay Clearance',
+                            },
+                            {
+                              tag: 'Training Certificate',
+                            },
+                            {
+                              tag: 'Medical Certificate',
+                            },
+                          ].map((docs) => (
+                            <span
+                              key={docs.tag}
+                              className="bg-gray-100 text-gray-700 text-[8px] px-2 rounded-full"
+                            >
+                              {applicant.medicalCertUrl &&
+                              applicant.validIdBackUrl &&
+                              applicant.validIdFrontUrl &&
+                              applicant.trainingCertUrl &&
+                              applicant.barangayClearanceUrl
+                                ? docs.tag
+                                : 'No documents'}
                             </span>
-                          ) : (
-                            'No documents'
-                          )}
+                          ))}
                         </div>
                       </td>
                       <td className="px-6 justify-start flex py-4">
