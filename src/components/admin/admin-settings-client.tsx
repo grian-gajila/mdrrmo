@@ -15,7 +15,6 @@ import {
   Eye,
   EyeOff,
   Key,
-  Loader2,
   Mail,
   Save,
   Shield,
@@ -25,6 +24,7 @@ import {
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { ShieldSpinLoader } from '../custom/loading';
 
 type AdminUser = {
   id: number;
@@ -62,11 +62,11 @@ export function AdminSettingsClient({ user }: { user: AdminUser }) {
   });
 
   const [org, setOrg] = useState({
-    name: 'MDRRMO Mandalay',
-    address: 'Municipal Hall, Mandalay, Quezon',
-    email: 'mdrrmo@mandalay.gov.ph',
+    name: 'MDRRMO Mansalay',
+    address: 'Municipal Hall, Mansalay',
+    email: 'support@mdrrmom.com',
     phone: '042-123-4567',
-    website: 'www.mandalay.gov.ph',
+    website: 'www.mdrrmom.com',
   });
 
   const profileForm = useForm<AdminProfileInput>({
@@ -83,10 +83,25 @@ export function AdminSettingsClient({ user }: { user: AdminUser }) {
 
   const onProfileSave = async (data: AdminProfileInput) => {
     setIsSaving(true);
-    // Profile update via API (extend as needed)
-    await new Promise((r) => setTimeout(r, 800));
-    toast.success('Profile updated successfully');
-    setIsSaving(false);
+    try {
+      const res = await fetch('/api/admin/update-admin-details', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        toast.error(json.error);
+      }
+
+      toast.success('Profile updated successfully');
+      profileForm.reset();
+      setIsSaving(false);
+    } catch (error) {
+      toast.error(`${error}`);
+    }
   };
 
   const onPasswordChange = async (data: AdminChangePasswordInput) => {
@@ -234,9 +249,14 @@ export function AdminSettingsClient({ user }: { user: AdminUser }) {
                     <input
                       {...profileForm.register('email')}
                       type="email"
-                      placeholder="admin@example.com"
                       className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
                     />
+                    {profileForm.formState.errors.email && (
+                      <p className="flex items-center gap-1 text-xs text-red-600">
+                        <AlertCircle className="h-3 w-3" />
+                        {profileForm.formState.errors.email.message}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -247,7 +267,7 @@ export function AdminSettingsClient({ user }: { user: AdminUser }) {
                   className="flex items-center hover:cursor-pointer gap-2 rounded-lg bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-200 hover:bg-orange-600 disabled:opacity-70 transition-colors"
                 >
                   {isSaving ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <ShieldSpinLoader size={20} color="text-white" />
                   ) : (
                     <Save className="h-4 w-4" />
                   )}
@@ -348,7 +368,7 @@ export function AdminSettingsClient({ user }: { user: AdminUser }) {
                   className="flex items-center gap-2 rounded-lg hover:cursor-pointer bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-200 hover:bg-orange-600 disabled:opacity-70 transition-colors"
                 >
                   {isChangingPass ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <ShieldSpinLoader size={20} color="text-white" />
                   ) : (
                     <Save className="h-4 w-4" />
                   )}
@@ -416,7 +436,7 @@ export function AdminSettingsClient({ user }: { user: AdminUser }) {
                             className={`relative h-6 w-11 rounded-full hover:cursor-pointer transition-colors ${notifications[item.key] ? 'bg-orange-500' : 'bg-gray-300'}`}
                           >
                             <span
-                              className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-transform ${notifications[item.key] ? 'translate-x-6' : 'translate-x-1'}`}
+                              className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-transform ${notifications[item.key] ? 'translate-x-' : '-translate-x-4'}`}
                             />
                           </button>
                         </div>
@@ -456,7 +476,7 @@ export function AdminSettingsClient({ user }: { user: AdminUser }) {
                           className={`relative h-6 w-11 rounded-full transition-colors ${notifications[item.key] ? 'bg-orange-500' : 'bg-gray-300'}`}
                         >
                           <span
-                            className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-transform ${notifications[item.key] ? 'translate-x-6' : 'translate-x-1'}`}
+                            className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-transform ${notifications[item.key] ? 'translate-x-0' : '-translate-x-4'}`}
                           />
                         </button>
                       </div>
@@ -492,17 +512,17 @@ export function AdminSettingsClient({ user }: { user: AdminUser }) {
                   {
                     label: 'Organization Name',
                     key: 'name',
-                    placeholder: 'MDRRMO Mandalay',
+                    placeholder: 'MDRRMO Mansalay',
                   },
                   {
                     label: 'Office Address',
                     key: 'address',
-                    placeholder: 'Municipal Hall, Mandalay, Quezon',
+                    placeholder: 'Municipal Hall, Mansalay',
                   },
                   {
                     label: 'Official Email',
                     key: 'email',
-                    placeholder: 'mdrrmo@mandalay.gov.ph',
+                    placeholder: 'support@mdrrmom.com',
                   },
                   {
                     label: 'Phone Number',
@@ -512,7 +532,7 @@ export function AdminSettingsClient({ user }: { user: AdminUser }) {
                   {
                     label: 'Website',
                     key: 'website',
-                    placeholder: 'www.mandalay.gov.ph',
+                    placeholder: 'www.mdrrmom.com',
                   },
                 ].map((f) => (
                   <div key={f.key} className="space-y-1.5">
