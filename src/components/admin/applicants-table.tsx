@@ -1,4 +1,5 @@
 'use client';
+import { roleColors, roleIcons } from '@/data/admin/volunteer-role-palettes';
 import { FullApplication } from '@/types';
 import {
   CheckCircle,
@@ -118,6 +119,10 @@ export function ApplicantsTable({
       setLoadingAction(null);
     }
   };
+
+  const Icon = selected?.volunteerRole
+    ? roleIcons[selected.volunteerRole]
+    : undefined;
 
   return (
     <div className="mx-auto w-full space-y-6 p-6">
@@ -404,13 +409,21 @@ export function ApplicantsTable({
 
             <div className="space-y-6 p-6">
               <div>
-                <div className="mb-4 flex items-center gap-2">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-orange-100">
-                    <User className="h-3.5 w-3.5 text-orange-500" />
+                <div className="mb-4 flex items-center justify-between">
+                  <div className="flex gap-2 items-center">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-orange-100">
+                      <User className="h-3.5 w-3.5 text-orange-500" />
+                    </div>
+                    <h3 className="text-sm font-bold tracking-wide text-gray-900 uppercase">
+                      Personal Information
+                    </h3>
                   </div>
-                  <h3 className="text-sm font-bold tracking-wide text-gray-900 uppercase">
-                    Personal Information
-                  </h3>
+                  <div
+                    className={`px-4 py-1 rounded-full flex items-center gap-2 text-xs ${roleColors[selected.volunteerRole]}`}
+                  >
+                    {Icon && <Icon className="h-4 w-4" />}
+                    {selected.volunteerRole}
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                   {[

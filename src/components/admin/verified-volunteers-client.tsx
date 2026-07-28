@@ -1,4 +1,5 @@
 'use client';
+import { roleColors } from '@/data/admin/volunteer-role-palettes';
 import {
   Activity,
   Award,
@@ -17,18 +18,10 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
-const roleColors: Record<string, string> = {
-  'Field Responder': 'bg-blue-100 text-blue-500',
-  'Search & Rescue': 'bg-red-100 text-red-500',
-  'Medical Support': 'bg-green-100 text-green-500',
-  'Psychosocial Support': 'bg-purple-100 text-purple-500',
-  'Logistics': 'bg-amber-100 text-amber-500',
-};
-
 type Volunteer = {
   id: string;
   avatar: string | null;
-  role: string;
+  role: string | null;
   status: 'active' | 'inactive' | 'suspended';
   hiredAt: Date | null;
   deploymentCount: number | null;
@@ -204,7 +197,7 @@ export function VerifiedVolunteersClient({
                   </td>
                   <td className="px-6 py-4">
                     <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${roleColors[volunteer.role] || 'bg-gray-100 text-gray-600'}`}
+                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${volunteer.role ? roleColors[volunteer.role] : 'bg-gray-100 text-gray-600'}`}
                     >
                       {volunteer.role}
                     </span>
@@ -301,7 +294,7 @@ export function VerifiedVolunteersClient({
                     {selected.lastName}
                   </h2>
                   <span
-                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${roleColors[selected.role] || 'bg-gray-100 text-gray-500'}`}
+                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${selected.role ? roleColors[selected.role] : 'bg-gray-100 text-gray-500'}`}
                   >
                     {selected.role}
                   </span>

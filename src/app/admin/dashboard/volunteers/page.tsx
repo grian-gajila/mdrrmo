@@ -17,7 +17,7 @@ export default async function HiredVolunteersPage() {
     .select({
       id: hiredVolunteers.id,
       avatar: volunteerApplications.photoUrl,
-      role: hiredVolunteers.role,
+      role: volunteerApplications.volunteerRole,
       status: hiredVolunteers.status,
       hiredAt: hiredVolunteers.hiredAt,
       deploymentCount: hiredVolunteers.deploymentCount,
