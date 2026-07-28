@@ -58,6 +58,7 @@ export async function POST(request: Request) {
         politicalStatus: data.politicalStatus,
         healthStatus: data.healthStatus,
         maritalStatus: data.maritalStatus,
+        volunteerRole: data.volunteerRole,
         idNumber: data.idNumber,
         idCardType: data.idCardType,
         sitio: data.sitio,

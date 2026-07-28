@@ -1,6 +1,27 @@
 'use client';
 
 import { ShieldSpinLoader } from '@/components/custom/loading';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { format, parse } from 'date-fns';
+
+import { Calendar } from '@/components/ui/calendar';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import {
   documentTypes,
   statusConfig,
@@ -8,11 +29,13 @@ import {
 } from '@/data/volunteer/application-details';
 import useVolunteerApplicationPreview from '@/hooks/use-volunteer-application-preview';
 import useVolunteerSubmitApplication from '@/hooks/use-volunteer-submit-application';
+import { cn } from '@/lib/utils';
 import { ApplicationFormClientProps, FullApplication } from '@/types';
 import {
   AlertCircle,
   ArrowLeft,
   ArrowRight,
+  CalendarIcon,
   Camera,
   Check,
   CheckCircle,
@@ -33,6 +56,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { Controller } from 'react-hook-form';
 import { toast } from 'sonner';
 
 export function ApplicationFormClient({
@@ -53,6 +77,7 @@ export function ApplicationFormClient({
     step,
     setStep,
     step1Data,
+    control,
     isSubmitting,
     uploadingKeys,
     certified,
@@ -192,7 +217,7 @@ export function ApplicationFormClient({
 
             <div className="space-y-6 p-6 mx-auto flex-wrap">
               <div className="flex items-center gap-5 rounded-lg border border-orange-100 bg-orange-50 p-4">
-                <label className="flex h-20 w-20 shrink-0 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-orange-300 bg-white hover:bg-orange-50 transition-colors">
+                <Label className="flex h-20 w-20 shrink-0 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-orange-300 bg-white hover:bg-orange-50 transition-colors">
                   {docs.photoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -206,7 +231,7 @@ export function ApplicationFormClient({
                     <Camera className="h-6 w-6 text-orange-400" />
                   )}
 
-                  <input
+                  <Input
                     type="file"
                     className="hidden"
                     accept=".pdf,.jpg,.jpeg,.png"
@@ -214,7 +239,7 @@ export function ApplicationFormClient({
                       handleFileChange(e, 'photoUrl', 'photo', 'Photo')
                     }
                   />
-                </label>
+                </Label>
                 <div>
                   <p className="text-sm font-semibold text-gray-900">
                     Profile Photo
@@ -237,11 +262,11 @@ export function ApplicationFormClient({
               </div>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">
                     First Name *
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     {...register('firstName')}
                     placeholder="e.g. Juan"
                     defaultValue={userData?.firstName}
@@ -253,11 +278,11 @@ export function ApplicationFormClient({
                     </p>
                   )}
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">
                     Middle Name *
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     {...register('middleName')}
                     placeholder="e.g. Santos"
                     className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -268,11 +293,11 @@ export function ApplicationFormClient({
                     </p>
                   )}
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">
                     Last Name *
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     {...register('lastName')}
                     placeholder="e.g. Dela Cruz"
                     defaultValue={userData?.lastName}
@@ -287,24 +312,46 @@ export function ApplicationFormClient({
               </div>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">
                     Gender *
-                  </label>
-                  <select
-                    {...register('gender')}
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  >
-                    <option>Male</option>
-                    <option>Female</option>
-                    <option>Prefer not to say</option>
-                  </select>
+                  </Label>
+                  <Controller
+                    control={control}
+                    name="gender"
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500">
+                          <SelectValue placeholder="Select your gender..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Select your gender...</SelectLabel>
+                            <SelectItem value="Male">Male</SelectItem>
+                            <SelectItem value="Female">Female</SelectItem>
+                            <SelectItem value="Prefer not to say">
+                              Prefer not to say
+                            </SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.gender && (
+                    <p className="text-xs text-red-600">
+                      {errors.gender.message}
+                    </p>
+                  )}
+                  {}
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">
                     Age *
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     {...register('age', { valueAsNumber: true })}
                     type="number"
                     placeholder="21"
@@ -316,14 +363,66 @@ export function ApplicationFormClient({
                     <p className="text-xs text-red-600">{errors.age.message}</p>
                   )}
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">
                     Date of Birth *
-                  </label>
-                  <input
-                    {...register('dateOfBirth')}
-                    type="date"
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  </Label>
+
+                  <Controller
+                    control={control}
+                    name="dateOfBirth"
+                    render={({ field }) => (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className={cn(
+                              'w-full justify-start rounded-lg border-gray-200 bg-gray-50 text-left font-normal hover:bg-gray-100',
+                              !field.value && 'text-muted-foreground',
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+
+                            {field.value ? (
+                              format(field.value, 'PPP')
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={
+                              field.value
+                                ? parse(field.value, 'yyyy-MM-dd', new Date())
+                                : undefined
+                            }
+                            onSelect={(date) => {
+                              if (!date) {
+                                field.onChange('');
+                                return;
+                              }
+
+                              const year = date.getFullYear();
+                              const month = String(
+                                date.getMonth() + 1,
+                              ).padStart(2, '0');
+                              const day = String(date.getDate()).padStart(
+                                2,
+                                '0',
+                              );
+
+                              field.onChange(`${year}-${month}-${day}`);
+                            }}
+                            captionLayout="dropdown"
+                            disabled={(date) => date > new Date()}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    )}
                   />
                   {errors.dateOfBirth && (
                     <p className="text-xs text-red-600">
@@ -334,11 +433,11 @@ export function ApplicationFormClient({
               </div>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">
                     Nationality *
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     {...register('nationality')}
                     placeholder="Filipino"
                     className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -349,11 +448,11 @@ export function ApplicationFormClient({
                     </p>
                   )}
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">
                     Native Language *
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     {...register('nativePlace')}
                     placeholder="e.g. Tagalog"
                     className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -364,29 +463,58 @@ export function ApplicationFormClient({
                     </p>
                   )}
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">
                     Education Level *
-                  </label>
-                  <select
-                    {...register('educationLevel')}
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  >
-                    <option>Elementary degree</option>
-                    <option>High School degree</option>
-                    <option>Senior High School degree</option>
-                    <option>College degree</option>
-                    <option>Masters degree</option>
-                  </select>
+                  </Label>
+                  <Controller
+                    control={control}
+                    name="educationLevel"
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500">
+                          <SelectValue placeholder="Select your degree..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Select your degree...</SelectLabel>
+                            <SelectItem value="Elementary degree">
+                              Elementary degree
+                            </SelectItem>
+                            <SelectItem value="High School degree">
+                              High School degree
+                            </SelectItem>
+                            <SelectItem value="Senior High School degree">
+                              Senior High School degree
+                            </SelectItem>
+                            <SelectItem value="College degree">
+                              College degree
+                            </SelectItem>
+                            <SelectItem value="Masters degree">
+                              Masters degree
+                            </SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.educationLevel && (
+                    <p className="text-xs text-red-600">
+                      {errors.educationLevel.message}
+                    </p>
+                  )}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">
+                  <Label className="text-sm font-medium text-gray-700">
                     Health Status *
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     {...register('healthStatus')}
                     placeholder="Good / Excellent"
                     className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -398,28 +526,112 @@ export function ApplicationFormClient({
                   )}
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">
+                  <Label className="text-sm font-medium text-gray-700">
                     Marital Status *
-                  </label>
-                  <select
-                    {...register('maritalStatus')}
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  >
-                    <option>Single</option>
-                    <option>Married</option>
-                    <option>Widowed</option>
-                    <option>Separated</option>
-                  </select>
+                  </Label>
+                  <Controller
+                    control={control}
+                    name="maritalStatus"
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500">
+                          <SelectValue placeholder="Select your status..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Select your status...</SelectLabel>
+                            <SelectItem value="Single">Single</SelectItem>
+                            <SelectItem value="Married">Married</SelectItem>
+                            <SelectItem value="Widowed">Widowed</SelectItem>
+                            <SelectItem value="Separated">Separated</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.maritalStatus && (
+                    <p className="text-xs text-red-600">
+                      {errors.maritalStatus.message}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">
-                    Political Status
-                  </label>
-                  <input
+                  <Label className="text-sm font-medium text-gray-700">
+                    Political Status{' '}
+                    <span className="text-orange-400"> (Optional)</span>
+                  </Label>
+                  <Input
                     {...register('politicalStatus')}
                     placeholder="e.g. Civilian"
                     className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
+                </div>
+                <div>
+                  <Controller
+                    control={control}
+                    name="volunteerRole"
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500">
+                          <SelectValue placeholder="Select your prepared role..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>
+                              Select your prepared role...
+                            </SelectLabel>
+                            <SelectItem value="Rescue and Emergency Response">
+                              Rescue and Emergency Response
+                            </SelectItem>
+                            <SelectItem value="Medical and First Aid">
+                              Medical and First Aid
+                            </SelectItem>
+                            <SelectItem value="Communications and Early Warning">
+                              Communications and Early Warning
+                            </SelectItem>
+                            <SelectItem value="Evacuation and Camp Management">
+                              Evacuation and Camp Management
+                            </SelectItem>
+                            <SelectItem value="Relief and Logistics">
+                              Relief and Logistics
+                            </SelectItem>
+                            <SelectItem value="Information Management and Documentation">
+                              Information Management and Documentation
+                            </SelectItem>
+                            <SelectItem value="Damage Assessment">
+                              Damage Assessment
+                            </SelectItem>
+                            <SelectItem value="Community Preparedness and Training">
+                              Community Preparedness and Training
+                            </SelectItem>
+                            <SelectItem value="Psychosocial Support">
+                              Psychosocial Support
+                            </SelectItem>
+                            <SelectItem value="Environmental Protection and Rehabilitation">
+                              Environmental Protection and Rehabilitation
+                            </SelectItem>
+                            <SelectItem value="Administrative and EOC Support">
+                              Administrative and EOC Support
+                            </SelectItem>
+                            <SelectItem value="Youth and Child Support">
+                              Youth and Child Support
+                            </SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.volunteerRole && (
+                    <p className="text-xs text-red-600">
+                      {errors.volunteerRole.message}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -431,10 +643,10 @@ export function ApplicationFormClient({
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">
+                  <Label className="text-sm font-medium text-gray-700">
                     ID Number *
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     {...register('idNumber')}
                     placeholder="XXX-XXXX-XXX-XXX"
                     className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 font-mono text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -446,21 +658,44 @@ export function ApplicationFormClient({
                   )}
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">
+                  <Label className="text-sm font-medium text-gray-700">
                     ID Card Type *
-                  </label>
-                  <select
-                    {...register('idCardType')}
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  >
-                    <option>National ID</option>
-                    <option>Voter&apos;s ID</option>
-                    <option>Driver&apos;s License</option>
-                    <option>Passport</option>
-                    <option>SSS ID</option>
-                    <option>PhilHealth ID</option>
-                    <option>Postal ID</option>
-                  </select>
+                  </Label>
+                  <Controller
+                    control={control}
+                    name="idCardType"
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500">
+                          <SelectValue placeholder="Select card type..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Card Type</SelectLabel>
+                            <SelectItem value="National ID">
+                              National ID
+                            </SelectItem>
+                            <SelectItem value="Voter's ID">
+                              Voter&apos;s ID
+                            </SelectItem>
+                            <SelectItem value="Driver's License">
+                              Driver&apos;s License
+                            </SelectItem>
+                            <SelectItem value="Passport">Passport</SelectItem>
+                            <SelectItem value="SSS ID">SSS ID</SelectItem>
+                            <SelectItem value="PhilHealth ID">
+                              PhilHealth ID
+                            </SelectItem>
+                            <SelectItem value="Postal ID">Postal ID</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+
                   {errors.idCardType && (
                     <p className="text-xs text-red-600">
                       {errors.idCardType.message}
@@ -478,10 +713,10 @@ export function ApplicationFormClient({
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">
+                  <Label className="text-sm font-medium text-gray-700">
                     Sitio *
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     {...register('sitio')}
                     placeholder="e.g. Centro 2"
                     className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -493,10 +728,10 @@ export function ApplicationFormClient({
                   )}
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">
+                  <Label className="text-sm font-medium text-gray-700">
                     Barangay *
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     {...register('barangay')}
                     placeholder="e.g. Don Pedro"
                     className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -508,10 +743,10 @@ export function ApplicationFormClient({
                   )}
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">
+                  <Label className="text-sm font-medium text-gray-700">
                     Municipality *
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     {...register('municipality')}
                     placeholder="e.g. Mansalay"
                     className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -526,10 +761,10 @@ export function ApplicationFormClient({
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">
+                  <Label className="text-sm font-medium text-gray-700">
                     Province *
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     {...register('province')}
                     placeholder="e.g. Oriental Mindoro"
                     className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -541,10 +776,10 @@ export function ApplicationFormClient({
                   )}
                 </div>
                 <div className="space-y-1.5">
-                  <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
+                  <Label className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
                     <Phone className="h-3.5 w-3.5" /> Contact Number *
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     {...register('contactNumber')}
                     placeholder="09XXXXXXXXX"
                     className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -556,21 +791,21 @@ export function ApplicationFormClient({
                   )}
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">
+                  <Label className="text-sm font-medium text-gray-700">
                     Home Phone{' '}
                     <span className="text-orange-400">(Optional)</span>
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     {...register('homePhone')}
                     placeholder="(042) XXX-XXXX"
                     className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">
+                  <Label className="text-sm font-medium text-gray-700">
                     Email Address *
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     {...register('email')}
                     defaultValue={userData?.email}
                     placeholder="e.g. you@gmail.com"
@@ -613,10 +848,10 @@ export function ApplicationFormClient({
                     },
                   ].map((f) => (
                     <div key={f.field} className="space-y-1.5">
-                      <label className="text-sm font-medium text-gray-700">
+                      <Label className="text-sm font-medium text-gray-700">
                         {f.label}
-                      </label>
-                      <input
+                      </Label>
+                      <Input
                         {...register(f.field)}
                         placeholder={f.placeholder}
                         className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -637,13 +872,12 @@ export function ApplicationFormClient({
                 </h3>
               </div>
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-gray-700">
+                <Label className="text-sm font-medium text-gray-700">
                   Volunteering Experience{' '}
                   <span className="text-orange-400"> (Optional)</span>
-                </label>
-                <textarea
+                </Label>
+                <Textarea
                   {...register('volunteeringExperience')}
-                  rows={4}
                   placeholder="e.g. 2022 – BFP Auxiliary Firefighter, Municipality of XYZ\n2021 – Red Cross Youth Chapter, Barangay ABC"
                   className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
@@ -877,6 +1111,7 @@ export function ApplicationFormClient({
                   { l: 'Health Status', v: step1Data.healthStatus },
                   { l: 'Marital Status', v: step1Data.maritalStatus },
                   { l: 'Political Status', v: step1Data.politicalStatus },
+                  { l: 'Volunteer Role', v: step1Data.volunteerRole },
                 ],
               },
               {
@@ -1016,7 +1251,7 @@ export function ApplicationFormClient({
               className="flex items-center gap-2 hover:cursor-pointer rounded-lg bg-green-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-200 hover:bg-green-600 disabled:opacity-70 transition-colors"
             >
               {isSubmitting ? (
-                <ShieldSpinLoader size={24} color="text-white" />
+                <ShieldSpinLoader size={20} color="text-white" />
               ) : (
                 <CheckCircle className="h-4 w-4" />
               )}
@@ -1244,6 +1479,7 @@ function ApplicationPreviewModal({
             { l: 'Health Status', v: data.healthStatus },
             { l: 'Marital Status', v: data.maritalStatus },
             { l: 'Political Status', v: data.politicalStatus },
+            { l: 'Volunteer Role', v: data.volunteerRole },
           ],
         },
         {

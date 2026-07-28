@@ -85,10 +85,11 @@ export const applicationStep1Schema = z.object({
   dateOfBirth: z.string().min(1, 'Date of birth is required'),
   nationality: z.string().min(1, 'Nationality is required'),
   nativePlace: z.string().min(1, 'Native place is required'),
-  educationLevel: z.string().min(1, 'Education level is required'),
+  educationLevel: z.string().min(1, 'Education level type is required'),
   politicalStatus: z.string().optional(),
   healthStatus: z.string().min(1, 'Health status is required'),
   maritalStatus: z.enum(['Single', 'Married', 'Widowed', 'Separated']),
+  volunteerRole: z.string().min(1, 'Volunteer role is required'),
   idNumber: z
     .string()
     .min(5, 'ID number must be at least 5 characters')

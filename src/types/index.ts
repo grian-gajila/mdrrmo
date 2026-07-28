@@ -104,6 +104,7 @@ export type FullApplication = {
   politicalStatus: string | null;
   healthStatus: string;
   maritalStatus: string;
+  volunteerRole: string;
   idNumber: string;
   idCardType: string;
   sitio: string;

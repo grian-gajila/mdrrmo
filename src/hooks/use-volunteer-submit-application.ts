@@ -44,6 +44,7 @@ export const useVolunteerSubmitApplication = ({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<ApplicationStep1Input>({
     resolver: zodResolver(applicationStep1Schema),
@@ -218,6 +219,7 @@ export const useVolunteerSubmitApplication = ({
     docs,
     step,
     setStep,
+    control,
     step1Data,
     isSubmitting,
     uploadingKeys,

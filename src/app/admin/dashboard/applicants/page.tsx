@@ -35,6 +35,7 @@ export default async function ApplicantsPage({
       politicalStatus: volunteerApplications.politicalStatus,
       healthStatus: volunteerApplications.healthStatus,
       maritalStatus: volunteerApplications.maritalStatus,
+      volunteerRole: volunteerApplications.volunteerRole,
       idNumber: volunteerApplications.idNumber,
       idCardType: volunteerApplications.idCardType,
       sitio: volunteerApplications.sitio,

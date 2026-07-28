@@ -59,6 +59,7 @@ export const volunteerApplications = pgTable('volunteer_applications', {
   politicalStatus: text('political_status'),
   healthStatus: text('health_status').notNull(),
   maritalStatus: text('marital_status').notNull(),
+  volunteerRole: text('volunteer_role').notNull(),
 
   idNumber: text('id_number').notNull(),
   idCardType: text('id_card_type').notNull(),
