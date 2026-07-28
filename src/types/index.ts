@@ -129,3 +129,47 @@ export type FullApplication = {
   submittedAt: Date | null;
   status: 'pending' | 'under_review' | 'approved' | 'rejected';
 };
+
+export type SingleUploadSlotProps = {
+  url?: string;
+  label?: string;
+  compact?: boolean;
+  uploading: boolean;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+};
+
+export type MultiUploadSlotProps = {
+  urls: string[];
+  uploading: boolean;
+  max: number;
+  itemLabel: string;
+  onAdd: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onRemove: (url: string) => void;
+};
+
+export type ApplicationPreviewModalProps = {
+  data: FullApplication | null;
+  loading: boolean;
+  onClose: () => void;
+};
+
+export interface DocumentSet {
+  photoUrl?: string | null;
+  validIdFrontUrl?: string | null;
+  validIdBackUrl?: string | null;
+  trainingCertUrls?: string[] | null;
+  barangayClearanceUrl?: string | null;
+  medicalCertUrls?: string[] | null;
+}
+
+export type DocumentThumbProps = {
+  url: string;
+  label?: string;
+};
+
+export interface CategoryProps {
+  icon: LucideIcon;
+  title: string;
+  emptyText: string;
+  documents: { url: string; label: string }[];
+}
