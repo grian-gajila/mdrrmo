@@ -1,5 +1,6 @@
 'use client';
 import { roleColors } from '@/data/admin/volunteer-role-palettes';
+import { Volunteer } from '@/types';
 import {
   Activity,
   Award,
@@ -17,25 +18,6 @@ import {
   X,
 } from 'lucide-react';
 import { useState } from 'react';
-
-type Volunteer = {
-  id: string;
-  avatar: string | null;
-  role: string | null;
-  status: 'active' | 'inactive' | 'suspended';
-  hiredAt: Date | null;
-  deploymentCount: number | null;
-  trainings: string[] | null;
-  firstName: string | null;
-  middleName: string | null;
-  lastName: string | null;
-  email: string | null;
-  contactNumber: string | null;
-  sitio: string | null;
-  barangay: string | null;
-  municipality: string | null;
-  province: string | null;
-};
 
 export function VerifiedVolunteersClient({
   volunteers,

@@ -1,16 +1,17 @@
 'use client';
+import {
+  PREDEFINED_TAGS,
+  typeConfig,
+} from '@/data/volunteer/announcements-type-config';
 import { AnnouncementInput, announcementSchema } from '@/lib/validation/schema';
+import { Announcement } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  AlertCircle,
-  Bell,
   Calendar,
-  CheckCircle,
   ChevronDown,
   Clock,
   Edit2,
   Eye,
-  Info,
   Megaphone,
   Plus,
   RefreshCw,
@@ -24,62 +25,6 @@ import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { ShieldSpinLoader } from '../custom/loading';
-
-const typeConfig = {
-  urgent: {
-    icon: AlertCircle,
-    color: 'text-red-600',
-    bg: 'bg-red-50',
-    border: 'border-red-200',
-    badge: 'bg-red-100 text-red-700',
-  },
-  info: {
-    icon: Info,
-    color: 'text-blue-600',
-    bg: 'bg-blue-50',
-    border: 'border-blue-200',
-    badge: 'bg-blue-100 text-blue-700',
-  },
-  warning: {
-    icon: Bell,
-    color: 'text-amber-600',
-    bg: 'bg-amber-50',
-    border: 'border-amber-200',
-    badge: 'bg-amber-100 text-amber-700',
-  },
-  success: {
-    icon: CheckCircle,
-    color: 'text-green-600',
-    bg: 'bg-green-50',
-    border: 'border-green-200',
-    badge: 'bg-green-100 text-green-700',
-  },
-};
-
-const PREDEFINED_TAGS = [
-  'Urgent',
-  'New Feature',
-  'Technical',
-  'Policy Update',
-  'Internal News',
-  'Event',
-  'Training',
-  'Volunteer',
-  'Accreditation',
-];
-
-type Announcement = {
-  id: string;
-  title: string;
-  body: string;
-  type: 'info' | 'urgent' | 'warning' | 'success';
-  tags: string[] | null;
-  isActive: boolean;
-  expiresAt: Date | null;
-  repeatBroadcast: boolean | null;
-  broadcastFrequency: string | null;
-  createdAt: Date | null;
-};
 
 export function AnnouncementsClient({
   announcements,

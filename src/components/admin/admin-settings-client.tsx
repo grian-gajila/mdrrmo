@@ -1,17 +1,16 @@
 'use client';
 
+import { tabs } from '@/data/volunteer/setting-tabs';
 import {
   adminChangePasswordSchema,
   adminProfileSchema,
   type AdminChangePasswordInput,
   type AdminProfileInput,
 } from '@/lib/validation/schema';
+import { AdminUser } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   AlertCircle,
-  Bell,
-  Building2,
-  Database,
   Eye,
   EyeOff,
   Key,
@@ -19,30 +18,11 @@ import {
   Save,
   Shield,
   Upload,
-  User,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { ShieldSpinLoader } from '../custom/loading';
-
-type AdminUser = {
-  id: number;
-  username: string;
-  displayName: string;
-  email: string | null;
-  role: string;
-  lastLoginAt: Date | null;
-  createdAt: Date | null;
-};
-
-const tabs = [
-  { id: 'profile', label: 'Profile', icon: User },
-  { id: 'security', label: 'Security', icon: Shield },
-  { id: 'notifications', label: 'Notifications', icon: Bell },
-  { id: 'organization', label: 'Organization', icon: Building2 },
-  { id: 'data', label: 'Data & Reports', icon: Database },
-];
 
 export function AdminSettingsClient({ user }: { user: AdminUser }) {
   const [activeTab, setActiveTab] = useState('profile');

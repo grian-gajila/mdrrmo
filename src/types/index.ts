@@ -173,3 +173,45 @@ export interface CategoryProps {
   emptyText: string;
   documents: { url: string; label: string }[];
 }
+
+export type Volunteer = {
+  id: string;
+  avatar: string | null;
+  role: string | null;
+  status: 'active' | 'inactive' | 'suspended';
+  hiredAt: Date | null;
+  deploymentCount: number | null;
+  trainings: string[] | null;
+  firstName: string | null;
+  middleName: string | null;
+  lastName: string | null;
+  email: string | null;
+  contactNumber: string | null;
+  sitio: string | null;
+  barangay: string | null;
+  municipality: string | null;
+  province: string | null;
+};
+
+export type AdminUser = {
+  id: number;
+  username: string;
+  displayName: string;
+  email: string | null;
+  role: string;
+  lastLoginAt: Date | null;
+  createdAt: Date | null;
+};
+
+export type Announcement = {
+  id: string;
+  title: string;
+  body: string;
+  type: 'info' | 'urgent' | 'warning' | 'success';
+  tags: string[] | null;
+  isActive: boolean;
+  expiresAt: Date | null;
+  repeatBroadcast: boolean | null;
+  broadcastFrequency: string | null;
+  createdAt: Date | null;
+};
