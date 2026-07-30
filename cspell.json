@@ -12,7 +12,8 @@
     "mdrrmom",
     "notif",
     "sitio",
-    "SUPABASE"
+    "SUPABASE",
+    "vercel"
   ],
   "ignorePaths": [
     "./node_modules",

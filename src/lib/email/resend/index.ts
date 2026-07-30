@@ -1,3 +1,8 @@
+import { ANNOUNCEMENT_STYLES } from '@/data/admin/announcements';
+import { db } from '@/lib/db';
+import { volunteerApplications } from '@/lib/db/schema';
+import { AnnouncementType } from '@/types';
+import { eq } from 'drizzle-orm';
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -132,4 +137,68 @@ export async function sendApplicationRejectedEmail(
     </div>
     `,
   });
+}
+
+function buildAnnouncementEmailHtml(
+  firstName: string,
+  announcement: { title: string; body: string; type: AnnouncementType },
+) {
+  const style = ANNOUNCEMENT_STYLES[announcement.type];
+  return `
+    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
+      <div style="background: ${style.gradient}; padding: 24px; border-radius: 12px; text-align: center; margin-bottom: 24px;">
+        <h1 style="color: white; margin: 0; font-size: 24px;">MDRRMO Mansalay</h1>
+        <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0;">${style.icon} ${style.label}</p>
+      </div>
+      <h2 style="color: #1f2937; margin-bottom: 8px;">Hi ${firstName},</h2>
+      <h3 style="color: #111827; margin: 0 0 12px;">${announcement.title}</h3>
+      <p style="color: #6b7280; line-height: 1.6; white-space: pre-wrap;">${announcement.body}</p>
+      <a href="${APP_URL}/profile"
+        style="display: inline-block; margin-top: 16px; background: #f97316; color: white; font-weight: 600; padding: 12px 28px; border-radius: 8px; text-decoration: none;">
+        View in Volunteer Portal
+      </a>
+      <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
+      <p style="color: #9ca3af; font-size: 12px;">
+        MDRRMO Mansalay · mdrrmo@mansalay.gov.ph<br/>
+        You're receiving this because you're an approved MDRRMO volunteer.
+      </p>
+    </div>
+  `;
+}
+
+export async function sendAnnouncementToApprovedVolunteers(announcement: {
+  id: string;
+  title: string;
+  body: string;
+  type: AnnouncementType;
+}) {
+  const recipients = await db
+    .select({
+      email: volunteerApplications.email,
+      firstName: volunteerApplications.firstName,
+    })
+    .from(volunteerApplications)
+    .where(eq(volunteerApplications.status, 'approved'));
+
+  if (recipients.length === 0) return { sent: 0 };
+
+  const style = ANNOUNCEMENT_STYLES[announcement.type];
+  const subjectPrefix =
+    announcement.type === 'urgent' ? '🚨 URGENT: ' : `${style.icon} `;
+
+  const emails = recipients.map((r) => ({
+    from: `MDRRMO Mansalay <${FROM}>`,
+    to: r.email,
+    subject: `${subjectPrefix}${announcement.title}`,
+    html: buildAnnouncementEmailHtml(r.firstName, announcement),
+  }));
+
+  let sent = 0;
+  for (let i = 0; i < emails.length; i += 100) {
+    const chunk = emails.slice(i, i + 100);
+    await resend.batch.send(chunk);
+    sent += chunk.length;
+  }
+
+  return { sent };
 }

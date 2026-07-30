@@ -207,11 +207,18 @@ export type Announcement = {
   id: string;
   title: string;
   body: string;
-  type: 'info' | 'urgent' | 'warning' | 'success';
+  type: AnnouncementType;
   tags: string[] | null;
   isActive: boolean;
+  status: 'draft' | 'scheduled' | 'published';
+  scheduledAt: Date | null;
+  publishedAt: Date | null;
   expiresAt: Date | null;
   repeatBroadcast: boolean | null;
   broadcastFrequency: string | null;
   createdAt: Date | null;
 };
+
+export type AnnouncementType = 'info' | 'urgent' | 'warning' | 'success';
+
+export type EffectiveStatus = 'draft' | 'scheduled' | 'published' | 'archived';

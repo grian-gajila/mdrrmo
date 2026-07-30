@@ -1,1 +1,0 @@
-ALTER TABLE "volunteer_applications" ADD COLUMN "volunteer_role" text NOT NULL;

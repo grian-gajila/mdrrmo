@@ -30,6 +30,12 @@ export const volunteerStatusEnum = pgEnum('volunteer_status', [
   'suspended',
 ]);
 
+export const announcementStatusEnum = pgEnum('announcement_status', [
+  'draft',
+  'scheduled',
+  'published',
+]);
+
 export const volunteerProfiles = pgTable('volunteer_profiles', {
   id: uuid('id').primaryKey(),
   firstName: text('first_name').notNull(),
@@ -137,6 +143,9 @@ export const announcements = pgTable('announcements', {
   isActive: boolean('is_active').default(true).notNull(),
   expiresAt: timestamp('expires_at'),
   repeatBroadcast: boolean('repeat_broadcast').default(false),
+  status: announcementStatusEnum('status').notNull().default('draft'),
+  scheduledAt: timestamp('scheduled_at'),
+  publishedAt: timestamp('published_at'),
   broadcastFrequency: text('broadcast_frequency'),
   createdBy: integer('created_by').references(() => adminUsers.id),
   createdAt: timestamp('created_at').defaultNow().notNull(),

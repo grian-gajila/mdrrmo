@@ -145,11 +145,13 @@ export const announcementSchema = z.object({
     .max(5000, 'Body too long'),
   type: z.enum(['info', 'urgent', 'warning', 'success']),
   tags: z.array(z.string()),
+  scheduledAt: z.string().optional(),
   expiresAt: z.string().optional(),
   repeatBroadcast: z.boolean(),
   broadcastFrequency: z
     .enum(['Daily', 'Weekly', 'Bi-weekly', 'Monthly'])
     .optional(),
+  action: z.enum(['draft', 'publish']).default('publish').optional(),
 });
 
 // ─── ADMIN SETTINGS ───────────────────────────────────────────────────────────

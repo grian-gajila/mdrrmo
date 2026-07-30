@@ -1,3 +1,4 @@
+CREATE TYPE "public"."announcement_status" AS ENUM('draft', 'scheduled', 'published');--> statement-breakpoint
 CREATE TYPE "public"."announcement_type" AS ENUM('info', 'urgent', 'warning', 'success');--> statement-breakpoint
 CREATE TYPE "public"."application_status" AS ENUM('pending', 'under_review', 'approved', 'rejected');--> statement-breakpoint
 CREATE TYPE "public"."volunteer_status" AS ENUM('active', 'inactive', 'suspended');--> statement-breakpoint
@@ -24,6 +25,9 @@ CREATE TABLE "announcements" (
 	"is_active" boolean DEFAULT true NOT NULL,
 	"expires_at" timestamp,
 	"repeat_broadcast" boolean DEFAULT false,
+	"status" "announcement_status" DEFAULT 'draft' NOT NULL,
+	"scheduled_at" timestamp,
+	"published_at" timestamp,
 	"broadcast_frequency" text,
 	"created_by" integer,
 	"created_at" timestamp DEFAULT now() NOT NULL,
@@ -59,6 +63,7 @@ CREATE TABLE "volunteer_applications" (
 	"political_status" text,
 	"health_status" text NOT NULL,
 	"marital_status" text NOT NULL,
+	"volunteer_role" text NOT NULL,
 	"id_number" text NOT NULL,
 	"id_card_type" text NOT NULL,
 	"sitio" text NOT NULL,

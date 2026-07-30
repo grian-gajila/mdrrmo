@@ -1,12 +1,11 @@
-// src/app/api/admin/announcements/route.ts
 import { getAdminSession } from '@/lib/auth/admin-auth';
 import { db } from '@/lib/db';
 import { announcements } from '@/lib/db/schema';
+import { sendAnnouncementToApprovedVolunteers } from '@/lib/email/resend';
 import { announcementSchema } from '@/lib/validation/schema';
 import { desc } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
-// GET — list all announcements
 export async function GET() {
   try {
     const admin = await getAdminSession();
@@ -28,7 +27,6 @@ export async function GET() {
   }
 }
 
-// POST — create announcement
 export async function POST(request: Request) {
   try {
     const admin = await getAdminSession();
@@ -47,6 +45,19 @@ export async function POST(request: Request) {
     }
 
     const data = parsed.data;
+    const now = new Date();
+
+    let status: 'draft' | 'scheduled' | 'published' = 'draft';
+    let scheduledAt: Date | null = null;
+    let publishedAt: Date | null = null;
+
+    if (data.action === 'publish') {
+      const requestedAt = data.scheduledAt ? new Date(data.scheduledAt) : now;
+      const isFuture = requestedAt.getTime() > now.getTime() + 60_000;
+      status = isFuture ? 'scheduled' : 'published';
+      scheduledAt = requestedAt;
+      if (status === 'published') publishedAt = now;
+    }
 
     const [announcement] = await db
       .insert(announcements)
@@ -55,16 +66,30 @@ export async function POST(request: Request) {
         body: data.body,
         type: data.type,
         tags: data.tags,
+        status,
+        scheduledAt,
+        publishedAt,
         expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
         repeatBroadcast: data.repeatBroadcast,
         broadcastFrequency: data.broadcastFrequency ?? null,
         createdBy: admin.id,
-        isActive: true,
+        isActive: status === 'published',
       })
-      .returning({ id: announcements.id });
+      .returning();
 
-    return NextResponse.json({ success: true, id: announcement.id });
-  } catch {
+    if (status === 'published') {
+      const { sent } = await sendAnnouncementToApprovedVolunteers(announcement);
+      return NextResponse.json({
+        success: true,
+        id: announcement.id,
+        status,
+        emailsSent: sent,
+      });
+    }
+
+    return NextResponse.json({ success: true, id: announcement.id, status });
+  } catch (err) {
+    console.error(err);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 },

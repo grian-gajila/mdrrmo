@@ -1,3 +1,4 @@
+import { TooltipProvider } from '@/components/ui/tooltip';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
@@ -20,7 +21,7 @@ export default function RootLayout({
       <body
         className={`flex h-screen w-full items-center justify-center ${inter.className}`}
       >
-        {children}
+        <TooltipProvider>{children}</TooltipProvider>
         <Toaster expand={true} richColors={true} />
       </body>
     </html>
