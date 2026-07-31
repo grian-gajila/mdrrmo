@@ -144,7 +144,7 @@ export const announcementSchema = z.object({
     .min(10, 'Body must be at least 10 characters')
     .max(5000, 'Body too long'),
   type: z.enum(['info', 'urgent', 'warning', 'success']),
-  tags: z.array(z.string()),
+  tags: z.array(z.string()).optional(),
   scheduledAt: z.string().optional(),
   expiresAt: z.string().optional(),
   repeatBroadcast: z.boolean(),

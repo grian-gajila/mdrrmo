@@ -112,6 +112,8 @@ export function AnnouncementsClient({
       title: '',
       body: '',
       type: 'info',
+      tags: [],
+      repeatBroadcast: false,
       expiresAt: undefined,
       broadcastFrequency: undefined,
       scheduledAt: toDatetimeLocal(new Date()),
@@ -127,6 +129,8 @@ export function AnnouncementsClient({
       title: ann.title,
       body: ann.body,
       type: ann.type,
+      tags: (ann.tags as string[]) ?? [],
+      repeatBroadcast: ann.repeatBroadcast ?? false,
       expiresAt: ann.expiresAt
         ? new Date(ann.expiresAt).toISOString().slice(0, 10)
         : undefined,
@@ -160,6 +164,8 @@ export function AnnouncementsClient({
         ? `/api/admin/announcements/${editingAnn!.id}`
         : '/api/admin/announcements';
       const method = isEditing ? 'PATCH' : 'POST';
+
+      console.log(action);
 
       const res = await fetch(url, {
         method,
@@ -359,7 +365,7 @@ export function AnnouncementsClient({
                           .map((tag: string) => (
                             <span
                               key={tag}
-                              className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600"
+                              className="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-medium text-gray-600"
                             >
                               {tag}
                             </span>
@@ -416,7 +422,7 @@ export function AnnouncementsClient({
                           >
                             {publishingId === ann.id ? (
                               <ShieldSpinLoader
-                                size={16}
+                                size={20}
                                 color="text-green-600"
                               />
                             ) : (
@@ -748,7 +754,7 @@ export function AnnouncementsClient({
                       className="flex items-center gap-2 rounded-lg bg-orange-50 hover:cursor-pointer px-4 py-2.5 text-sm font-medium text-orange-500 transition-colors hover:bg-orange-100 disabled:opacity-60"
                     >
                       {submitAction === 'draft' && (
-                        <ShieldSpinLoader size={16} color="text-orange-500" />
+                        <ShieldSpinLoader size={20} color="text-orange-500" />
                       )}
                       {submitAction === 'draft' ? 'Saving...' : 'Save Draft'}
                     </button>

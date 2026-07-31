@@ -92,7 +92,7 @@ export function ConfirmDialog({
                 : 'bg-orange-500 shadow-orange-200 hover:bg-orange-600'
             }`}
           >
-            {loading && <ShieldSpinLoader size={16} color="text-white" />}
+            {loading && <ShieldSpinLoader size={20} color="text-white" />}
             {confirmLabel}
           </button>
         </div>
