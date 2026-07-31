@@ -1,5 +1,6 @@
 'use client';
 
+import { ShieldSpinLoader } from '@/components/custom/loading';
 import useVolunteersForgotPassword from '@/hooks/use-volunteers-forgot-password';
 import { ArrowLeft, KeyRound, Mail } from 'lucide-react';
 import Link from 'next/link';
@@ -128,28 +129,10 @@ export default function ForgotPasswordPage() {
           className="flex w-full items-center justify-center rounded-lg bg-linear-to-r from-orange-500 to-orange-600 px-4 py-3.5 text-sm font-semibold text-white shadow-lg hover:cursor-pointer shadow-orange-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-orange-500/30 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {isLoading ? (
-            <>
-              <svg
-                className="mr-2 h-4 w-4 animate-spin"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <circle
-                  className="opacity-20"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-80"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                />
-              </svg>
+            <span className="flex gap-2">
+              <ShieldSpinLoader color="text-white" size={20} />
               Sending reset link...
-            </>
+            </span>
           ) : (
             'Send Reset Link'
           )}

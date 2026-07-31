@@ -1,5 +1,6 @@
 'use client';
 
+import { ShieldSpinLoader } from '@/components/custom/loading';
 import useVolunteersResetPassword from '@/hooks/use-volunteers-reset-password';
 import { Eye, EyeOff, Lock } from 'lucide-react';
 import { useState } from 'react';
@@ -118,7 +119,14 @@ export default function ResetPasswordPage() {
             disabled={isLoading}
             className="w-full rounded-lg hover:cursor-pointer bg-orange-500 py-3.5 font-semibold text-white shadow-lg shadow-orange-200 transition-all hover:bg-orange-600 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
           >
-            {isLoading ? 'Updating...' : 'Update password'}
+            {isLoading ? (
+              <span className="flex items-center justify-center gap-2 text-center">
+                <ShieldSpinLoader color="text-white" size={20} />
+                Updating...
+              </span>
+            ) : (
+              'Update password'
+            )}
           </button>
         </form>
       </div>
