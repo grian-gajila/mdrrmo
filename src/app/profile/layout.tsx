@@ -9,23 +9,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Notifications } from '@/components/volunteer/notifications';
 import { db } from '@/lib/db';
+import { getNotificationsForVolunteer } from '@/lib/db/queries/notifications.queries';
 import { volunteerApplications, volunteerProfiles } from '@/lib/db/schema';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { eq } from 'drizzle-orm';
 import { ChevronDown, FileText, Home, User } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-
-const nav = [
-  { href: '/profile', label: 'My Profile', icon: User, exact: true },
-  {
-    href: '/profile/apply',
-    label: 'My Application',
-    icon: FileText,
-    exact: false,
-  },
-];
 
 export default async function DisplayLayout({
   children,
@@ -39,6 +31,8 @@ export default async function DisplayLayout({
   if (!user) {
     redirect('/auth/login');
   }
+
+  const notifications = await getNotificationsForVolunteer(user.id);
 
   const profile = await db
     .select()
@@ -62,14 +56,15 @@ export default async function DisplayLayout({
   };
 
   return (
-    <div className="h-screen w-full items-center justify-center">
+    <div className="h-screen w-full items-center justify-center ">
       <div className="sticky px-6 md:px-4 top-0 z-50 border-b border-gray-100 bg-white/95 backdrop-blur-md ">
         <div className="mx-auto flex py-5 max-w-6xl items-center justify-between">
           <Shared.Brand />
 
           <div className="flex items-center gap-2">
+            <Notifications announcements={notifications} />
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger className="outline-0" asChild>
                 <button className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 transition-colors hover:cursor-pointer">
                   <div
                     className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white ${profile && profile.avatarUrl ? 'bg-none' : ' bg-linear-to-br from-orange-400 to-orange-600'}`}
@@ -93,23 +88,80 @@ export default async function DisplayLayout({
                   <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="rounded-xl max-w-xl p-4 hover:bg-none bg-gray-50">
+              <DropdownMenuContent className="w-40 mr-4" align="start">
                 <DropdownMenuGroup>
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuItem className="hover:bg-none">
-                    <div className="flex flex-col border-b  border-gray-50">
-                      <p className="truncate text-lg font-bold text-gray-900">
-                        {profile
-                          ? `${profile.firstName} ${profile.lastName}`
-                          : user.email}
-                      </p>
-                      <p className="truncate text-xs text-gray-400">
-                        {profile ? `${profile.email}` : user.email}
-                      </p>
+
+                  <div className="mb-4 flex flex-col items-center text-center">
+                    <div
+                      className={`mb-3 flex h-12 w-12 items-center justify-center rounded-lg  text-2xl font-bold text-white ${profile && profile.avatarUrl ? 'bg-none' : 'bg-linear-to-br from-orange-400 to-orange-600'}`}
+                    >
+                      {profile && profile.avatarUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          className="rounded-full w-12 h-12 object-contain"
+                          src={profile.avatarUrl}
+                          alt={profile.avatarUrl}
+                        />
+                      ) : (
+                        <span>{user.email?.charAt(0)}</span>
+                      )}
                     </div>
+                    <p className="font-bold text-gray-900">
+                      {profile
+                        ? `${profile.firstName} ${profile.lastName}`
+                        : user.email}
+                    </p>
+                    <p className="mt-0.5 text-xs text-gray-500">{user.email}</p>
+                    {application && (
+                      <span
+                        className={`mt-2 rounded-full px-2.5 py-1 text-xs font-medium ${statusColors[application.status]}`}
+                      >
+                        {application.status
+                          .replace('_', ' ')
+                          .replace(/\b\w/g, (c) => c.toUpperCase())}
+                      </span>
+                    )}
+                    {!application && (
+                      <Link
+                        href="/profile/apply"
+                        className="mt-2 rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700 hover:bg-orange-200 transition-colors"
+                      >
+                        Apply Now →
+                      </Link>
+                    )}
+                  </div>
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem>
+                    <Link
+                      className="text-sm flex items-center gap-2 font-mono"
+                      href={'/profile'}
+                    >
+                      <User className="h-4 w-4 shrink-0" /> My Profile
+                    </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator className="block md:hidden" />
-                  <DropdownMenuItem className="mt-6 block lg:hidden">
+                  <DropdownMenuItem>
+                    <Link
+                      className="text-sm flex items-center gap-2 font-mono"
+                      href={'/profile/apply'}
+                    >
+                      <FileText className="h-4 w-4 shrink-0" /> My Application
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link
+                      className="text-sm flex items-center gap-2 font-mono"
+                      href={'/'}
+                    >
+                      <Home className="h-4 w-4 shrink-0" /> Back to Home
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem>
                     <div className="w-full">
                       <SignOutButton />
                     </div>
@@ -122,72 +174,6 @@ export default async function DisplayLayout({
       </div>
 
       <div className="mx-auto max-w-6xl md:px-4 px-6 py-6 md:py-4 lg:flex lg:gap-8">
-        <aside className="mb-6 lg:mb-0 lg:w-64 lg:shrink-0">
-          <div className="mb-4 rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
-            <div className="mb-4 flex flex-col items-center text-center">
-              <div
-                className={`mb-3 flex h-16 w-16 items-center justify-center rounded-lg  text-2xl font-bold text-white ${profile && profile.avatarUrl ? 'bg-none' : 'bg-linear-to-br from-orange-400 to-orange-600'}`}
-              >
-                {profile && profile.avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    className="rounded-full w-16 h-16 object-contain"
-                    src={profile.avatarUrl}
-                    alt={profile.avatarUrl}
-                  />
-                ) : (
-                  <span>{user.email?.charAt(0)}</span>
-                )}
-              </div>
-              <p className="font-bold text-gray-900">
-                {profile
-                  ? `${profile.firstName} ${profile.lastName}`
-                  : user.email}
-              </p>
-              <p className="mt-0.5 text-xs text-gray-500">{user.email}</p>
-              {application && (
-                <span
-                  className={`mt-2 rounded-full px-2.5 py-1 text-xs font-medium ${statusColors[application.status]}`}
-                >
-                  {application.status
-                    .replace('_', ' ')
-                    .replace(/\b\w/g, (c) => c.toUpperCase())}
-                </span>
-              )}
-              {!application && (
-                <Link
-                  href="/profile/apply"
-                  className="mt-2 rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700 hover:bg-orange-200 transition-colors"
-                >
-                  Apply Now →
-                </Link>
-              )}
-            </div>
-          </div>
-
-          <nav className="rounded-lg border border-gray-100 bg-white p-2 shadow-sm">
-            {nav.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 hover:bg-orange-50 hover:text-orange-600 transition-colors"
-              >
-                <item.icon className="h-4 w-4 shrink-0" />
-                {item.label}
-              </Link>
-            ))}
-            <Link
-              href="/"
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
-            >
-              <Home className="h-4 w-4 shrink-0" />
-              Back to Home
-            </Link>
-          </nav>
-          <div className="py-6 lg:block hidden">
-            <SignOutButton />
-          </div>
-        </aside>
         {children}
       </div>
     </div>

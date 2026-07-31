@@ -104,8 +104,8 @@ export default async function ProfilePage() {
             <div>
               <p className="font-bold text-green-900">Active Volunteer</p>
               <p className="text-sm text-green-700">
-                Role: {hiredRecord.role} · {hiredRecord.deploymentCount}{' '}
-                deployment(s)
+                Role: {application.volunteerRole} ·{' '}
+                {hiredRecord.deploymentCount} deployment(s)
               </p>
             </div>
           </div>

@@ -17,7 +17,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.className} h-full antialiased`}>
+    <html
+      lang="en"
+      className={`${inter.className} h-full antialiased scrollbar-none`}
+    >
       <body
         className={`flex h-screen w-full items-center justify-center ${inter.className}`}
       >

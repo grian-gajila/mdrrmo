@@ -1,4 +1,3 @@
-// src/components/auth/SignOutButton.tsx
 'use client';
 
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
@@ -19,11 +18,11 @@ export function SignOutButton() {
 
   return (
     <button
+      className="w-full py-2 flex gap-2 text-red-500 transition-all duration-300 hover:text-red-500/90 hover:cursor-pointer items-center"
       onClick={handleSignOut}
-      className="flex items-center gap-2 py-2 w-full hover:cursor-pointer rounded-lg px-3 text-sm font-medium border transition-all duration-300 bg-red-50 hover:bg-red-100 border-red-500 hover:transition-all hover:duration-300"
     >
-      <LogOut className="h-4 w-4 text-red-500" />
-      <span className="text-red-500">Sign Out</span>
+      <LogOut className="h-4 w-4 " />
+      <span>Sign Out</span>
     </button>
   );
 }

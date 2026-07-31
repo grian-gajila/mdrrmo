@@ -6,6 +6,7 @@ import {
   pgTable,
   text,
   timestamp,
+  unique,
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
@@ -151,3 +152,23 @@ export const announcements = pgTable('announcements', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
+
+export const notificationReads = pgTable(
+  'notification_reads',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    volunteerId: uuid('volunteer_id')
+      .notNull()
+      .references(() => volunteerProfiles.id, { onDelete: 'cascade' }),
+    announcementId: uuid('announcement_id')
+      .notNull()
+      .references(() => announcements.id, { onDelete: 'cascade' }),
+    readAt: timestamp('read_at').defaultNow().notNull(),
+  },
+  (table) => [
+    unique('notification_reads_volunteer_announcement_unique').on(
+      table.volunteerId,
+      table.announcementId,
+    ),
+  ],
+);
