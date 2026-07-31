@@ -98,6 +98,7 @@ export function ApplicationFormClient({
             Track your volunteer application status
           </p>
         </div>
+
         <div className={`rounded-lg border p-6 mt-4 mb-2 ${cfg.bg}`}>
           <div className="flex items-start gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border  bg-white/60">

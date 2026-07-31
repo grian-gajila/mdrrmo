@@ -8,8 +8,8 @@ import {
 } from '@/types';
 import {
   Camera,
+  ChevronRight,
   ExternalLink,
-  Eye,
   FileIcon,
   FileText,
   Heart,
@@ -37,10 +37,9 @@ export function ApplicationPreview() {
       <button
         type="button"
         onClick={openPreview}
-        className="flex w-full items-center justify-center gap-2 rounded-lg hover:cursor-pointer border border-gray-200 bg-white py-3 text-sm font-semibold text-gray-700 transition-colors hover:border-orange-300 hover:text-orange-600"
+        className="flex gap-1 items-center justify-center w-full text-center hover:cursor-pointer text-green-700 text-sm font-semibold"
       >
-        <Eye className="h-4 w-4" />
-        Preview Submitted Application
+        Review Application <ChevronRight className="h-3.5 w-3.5" />
       </button>
 
       {showPreview && (
