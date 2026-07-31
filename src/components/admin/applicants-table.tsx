@@ -123,14 +123,7 @@ export function ApplicantsTable({
         ).map((tab) => (
           <button
             key={tab}
-            onClick={() =>
-              router.push(
-                tab === 'all'
-                  ? '/admin/dashboard/applicants'
-                  : `/admin/dashboard/applicants?status=${tab}`,
-              )
-            }
-            className={`flex items-center gap-2 hover:cursor-pointer rounded-lg px-4 py-2 text-sm font-medium transition-all ${
+            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
               currentStatus === tab
                 ? 'bg-orange-500 text-white shadow-lg shadow-orange-200'
                 : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-50'

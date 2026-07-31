@@ -2,7 +2,7 @@ import { ApplicantsTable } from '@/components/admin/applicants-table';
 import { getAdminSession } from '@/lib/auth/admin-auth';
 import { db } from '@/lib/db';
 import { volunteerApplications, volunteerProfiles } from '@/lib/db/schema';
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq, ne } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
 
 export default async function ApplicantsPage({
@@ -16,7 +16,6 @@ export default async function ApplicantsPage({
   const statusFilter = searchParams.status as
     | 'pending'
     | 'under_review'
-    | 'approved'
     | 'rejected'
     | undefined;
 
@@ -62,7 +61,9 @@ export default async function ApplicantsPage({
       eq(volunteerApplications.volunteerId, volunteerProfiles.id),
     )
     .where(
-      statusFilter ? eq(volunteerApplications.status, statusFilter) : undefined,
+      statusFilter
+        ? eq(volunteerApplications.status, statusFilter)
+        : ne(volunteerApplications.status, 'approved'),
     )
     .orderBy(desc(volunteerApplications.submittedAt));
 
@@ -70,7 +71,6 @@ export default async function ApplicantsPage({
     all: rows.length,
     pending: rows.filter((r) => r.status === 'pending').length,
     under_review: rows.filter((r) => r.status === 'under_review').length,
-    approved: rows.filter((r) => r.status === 'approved').length,
     rejected: rows.filter((r) => r.status === 'rejected').length,
   };
 
