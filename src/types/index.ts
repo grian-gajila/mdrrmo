@@ -222,3 +222,13 @@ export type Announcement = {
 export type AnnouncementType = 'info' | 'urgent' | 'warning' | 'success';
 
 export type EffectiveStatus = 'draft' | 'scheduled' | 'published' | 'archived';
+
+export interface NotificationItem {
+  id: string;
+  title: string;
+  body: string;
+  type: AnnouncementType;
+  tags: string[] | null;
+  publishedAt: Date | null;
+  isRead: boolean;
+}

@@ -1,4 +1,4 @@
-import { statusConfig } from '@/data/volunteer/status';
+import { statusConfig } from '@/data/status';
 import { db } from '@/lib/db';
 import {
   hiredVolunteers,

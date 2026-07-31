@@ -1,8 +1,6 @@
 import { DocumentItem } from '@/types';
 import {
-  AlertCircle,
   CheckCircle,
-  Clock,
   FileIcon,
   FileText,
   IdCard,
@@ -64,30 +62,3 @@ export const steps = [
   { id: 2, title: 'Documents', icon: FileText },
   { id: 3, title: 'Review & Submit', icon: CheckCircle },
 ];
-
-export const statusConfig = {
-  pending: {
-    label: 'Pending Review',
-    color: 'text-amber-700',
-    bg: 'bg-amber-50 border-amber-200',
-    icon: Clock,
-  },
-  under_review: {
-    label: 'Under Review',
-    color: 'text-blue-700',
-    bg: 'bg-blue-50 border-blue-200',
-    icon: Clock,
-  },
-  approved: {
-    label: 'Approved',
-    color: 'text-green-700',
-    bg: 'bg-green-50 border-green-200',
-    icon: CheckCircle,
-  },
-  rejected: {
-    label: 'Rejected',
-    color: 'text-red-700',
-    bg: 'bg-red-50 border-red-200',
-    icon: AlertCircle,
-  },
-};

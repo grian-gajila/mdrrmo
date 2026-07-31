@@ -1,6 +1,6 @@
 'use client';
-import { statusConfig } from '@/data/admin/status';
 import { roleColors, roleIcons } from '@/data/admin/volunteer-role-palettes';
+import { statusConfig } from '@/data/status';
 import { FullApplication } from '@/types';
 import {
   CheckCircle,

@@ -6,8 +6,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { typeConfig } from '@/data/volunteer/announcements-type-config';
-import type { NotificationItem } from '@/lib/db/queries/notifications.queries';
 import { formatRelativeTime } from '@/lib/format-relative-time';
+import { NotificationItem } from '@/types';
 import { Bell, CheckCheck, X } from 'lucide-react';
 import { useState } from 'react';
 
@@ -164,6 +164,18 @@ export function Notifications({
                 <span className="text-xs font-medium text-gray-400">
                   {formatRelativeTime(detail.publishedAt)}
                 </span>
+                {((detail.tags as string[]) ?? []).length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {(detail.tags as string[]).map((tag: string) => (
+                      <span
+                        key={tag}
+                        className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-medium text-orange-700"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
               <button
                 onClick={() => setDetail(null)}

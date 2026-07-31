@@ -1,17 +1,9 @@
 import { db } from '@/lib/db';
 import { announcements, notificationReads } from '@/lib/db/schema';
+import { NotificationItem } from '@/types';
 import { and, desc, eq } from 'drizzle-orm';
 
 const NOTIFICATIONS_LIMIT = 50;
-
-export interface NotificationItem {
-  id: string;
-  title: string;
-  body: string;
-  type: 'info' | 'urgent' | 'warning' | 'success';
-  publishedAt: Date | null;
-  isRead: boolean;
-}
 
 export async function getNotificationsForVolunteer(
   volunteerId: string,
@@ -23,7 +15,6 @@ export async function getNotificationsForVolunteer(
       body: announcements.body,
       type: announcements.type,
       tags: announcements.tags,
-      status: announcements.status,
       publishedAt: announcements.publishedAt,
       readAt: notificationReads.readAt,
     })
@@ -44,7 +35,6 @@ export async function getNotificationsForVolunteer(
     title: r.title,
     body: r.body,
     type: r.type,
-    status: r.status,
     tags: r.tags,
     publishedAt: r.publishedAt,
     isRead: r.readAt !== null,

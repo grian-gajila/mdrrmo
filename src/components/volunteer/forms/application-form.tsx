@@ -22,11 +22,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  documentTypes,
-  statusConfig,
-  steps,
-} from '@/data/volunteer/application-details';
+import { statusConfig } from '@/data/status';
+import { documentTypes, steps } from '@/data/volunteer/application-details';
 import useVolunteerSubmitApplication from '@/hooks/use-volunteer-submit-application';
 import { cn } from '@/lib/utils';
 import {

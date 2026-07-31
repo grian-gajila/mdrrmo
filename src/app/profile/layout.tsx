@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Notifications } from '@/components/volunteer/notifications';
+import { statusConfig } from '@/data/status';
 import { db } from '@/lib/db';
 import { getNotificationsForVolunteer } from '@/lib/db/queries/notifications.queries';
 import { volunteerApplications, volunteerProfiles } from '@/lib/db/schema';
@@ -47,13 +48,6 @@ export default async function DisplayLayout({
     .where(eq(volunteerApplications.volunteerId, user.id))
     .limit(1)
     .then((rows) => rows[0] ?? null);
-
-  const statusColors = {
-    pending: 'bg-amber-100 text-amber-700',
-    under_review: 'bg-blue-100 text-blue-700',
-    approved: 'bg-green-100 text-green-700',
-    rejected: 'bg-red-100 text-red-700',
-  };
 
   return (
     <div className="h-screen w-full items-center justify-center ">
@@ -115,7 +109,7 @@ export default async function DisplayLayout({
                     <p className="mt-0.5 text-xs text-gray-500">{user.email}</p>
                     {application && (
                       <span
-                        className={`mt-2 rounded-full px-2.5 py-1 text-xs font-medium ${statusColors[application.status]}`}
+                        className={`mt-2 rounded-full px-2.5 py-1 text-xs font-medium ${statusConfig[application.status]}`}
                       >
                         {application.status
                           .replace('_', ' ')

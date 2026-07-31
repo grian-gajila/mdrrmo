@@ -1,4 +1,4 @@
-import { statusConfig } from '@/data/volunteer/application-details';
+import { statusConfig } from '@/data/status';
 import useVolunteerApplicationPreview from '@/hooks/use-volunteer-application-preview';
 import {
   ApplicationPreviewModalProps,
@@ -151,7 +151,7 @@ function ApplicationPreviewModal({
             {data && (
               <div className="mt-1.5 flex flex-wrap items-center gap-2">
                 <span
-                  className={`inline-flex rounded-full border px-2 py-0.5 text-[11px] font-semibold ${statusConfig[data.status].bg} ${statusConfig[data.status].color}`}
+                  className={`inline-flex rounded-full border px-2 py-0.5 text-[11px] font-semibold ${statusConfig[data.status].class} `}
                 >
                   {statusConfig[data.status].label}
                 </span>
