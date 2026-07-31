@@ -227,7 +227,7 @@ export function AnnouncementsClient({
     setPublishingId(publishTarget.id);
     try {
       const res = await fetch(
-        `/api/admin/announcements/${publishTarget.id}/publish`,
+        `/api/admin/announcements/${publishTarget.id}/publishing`,
         { method: 'PATCH' },
       );
       const result = await res.json();
