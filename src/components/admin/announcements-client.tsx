@@ -10,6 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Calendar,
   ChevronDown,
+  ChevronRight,
   Clock,
   Edit2,
   Eye,
@@ -48,6 +49,15 @@ function toDatetimeLocal(date: Date) {
 }
 
 const EDITABLE_STATUSES: EffectiveStatus[] = ['draft', 'scheduled'];
+
+const EMPTY_STATE_MESSAGES: Record<'all' | EffectiveStatus, string> = {
+  all: 'No announcements yet. Create your first one.',
+  draft: 'No drafts saved. Save one to come back to later.',
+  scheduled: 'Nothing scheduled right now.',
+  published: 'No active announcements right now.',
+  archived:
+    'No archived announcements yet — expired ones land here automatically.',
+};
 
 export function AnnouncementsClient({
   announcements,
@@ -164,8 +174,6 @@ export function AnnouncementsClient({
         ? `/api/admin/announcements/${editingAnn!.id}`
         : '/api/admin/announcements';
       const method = isEditing ? 'PATCH' : 'POST';
-
-      console.log(action);
 
       const res = await fetch(url, {
         method,
@@ -322,13 +330,60 @@ export function AnnouncementsClient({
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         {filtered.map((ann) => {
           const cfg = typeConfig[ann.type as keyof typeof typeConfig];
           const Icon = cfg.icon;
           const effectiveStatus = getEffectiveStatus(ann);
+
+          // Archive = logs. Deliberately a different, muted, click-to-view-only
+          // treatment — no color, no action buttons, no hover-as-interactive cue.
+          if (effectiveStatus === 'archived') {
+            return (
+              <button
+                key={ann.id}
+                onClick={() => setViewAnn(ann)}
+                className="flex w-full items-center gap-3 rounded-lg border border-gray-100 bg-gray-50/70 px-4 py-3 text-left transition-colors shadow hover:bg-gray-100"
+              >
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-200">
+                  <Icon className="h-4 w-4 text-gray-400" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="truncate text-sm font-semibold text-gray-500">
+                      {ann.title}
+                    </span>
+                    <span className="shrink-0 rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-semibold capitalize text-gray-500">
+                      {ann.type}
+                    </span>
+                    <span className="flex items-center gap-1 text-xs text-gray-400">
+                      <Lock className="h-3 w-3" /> Read-only
+                    </span>
+                  </div>
+                  <p className="mt-0.5 flex items-center gap-1 truncate text-xs text-gray-400">
+                    <Lock className="h-3 w-3 shrink-0" />
+                    Sent{' '}
+                    {ann.publishedAt
+                      ? new Date(ann.publishedAt).toLocaleDateString('en-PH', {
+                          dateStyle: 'medium',
+                        })
+                      : '—'}
+                    {' · '}Expired{' '}
+                    {ann.expiresAt
+                      ? new Date(ann.expiresAt).toLocaleDateString('en-PH', {
+                          dateStyle: 'medium',
+                        })
+                      : '—'}
+                  </p>
+                </div>
+                <ChevronRight className="h-4 w-4 shrink-0 text-gray-300" />
+              </button>
+            );
+          }
+
           const sCfg = statusConfig[effectiveStatus];
           const canEdit = EDITABLE_STATUSES.includes(effectiveStatus);
+
           return (
             <div
               key={ann.id}
@@ -354,18 +409,13 @@ export function AnnouncementsClient({
                       >
                         {sCfg.label}
                       </span>
-                      {effectiveStatus === 'archived' && (
-                        <span className="flex items-center gap-1 text-xs text-gray-400">
-                          <Lock className="h-3 w-3" /> Read-only
-                        </span>
-                      )}
                       <div className="flex flex-wrap gap-1.5">
                         {((ann.tags as string[]) ?? [])
                           .slice(0, 2)
                           .map((tag: string) => (
                             <span
                               key={tag}
-                              className="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-medium text-gray-600"
+                              className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600"
                             >
                               {tag}
                             </span>
@@ -394,20 +444,15 @@ export function AnnouncementsClient({
                           })}
                         </span>
                       )}
-                      {effectiveStatus !== 'draft' &&
-                        effectiveStatus !== 'scheduled' &&
-                        ann.expiresAt && (
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {effectiveStatus === 'archived'
-                              ? 'Expired'
-                              : 'Expires'}{' '}
-                            {new Date(ann.expiresAt).toLocaleDateString(
-                              'en-PH',
-                              { dateStyle: 'medium' },
-                            )}
-                          </span>
-                        )}
+                      {effectiveStatus === 'published' && ann.expiresAt && (
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          Expires{' '}
+                          {new Date(ann.expiresAt).toLocaleDateString('en-PH', {
+                            dateStyle: 'medium',
+                          })}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className="flex shrink-0 flex-col gap-1.5">
@@ -422,7 +467,7 @@ export function AnnouncementsClient({
                           >
                             {publishingId === ann.id ? (
                               <ShieldSpinLoader
-                                size={20}
+                                size={16}
                                 color="text-green-600"
                               />
                             ) : (
@@ -463,21 +508,19 @@ export function AnnouncementsClient({
                         </TooltipContent>
                       </Tooltip>
                     )}
-                    {effectiveStatus !== 'archived' && (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            onClick={() => setDeleteTarget(ann)}
-                            className="rounded-lg hover:cursor-pointer bg-red-50 p-2 text-red-500 transition-colors hover:bg-red-100"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Delete Announcement</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    )}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => setDeleteTarget(ann)}
+                          className="rounded-lg hover:cursor-pointer bg-red-50 p-2 text-red-500 transition-colors hover:bg-red-100"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Delete Announcement</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                 </div>
               </div>
@@ -487,7 +530,7 @@ export function AnnouncementsClient({
         {filtered.length === 0 && (
           <div className="rounded-lg border border-dashed border-gray-200 p-12 text-center">
             <Megaphone className="mx-auto mb-3 h-10 w-10 text-gray-300" />
-            <p className="text-gray-400">Nothing here yet.</p>
+            <p className="text-gray-400">{EMPTY_STATE_MESSAGES[tab]}</p>
           </div>
         )}
       </div>
