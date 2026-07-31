@@ -8,8 +8,10 @@ import { redirect } from 'next/navigation';
 export default async function AnnouncementsPage({
   searchParams,
 }: {
-  searchParams: { new?: string };
+  searchParams: Promise<{ new?: string }>;
 }) {
+  const params = await searchParams;
+
   const admin = await getAdminSession();
   if (!admin) redirect('/admin/login');
 
@@ -22,7 +24,7 @@ export default async function AnnouncementsPage({
     <div className="mb-10 w-full">
       <AnnouncementsClient
         announcements={list}
-        openComposer={searchParams.new === '1'}
+        openComposer={params.new === '1'}
       />
     </div>
   );

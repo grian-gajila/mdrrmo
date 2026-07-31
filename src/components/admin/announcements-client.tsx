@@ -407,7 +407,7 @@ export function AnnouncementsClient({
                   <div className="flex shrink-0 flex-col gap-1.5">
                     {effectiveStatus === 'draft' && (
                       <Tooltip>
-                        <TooltipTrigger>
+                        <TooltipTrigger asChild>
                           <button
                             onClick={() => setPublishTarget(ann)}
                             disabled={publishingId === ann.id}
@@ -430,7 +430,7 @@ export function AnnouncementsClient({
                       </Tooltip>
                     )}
                     <Tooltip>
-                      <TooltipTrigger>
+                      <TooltipTrigger asChild>
                         <button
                           onClick={() => setViewAnn(ann)}
                           className="rounded-lg hover:cursor-pointer bg-blue-50 p-2 text-blue-500 transition-colors hover:bg-blue-100"
@@ -444,7 +444,7 @@ export function AnnouncementsClient({
                     </Tooltip>
                     {canEdit && (
                       <Tooltip>
-                        <TooltipTrigger>
+                        <TooltipTrigger asChild>
                           <button
                             onClick={() => openEditComposer(ann)}
                             className="rounded-lg hover:cursor-pointer bg-orange-50 p-2 text-orange-500 transition-colors hover:bg-orange-100"
@@ -459,7 +459,7 @@ export function AnnouncementsClient({
                     )}
                     {effectiveStatus !== 'archived' && (
                       <Tooltip>
-                        <TooltipTrigger>
+                        <TooltipTrigger asChild>
                           <button
                             onClick={() => setDeleteTarget(ann)}
                             className="rounded-lg hover:cursor-pointer bg-red-50 p-2 text-red-500 transition-colors hover:bg-red-100"
