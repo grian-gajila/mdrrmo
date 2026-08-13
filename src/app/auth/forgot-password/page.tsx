@@ -144,14 +144,6 @@ export default function ForgotPasswordPage() {
             email address.
           </p>
         </div>
-
-        <Link
-          href="/auth/login"
-          className="group flex items-center justify-center gap-2 text-sm font-medium text-gray-500 transition-colors hover:text-gray-900"
-        >
-          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-          Back to Sign In
-        </Link>
       </form>
     </div>
   );
