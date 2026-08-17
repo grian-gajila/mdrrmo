@@ -17,7 +17,8 @@ export default async function HiredVolunteersPage() {
     .select({
       id: hiredVolunteers.id,
       avatar: volunteerApplications.photoUrl,
-      role: volunteerApplications.volunteerRole,
+      primaryRole: volunteerApplications.primaryRole,
+      secondaryRole: volunteerApplications.secondaryRole,
       status: hiredVolunteers.status,
       hiredAt: hiredVolunteers.hiredAt,
       deploymentCount: hiredVolunteers.deploymentCount,
@@ -27,10 +28,10 @@ export default async function HiredVolunteersPage() {
       lastName: volunteerProfiles.lastName,
       email: volunteerProfiles.email,
       contactNumber: volunteerApplications.contactNumber,
-      sitio: volunteerApplications.sitio,
-      barangay: volunteerApplications.barangay,
-      municipality: volunteerApplications.municipality,
-      province: volunteerApplications.province,
+      completeAddress: volunteerApplications.completeAddress,
+      barangayCode: volunteerApplications.barangayCode,
+      municipalityCode: volunteerApplications.municipalityCode,
+      provinceCode: volunteerApplications.provinceCode,
     })
     .from(hiredVolunteers)
     .leftJoin(

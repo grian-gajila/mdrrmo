@@ -3,19 +3,38 @@ import { UploadedDocs } from '@/types';
 
 export type SubmitApplicationPayload = ApplicationStep1Input & UploadedDocs;
 
-export async function submitVolunteerApplicationServices(
-  payLoad: SubmitApplicationPayload,
-) {
-  const res = await fetch('/api/volunteer/application', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payLoad),
-  });
+export type SaveApplicationDraftPayload = Partial<ApplicationStep1Input> &
+  Partial<UploadedDocs> & {
+    status: 'draft';
+  };
 
-  return res;
+export async function submitVolunteerApplicationServices(
+  payload: SubmitApplicationPayload,
+) {
+  return fetch('/api/volunteer/application', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function saveVolunteerApplicationDraftServices(
+  payload: SaveApplicationDraftPayload,
+) {
+  return fetch('/api/volunteer/application', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
 }
 
 export async function getVolunteerApplication() {
-  const res = await fetch('/api/volunteer/application');
-  return res;
+  return fetch('/api/volunteer/application', {
+    method: 'GET',
+    cache: 'no-store',
+  });
 }

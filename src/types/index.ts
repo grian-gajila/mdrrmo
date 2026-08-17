@@ -21,25 +21,20 @@ export type UploadedDocs = {
   validIdFrontUrl?: string;
   validIdBackUrl?: string;
   trainingCertUrls: string[];
-  barangayClearanceUrl?: string;
-  medicalCertUrls: string[];
   photoUrl?: string;
 };
 
-export type SingleDocKey =
-  | 'photoUrl'
-  | 'validIdFrontUrl'
-  | 'validIdBackUrl'
-  | 'barangayClearanceUrl';
+export type SingleDocKey = 'photoUrl' | 'validIdFrontUrl' | 'validIdBackUrl';
 
 export type ExistingApp = {
   id: string;
   status: 'pending' | 'under_review' | 'approved' | 'rejected';
   submittedAt: Date | null;
-} | null;
+};
 
 export type ApplicationFormClientProps = {
-  existingApplication: ExistingApp;
+  existingApplication: FullApplication | null;
+
   userData: {
     firstName: string;
     lastName: string;
@@ -61,15 +56,6 @@ export type AdminAsideProps = {
 
 export type DocumentItem =
   | {
-      kind: 'single';
-      key: 'barangayClearanceUrl';
-      uploadType: string;
-      label: string;
-      desc: string;
-      icon: LucideIcon;
-      required: boolean;
-    }
-  | {
       kind: 'sides';
       front: { key: 'validIdFrontUrl'; uploadType: string; label: string };
       back: { key: 'validIdBackUrl'; uploadType: string; label: string };
@@ -80,7 +66,7 @@ export type DocumentItem =
     }
   | {
       kind: 'multiple';
-      key: 'trainingCertUrls' | 'medicalCertUrls';
+      key: 'trainingCertUrls';
       uploadType: string;
       itemLabel: string;
       label: string;
@@ -89,30 +75,43 @@ export type DocumentItem =
       required: boolean;
     };
 
+export type ApplicationStatus =
+  'draft' | 'pending' | 'under_review' | 'approved' | 'rejected';
+
+export type EmploymentStatus = 'Employed' | 'Unemployed';
+
+export type Gender = 'Male' | 'Female' | 'Prefer not to say';
+
+export type MaritalStatus = 'Single' | 'Married' | 'Widowed' | 'Annulment';
+
 export type FullApplication = {
   id: string;
+  volunteerId: string;
   firstName: string;
   middleName: string;
   lastName: string;
-  email: string;
-  gender: string;
+  gender: Gender;
   age: number;
   dateOfBirth: string;
   nationality: string;
   nativePlace: string;
   educationLevel: string;
-  politicalStatus: string | null;
-  healthStatus: string;
-  maritalStatus: string;
-  volunteerRole: string;
+  maritalStatus: MaritalStatus;
+  employmentStatus: EmploymentStatus;
+  natureOfEmployment: string | null;
+  position: string | null;
+  employer: string | null;
+  primaryRole: string;
+  secondaryRole: string;
   idNumber: string;
   idCardType: string;
-  sitio: string;
-  barangay: string;
-  municipality: string;
-  province: string;
+  completeAddress: string;
+  provinceCode: string;
+  municipalityCode: string;
+  barangayCode: string;
   contactNumber: string;
   homePhone: string | null;
+  email: string;
   emergencyContact: {
     name: string;
     relation: string;
@@ -123,11 +122,13 @@ export type FullApplication = {
   validIdFrontUrl: string | null;
   validIdBackUrl: string | null;
   trainingCertUrl: string[] | null;
-  barangayClearanceUrl: string | null;
-  medicalCertUrl: string[] | null;
   photoUrl: string | null;
+  status: ApplicationStatus;
+  reviewedBy: number | null;
+  reviewedAt: Date | null;
+  reviewNotes: string | null;
   submittedAt: Date | null;
-  status: 'pending' | 'under_review' | 'approved' | 'rejected';
+  updatedAt: Date;
 };
 
 export type SingleUploadSlotProps = {
@@ -158,8 +159,6 @@ export interface DocumentSet {
   validIdFrontUrl?: string | null;
   validIdBackUrl?: string | null;
   trainingCertUrls?: string[] | null;
-  barangayClearanceUrl?: string | null;
-  medicalCertUrls?: string[] | null;
 }
 
 export type DocumentThumbProps = {
@@ -177,7 +176,8 @@ export interface CategoryProps {
 export type Volunteer = {
   id: string;
   avatar: string | null;
-  role: string | null;
+  primaryRole: string | null;
+  secondaryRole: string | null;
   status: 'active' | 'inactive' | 'suspended';
   hiredAt: Date | null;
   deploymentCount: number | null;
@@ -187,10 +187,10 @@ export type Volunteer = {
   lastName: string | null;
   email: string | null;
   contactNumber: string | null;
-  sitio: string | null;
-  barangay: string | null;
-  municipality: string | null;
-  province: string | null;
+  completeAddress: string | null;
+  barangayCode: string | null;
+  municipalityCode: string | null;
+  provinceCode: string | null;
 };
 
 export type AdminUser = {

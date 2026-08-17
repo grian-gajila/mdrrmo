@@ -12,6 +12,7 @@ import {
 } from 'drizzle-orm/pg-core';
 
 export const applicationStatusEnum = pgEnum('application_status', [
+  'draft',
   'pending',
   'under_review',
   'approved',
@@ -37,6 +38,24 @@ export const announcementStatusEnum = pgEnum('announcement_status', [
   'published',
 ]);
 
+export const employmentStatusEnum = pgEnum('employment_status', [
+  'Employed',
+  'Unemployed',
+]);
+
+export const genderEnum = pgEnum('gender', [
+  'Male',
+  'Female',
+  'Prefer not to say',
+]);
+
+export const maritalStatusEnum = pgEnum('marital_status', [
+  'Single',
+  'Married',
+  'Widowed',
+  'Annulment',
+]);
+
 export const volunteerProfiles = pgTable('volunteer_profiles', {
   id: uuid('id').primaryKey(),
   firstName: text('first_name').notNull(),
@@ -51,56 +70,51 @@ export const volunteerProfiles = pgTable('volunteer_profiles', {
 export const volunteerApplications = pgTable('volunteer_applications', {
   id: uuid('id').primaryKey().defaultRandom(),
   volunteerId: uuid('volunteer_id')
-    .references(() => volunteerProfiles.id, { onDelete: 'cascade' })
+    .references(() => volunteerProfiles.id, {
+      onDelete: 'cascade',
+    })
     .notNull(),
-
   firstName: text('first_name').notNull(),
   middleName: text('middle_name').notNull(),
   lastName: text('last_name').notNull(),
-  gender: text('gender').notNull(),
+  gender: genderEnum('gender').notNull(),
   age: integer('age').notNull(),
   dateOfBirth: text('date_of_birth').notNull(),
   nationality: text('nationality').notNull().default('Filipino'),
   nativePlace: text('native_place').notNull(),
   educationLevel: text('education_level').notNull(),
-  politicalStatus: text('political_status'),
-  healthStatus: text('health_status').notNull(),
-  maritalStatus: text('marital_status').notNull(),
-  volunteerRole: text('volunteer_role').notNull(),
-
+  maritalStatus: maritalStatusEnum('marital_status').notNull(),
+  employmentStatus: employmentStatusEnum('employment_status').notNull(),
+  natureOfEmployment: text('nature_of_employment'),
+  position: text('position'),
+  employer: text('employer'),
+  primaryRole: text('primary_role').notNull(),
+  secondaryRole: text('secondary_role').notNull(),
   idNumber: text('id_number').notNull(),
   idCardType: text('id_card_type').notNull(),
-
-  sitio: text('sitio').notNull(),
-  barangay: text('barangay').notNull(),
-  municipality: text('municipality').notNull(),
-  province: text('province').notNull(),
+  completeAddress: text('complete_address').notNull(),
+  provinceCode: text('province_code').notNull(),
+  municipalityCode: text('municipality_code').notNull(),
+  barangayCode: text('barangay_code').notNull(),
   contactNumber: text('contact_number').notNull(),
   homePhone: text('home_phone'),
   email: text('email').notNull(),
-
   emergencyContact: jsonb('emergency_contact').$type<{
     name: string;
     relation: string;
     contactNumber: string;
     address: string;
   }>(),
-
   volunteeringExperience: text('volunteering_experience'),
-
   validIdFrontUrl: text('valid_id_front_url'),
   validIdBackUrl: text('valid_id_back_url'),
   trainingCertUrl: jsonb('training_cert_url').$type<string[]>(),
-  barangayClearanceUrl: text('barangay_clearance_url'),
-  medicalCertUrl: jsonb('medical_cert_url').$type<string[]>(),
   photoUrl: text('photo_url'),
-
-  status: applicationStatusEnum('status').default('pending').notNull(),
+  status: applicationStatusEnum('status').default('draft').notNull(),
   reviewedBy: integer('reviewed_by').references(() => adminUsers.id),
   reviewedAt: timestamp('reviewed_at'),
   reviewNotes: text('review_notes'),
-
-  submittedAt: timestamp('submitted_at').defaultNow().notNull(),
+  submittedAt: timestamp('submitted_at'),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 

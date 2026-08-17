@@ -4,9 +4,16 @@ import {
   ApplicationStep1Input,
   applicationStep1Schema,
 } from '@/lib/validation/schema';
-import { submitVolunteerApplicationServices } from '@/services/application.service';
+
+import {
+  saveVolunteerApplicationDraftServices,
+  submitVolunteerApplicationServices,
+} from '@/services/application.service';
+
 import { uploadFileServices } from '@/services/upload.service';
-import { SingleDocKey, UploadedDocs } from '@/types';
+
+import type { FullApplication, UploadedDocs } from '@/types';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -17,26 +24,99 @@ interface Props {
   firstName: string | undefined;
   lastName: string | undefined;
   email: string | undefined;
+  existingApplication?: FullApplication | null;
 }
 
 const MAX_MULTI_FILES = 5;
+
+const EMPTY_DOCS: UploadedDocs = {
+  trainingCertUrls: [],
+};
+
+const getDefaultFormValues = ({
+  firstName,
+  lastName,
+  email,
+  existingApplication,
+}: Props): ApplicationStep1Input => {
+  const emergency = existingApplication?.emergencyContact;
+  return {
+    firstName: existingApplication?.firstName ?? firstName ?? '',
+    middleName: existingApplication?.middleName ?? '',
+    lastName: existingApplication?.lastName ?? lastName ?? '',
+    email: existingApplication?.email ?? email ?? '',
+    gender: (existingApplication?.gender ??
+      'Male') as ApplicationStep1Input['gender'],
+    age: existingApplication?.age ?? 18,
+    dateOfBirth: existingApplication?.dateOfBirth ?? '',
+    nationality: existingApplication?.nationality ?? 'Filipino',
+    nativePlace: existingApplication?.nativePlace ?? '',
+    educationLevel: existingApplication?.educationLevel ?? '',
+    maritalStatus: (existingApplication?.maritalStatus ??
+      'Single') as ApplicationStep1Input['maritalStatus'],
+    employmentStatus: (existingApplication?.employmentStatus ??
+      'Unemployed') as ApplicationStep1Input['employmentStatus'],
+    natureOfEmployment: existingApplication?.natureOfEmployment ?? '',
+    position: existingApplication?.position ?? '',
+    employer: existingApplication?.employer ?? '',
+    primaryRole: existingApplication?.primaryRole ?? '',
+    secondaryRole: existingApplication?.secondaryRole ?? '',
+    idNumber: existingApplication?.idNumber ?? '',
+    idCardType: existingApplication?.idCardType ?? '',
+    completeAddress: existingApplication?.completeAddress ?? '',
+    provinceCode: existingApplication?.provinceCode ?? '',
+    municipalityCode: existingApplication?.municipalityCode ?? '',
+    barangayCode: existingApplication?.barangayCode ?? '',
+    contactNumber: existingApplication?.contactNumber ?? '',
+    homePhone: existingApplication?.homePhone ?? '',
+    emergencyName: emergency?.name ?? '',
+    emergencyRelation: emergency?.relation ?? '',
+    emergencyContact: emergency?.contactNumber ?? '',
+    emergencyAddress: emergency?.address ?? '',
+    volunteeringExperience: existingApplication?.volunteeringExperience ?? '',
+  };
+};
+
+const getInitialDocs = (
+  existingApplication?: FullApplication | null,
+): UploadedDocs => {
+  if (!existingApplication) {
+    return {
+      ...EMPTY_DOCS,
+    };
+  }
+
+  return {
+    photoUrl: existingApplication.photoUrl ?? undefined,
+    validIdFrontUrl: existingApplication.validIdFrontUrl ?? undefined,
+    validIdBackUrl: existingApplication.validIdBackUrl ?? undefined,
+    trainingCertUrls: existingApplication.trainingCertUrl ?? [],
+  };
+};
 
 export const useVolunteerSubmitApplication = ({
   firstName,
   lastName,
   email,
+  existingApplication,
 }: Props) => {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadingKeys, setUploadingKeys] = useState<Set<string>>(new Set());
-  const [docs, setDocs] = useState<UploadedDocs>({
-    trainingCertUrls: [],
-    medicalCertUrls: [],
-  });
+  const [docs, setDocs] = useState<UploadedDocs>(
+    getInitialDocs(existingApplication),
+  );
 
   const [step1Data, setStep1Data] = useState<ApplicationStep1Input | null>(
-    null,
+    existingApplication?.status === 'draft'
+      ? getDefaultFormValues({
+          firstName,
+          lastName,
+          email,
+          existingApplication,
+        })
+      : null,
   );
 
   const [certified, setCertified] = useState(false);
@@ -45,17 +125,18 @@ export const useVolunteerSubmitApplication = ({
     register,
     handleSubmit,
     control,
+    watch,
+    setValue,
+    getValues,
     formState: { errors },
   } = useForm<ApplicationStep1Input>({
     resolver: zodResolver(applicationStep1Schema),
-    defaultValues: {
-      gender: 'Male',
-      maritalStatus: 'Single',
-      nationality: 'Filipino',
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
-    },
+    defaultValues: getDefaultFormValues({
+      firstName,
+      lastName,
+      email,
+      existingApplication,
+    }),
   });
 
   const uploadFile = async (
@@ -63,14 +144,12 @@ export const useVolunteerSubmitApplication = ({
     type: string,
   ): Promise<string | null> => {
     try {
-      const res = await uploadFileServices(file, type);
-      const json = await res.json();
-
-      if (!res.ok) {
+      const response = await uploadFileServices(file, type);
+      const json = await response.json();
+      if (!response.ok) {
         toast.error(json.error ?? `Failed to upload ${file.name}`);
         return null;
       }
-
       return json.url as string;
     } catch {
       toast.error(`Failed to upload ${file.name}. Please try again.`);
@@ -79,8 +158,8 @@ export const useVolunteerSubmitApplication = ({
   };
 
   const setUploading = (key: string, value: boolean) => {
-    setUploadingKeys((prev) => {
-      const next = new Set(prev);
+    setUploadingKeys((previous) => {
+      const next = new Set(previous);
       if (value) {
         next.add(key);
       } else {
@@ -92,116 +171,189 @@ export const useVolunteerSubmitApplication = ({
 
   const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
-    docKey: SingleDocKey,
+    docKey: 'photoUrl' | 'validIdFrontUrl' | 'validIdBackUrl',
     uploadType: string,
     successLabel = 'Document',
   ) => {
     const file = e.target.files?.[0];
+
     e.target.value = '';
-    if (!file) return;
+
+    if (!file) {
+      return;
+    }
 
     setUploading(uploadType, true);
     const url = await uploadFile(file, uploadType);
     setUploading(uploadType, false);
-
-    if (url) {
-      setDocs((prev) => ({ ...prev, [docKey]: url }));
-      toast.success(`${successLabel} uploaded!`);
+    if (!url) {
+      return;
     }
+    setDocs((previous) => ({
+      ...previous,
+      [docKey]: url,
+    }));
+    toast.success(`${successLabel} uploaded!`);
   };
 
   const handleMultiFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
-    docKey: 'trainingCertUrls' | 'medicalCertUrls',
+    docKey: 'trainingCertUrls',
     uploadType: string,
   ) => {
     const files = Array.from(e.target.files ?? []);
     e.target.value = '';
-    if (files.length === 0) return;
+    if (!files.length) {
+      return;
+    }
 
     const remainingSlots = MAX_MULTI_FILES - docs[docKey].length;
+
     if (remainingSlots <= 0) {
-      toast.error(`You can upload up to ${MAX_MULTI_FILES} files.`);
+      toast.error(
+        `You can upload up to ${MAX_MULTI_FILES} training certificates.`,
+      );
+
       return;
     }
 
     const filesToUpload = files.slice(0, remainingSlots);
+
     if (files.length > filesToUpload.length) {
       toast.error(
-        `Only ${remainingSlots} more file${remainingSlots > 1 ? 's' : ''} can be added (max ${MAX_MULTI_FILES}).`,
+        `Only ${remainingSlots} more file${
+          remainingSlots > 1 ? 's' : ''
+        } can be added (max ${MAX_MULTI_FILES}).`,
       );
     }
 
     setUploading(uploadType, true);
+
     const results = await Promise.all(
       filesToUpload.map((file) => uploadFile(file, uploadType)),
     );
+
     setUploading(uploadType, false);
 
-    const newUrls = results.filter((u): u is string => Boolean(u));
-    if (newUrls.length > 0) {
-      setDocs((prev) => ({
-        ...prev,
-        [docKey]: [...prev[docKey], ...newUrls],
-      }));
-      toast.success(
-        `${newUrls.length} file${newUrls.length > 1 ? 's' : ''} uploaded!`,
-      );
+    const newUrls = results.filter((url): url is string => Boolean(url));
+
+    if (!newUrls.length) {
+      return;
     }
+
+    setDocs((previous) => ({
+      ...previous,
+      trainingCertUrls: [...previous.trainingCertUrls, ...newUrls],
+    }));
+
+    toast.success(
+      `${newUrls.length} training certificate${
+        newUrls.length > 1 ? 's' : ''
+      } uploaded!`,
+    );
   };
 
-  const removeMultiFile = (
-    docKey: 'trainingCertUrls' | 'medicalCertUrls',
-    url: string,
-  ) => {
-    setDocs((prev) => ({
-      ...prev,
-      [docKey]: prev[docKey].filter((u) => u !== url),
+  const removeMultiFile = (_docKey: 'trainingCertUrls', url: string) => {
+    setDocs((previous) => ({
+      ...previous,
+
+      trainingCertUrls: previous.trainingCertUrls.filter(
+        (item) => item !== url,
+      ),
     }));
   };
 
   const getMissingDocumentMessage = (): string | null => {
-    if (!docs.photoUrl) return 'Please upload your profile photo first.';
-    if (!docs.validIdFrontUrl || !docs.validIdBackUrl)
+    if (!docs.photoUrl) {
+      return 'Please upload your profile photo first.';
+    }
+    if (!docs.validIdFrontUrl || !docs.validIdBackUrl) {
       return 'Please upload both sides of your Valid ID first.';
-    if (docs.trainingCertUrls.length === 0)
+    }
+    if (docs.trainingCertUrls.length === 0) {
       return 'Please upload at least one training certificate first.';
-    if (!docs.barangayClearanceUrl)
-      return 'Please upload your Barangay Clearance first.';
-    if (docs.medicalCertUrls.length === 0)
-      return 'Please upload at least one medical certificate first.';
+    }
+
     return null;
   };
 
   const onStep1Submit = (data: ApplicationStep1Input) => {
     setStep1Data(data);
-    console.log(data);
     setStep(2);
   };
 
+  const onSaveDraft = async () => {
+    const currentData = getValues();
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await saveVolunteerApplicationDraftServices({
+        ...currentData,
+        ...docs,
+        status: 'draft',
+      });
+
+      const json = await response.json();
+
+      if (!response.ok) {
+        toast.error(json.error ?? 'Failed to save application draft.');
+
+        return;
+      }
+
+      setStep1Data(currentData);
+      toast.success('Application saved as draft.');
+      router.push('/profile');
+      router.refresh();
+    } catch {
+      toast.error('Failed to save application draft. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const onFinalSubmit = async () => {
-    if (!step1Data) return;
+    const isStep1Valid = await new Promise<boolean>((resolve) => {
+      handleSubmit(
+        () => resolve(true),
+        () => resolve(false),
+      )();
+    });
+
+    if (!isStep1Valid) {
+      setStep(1);
+      toast.error('Please complete all required information.');
+      return;
+    }
+
+    const currentData = getValues();
+    setStep1Data(currentData);
     const missingDocMessage = getMissingDocumentMessage();
     if (missingDocMessage) {
       toast.error(missingDocMessage);
       setStep(2);
       return;
     }
+
     if (!certified) {
       toast.error('Please certify that your information is true and correct.');
       return;
     }
 
     setIsSubmitting(true);
+
     try {
-      const res = await submitVolunteerApplicationServices({
-        ...step1Data,
+      const response = await submitVolunteerApplicationServices({
+        ...currentData,
         ...docs,
       });
 
-      const json = await res.json();
-      if (!res.ok) {
-        toast.error(json.error ?? 'Submission failed');
+      const json = await response.json();
+
+      if (!response.ok) {
+        toast.error(json.error ?? 'Submission failed.');
+
         return;
       }
 
@@ -219,8 +371,11 @@ export const useVolunteerSubmitApplication = ({
     docs,
     step,
     setStep,
-    control,
     step1Data,
+    control,
+    watch,
+    setValue,
+    getValues,
     isSubmitting,
     uploadingKeys,
     certified,
@@ -232,6 +387,7 @@ export const useVolunteerSubmitApplication = ({
     handleMultiFileChange,
     removeMultiFile,
     onStep1Submit,
+    onSaveDraft,
     onFinalSubmit,
     MAX_MULTI_FILES,
     getMissingDocumentMessage,

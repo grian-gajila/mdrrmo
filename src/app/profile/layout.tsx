@@ -109,7 +109,7 @@ export default async function DisplayLayout({
                     <p className="mt-0.5 text-xs text-gray-500">{user.email}</p>
                     {application && (
                       <span
-                        className={`mt-2 rounded-full px-2.5 py-1 text-xs font-medium ${statusConfig[application.status]}`}
+                        className={`mt-2 rounded-full px-2.5 py-1 text-xs font-medium ${statusConfig[application.status as keyof typeof statusConfig]}`}
                       >
                         {application.status
                           .replace('_', ' ')

@@ -40,7 +40,9 @@ export default async function ProfilePage() {
       .then((r) => r[0] ?? null),
   ]);
 
-  const statusCfg = application ? statusConfig[application.status] : null;
+  const statusCfg = application
+    ? statusConfig[application.status as keyof typeof statusConfig]
+    : null;
 
   return (
     <div className="space-y-6 w-full py-10 md:py-0 md:pb-10 mx-auto">
@@ -104,8 +106,8 @@ export default async function ProfilePage() {
             <div>
               <p className="font-bold text-green-900">Active Volunteer</p>
               <p className="text-sm text-green-700">
-                Role: {application.volunteerRole} ·{' '}
-                {hiredRecord.deploymentCount} deployment(s)
+                Role: {application.primaryRole} · {hiredRecord.deploymentCount}{' '}
+                deployment(s)
               </p>
             </div>
           </div>

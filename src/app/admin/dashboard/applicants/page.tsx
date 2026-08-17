@@ -1,7 +1,7 @@
 import { ApplicantsTable } from '@/components/admin/applicants-table';
 import { getAdminSession } from '@/lib/auth/admin-auth';
 import { db } from '@/lib/db';
-import { volunteerApplications, volunteerProfiles } from '@/lib/db/schema';
+import { volunteerApplications } from '@/lib/db/schema';
 import { desc, eq, ne } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
 
@@ -14,52 +14,11 @@ export default async function ApplicantsPage({
   if (!admin) redirect('/admin/login');
 
   const statusFilter = searchParams.status as
-    | 'pending'
-    | 'under_review'
-    | 'rejected'
-    | undefined;
+    'pending' | 'under_review' | 'rejected' | undefined;
 
   const rows = await db
-    .select({
-      id: volunteerApplications.id,
-      firstName: volunteerApplications.firstName,
-      middleName: volunteerApplications.middleName,
-      lastName: volunteerApplications.lastName,
-      gender: volunteerApplications.gender,
-      age: volunteerApplications.age,
-      dateOfBirth: volunteerApplications.dateOfBirth,
-      nationality: volunteerApplications.nationality,
-      nativePlace: volunteerApplications.nativePlace,
-      educationLevel: volunteerApplications.educationLevel,
-      politicalStatus: volunteerApplications.politicalStatus,
-      healthStatus: volunteerApplications.healthStatus,
-      maritalStatus: volunteerApplications.maritalStatus,
-      volunteerRole: volunteerApplications.volunteerRole,
-      idNumber: volunteerApplications.idNumber,
-      idCardType: volunteerApplications.idCardType,
-      sitio: volunteerApplications.sitio,
-      barangay: volunteerApplications.barangay,
-      municipality: volunteerApplications.municipality,
-      province: volunteerApplications.province,
-      contactNumber: volunteerApplications.contactNumber,
-      homePhone: volunteerApplications.homePhone,
-      email: volunteerApplications.email,
-      emergencyContact: volunteerApplications.emergencyContact,
-      volunteeringExperience: volunteerApplications.volunteeringExperience,
-      validIdFrontUrl: volunteerApplications.validIdFrontUrl,
-      validIdBackUrl: volunteerApplications.validIdBackUrl,
-      trainingCertUrl: volunteerApplications.trainingCertUrl,
-      barangayClearanceUrl: volunteerApplications.barangayClearanceUrl,
-      medicalCertUrl: volunteerApplications.medicalCertUrl,
-      photoUrl: volunteerApplications.photoUrl,
-      status: volunteerApplications.status,
-      submittedAt: volunteerApplications.submittedAt,
-    })
+    .select()
     .from(volunteerApplications)
-    .leftJoin(
-      volunteerProfiles,
-      eq(volunteerApplications.volunteerId, volunteerProfiles.id),
-    )
     .where(
       statusFilter
         ? eq(volunteerApplications.status, statusFilter)

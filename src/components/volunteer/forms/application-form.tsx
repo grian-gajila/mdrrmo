@@ -2,6 +2,7 @@
 
 import { ShieldSpinLoader } from '@/components/custom/loading';
 import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -9,9 +10,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { format, parse } from 'date-fns';
-
-import { Calendar } from '@/components/ui/calendar';
 import {
   Select,
   SelectContent,
@@ -22,15 +20,23 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+
 import { statusConfig } from '@/data/status';
 import { documentTypes, steps } from '@/data/volunteer/application-details';
+
 import useVolunteerSubmitApplication from '@/hooks/use-volunteer-submit-application';
 import { cn } from '@/lib/utils';
-import {
+
+import type {
   ApplicationFormClientProps,
   MultiUploadSlotProps,
   SingleUploadSlotProps,
 } from '@/types';
+
+import { listBarangays, listMuncities, listProvinces } from '@jobuntux/psgc';
+
+import { format, parse } from 'date-fns';
+
 import {
   AlertCircle,
   ArrowLeft,
@@ -50,10 +56,27 @@ import {
   Workflow,
   X,
 } from 'lucide-react';
+
 import { useRouter } from 'next/navigation';
 import { Controller } from 'react-hook-form';
 import { toast } from 'sonner';
+
 import { ApplicationPreview } from '../application-preview';
+
+const VOLUNTEER_ROLES = [
+  'Rescue and Emergency Response',
+  'Medical and First Aid',
+  'Communications and Early Warning',
+  'Evacuation and Camp Management',
+  'Relief and Logistics',
+  'Information Management and Documentation',
+  'Damage Assessment',
+  'Community Preparedness and Training',
+  'Psychosocial Support',
+  'Environmental Protection and Rehabilitation',
+  'Administrative and EOC Support',
+  'Youth and Child Support',
+] as const;
 
 export function ApplicationFormClient({
   existingApplication,
@@ -67,6 +90,8 @@ export function ApplicationFormClient({
     setStep,
     step1Data,
     control,
+    watch,
+    setValue,
     isSubmitting,
     uploadingKeys,
     certified,
@@ -78,6 +103,7 @@ export function ApplicationFormClient({
     handleMultiFileChange,
     removeMultiFile,
     onStep1Submit,
+    onSaveDraft,
     onFinalSubmit,
     MAX_MULTI_FILES,
     getMissingDocumentMessage,
@@ -85,72 +111,131 @@ export function ApplicationFormClient({
     firstName: userData?.firstName,
     lastName: userData?.lastName,
     email: userData?.email,
+    existingApplication,
   });
 
-  if (existingApplication) {
+  const employmentStatus = watch('employmentStatus');
+  const primaryRole = watch('primaryRole');
+
+  const provinceCode = watch('provinceCode');
+  const municipalityCode = watch('municipalityCode');
+  const barangayCode = watch('barangayCode');
+
+  const provinces = listProvinces();
+
+  const municipalities = provinceCode ? listMuncities(provinceCode) : [];
+
+  const barangays = municipalityCode ? listBarangays(municipalityCode) : [];
+
+  const secondaryRoleOptions = VOLUNTEER_ROLES.filter(
+    (role) => role !== primaryRole,
+  );
+
+  const selectedProvince = provinces.find(
+    (province) => province.psgcCode === provinceCode,
+  );
+
+  const selectedMunicipality = municipalities.find(
+    (municipality) => municipality.psgcCode === municipalityCode,
+  );
+  const selectedBarangay = barangays.find(
+    (barangay) => barangay.brgyCode === barangayCode,
+  );
+
+  if (existingApplication && existingApplication.status !== 'draft') {
     const cfg = statusConfig[existingApplication.status];
+
     const Icon = cfg.icon;
+
     return (
       <div className="w-full pb-10">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">My Application</h1>
+
           <p className="mt-0.5 text-sm text-gray-500">
             Track your volunteer application status
           </p>
         </div>
 
-        <div className={`rounded-lg border p-6 mt-4 mb-2 ${cfg.bg}`}>
+        <div className={`mt-4 mb-2 rounded-lg border p-6 ${cfg.bg}`}>
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border  bg-white/60">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border bg-white/60">
               <Icon className={`h-6 w-6 ${cfg.color}`} />
             </div>
+
             <div>
               <h2 className={`text-lg font-bold ${cfg.color}`}>
                 Status: {cfg.label}
               </h2>
+
               <p className="mt-1 text-sm text-gray-600">
                 {existingApplication.status === 'pending' &&
                   'Your application is in the queue. MDRRMO staff will review it within 3–5 business days.'}
+
                 {existingApplication.status === 'under_review' &&
                   "Our team is currently reviewing your application. You'll hear from us soon."}
+
                 {existingApplication.status === 'approved' &&
                   'Congratulations! Your application has been approved. You will be contacted for orientation and next steps.'}
+
                 {existingApplication.status === 'rejected' &&
                   'We were unable to approve your application at this time. You may contact MDRRMO for more details or re-apply later.'}
               </p>
+
               {existingApplication.submittedAt && (
                 <p className="mt-2 text-xs text-gray-400">
                   Submitted on{' '}
                   {new Date(existingApplication.submittedAt).toLocaleDateString(
                     'en-PH',
-                    { dateStyle: 'long' },
+                    {
+                      dateStyle: 'long',
+                    },
                   )}
                 </p>
               )}
             </div>
           </div>
         </div>
+
         <ApplicationPreview />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 w-full py-10 md:py-0 md:pb-10 mx-auto overflow-hidden">
+    <div className="mx-auto w-full space-y-6 overflow-hidden py-10 md:py-0 md:pb-10">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">
           Volunteer Application
         </h1>
+
         <p className="mt-0.5 text-sm text-gray-500">
           Disaster Relief Volunteer Registration Form
         </p>
+
+        {existingApplication?.status === 'draft' && (
+          <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700">
+            <FileText className="h-3.5 w-3.5" />
+            Draft application
+          </div>
+        )}
       </div>
-      <div className="py-10 flex items-start overflow-hidden justify-center mx-auto">
-        {steps.map((s, i) => (
+
+      <div className="mx-auto flex items-start justify-center overflow-hidden py-10">
+        {steps.map((s, index) => (
           <div key={s.id} className="flex items-start">
-            <button className="flex lg:w-28 md:w-28 w-24 flex-col items-center gap-2">
+            <button
+              type="button"
+              disabled={step < s.id}
+              onClick={() => {
+                if (step > s.id) {
+                  setStep(s.id);
+                }
+              }}
+              className="flex w-24 flex-col items-center gap-2 md:w-28 lg:w-28"
+            >
               <div
-                className={`flex h-8 w-8 md:h-9 lg:h-10 md:w-9 lg:w-10 items-center justify-center rounded-full text-sm font-bold transition-all ${
+                className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold transition-all md:h-9 md:w-9 lg:h-10 lg:w-10 ${
                   step > s.id
                     ? 'cursor-pointer bg-green-500 text-white'
                     : step === s.id
@@ -160,16 +245,21 @@ export function ApplicationFormClient({
               >
                 {step > s.id ? <Check className="h-5 w-5" /> : s.id}
               </div>
+
               <span
-                className={`text-center lg:text-xs text-[8px] md:text-xs sm:text-[10px] leading-tight font-semibold ${step === s.id ? 'text-orange-500' : 'text-gray-400'}`}
+                className={`text-center text-[8px] font-semibold leading-tight sm:text-[10px] md:text-xs lg:text-xs ${
+                  step === s.id ? 'text-orange-500' : 'text-gray-400'
+                }`}
               >
                 {s.title}
               </span>
             </button>
 
-            {i < steps.length - 1 && (
+            {index < steps.length - 1 && (
               <div
-                className={`mx-1 mt-5 h-0.5 lg:w-40 md:w-35 sm:w-20 w-5 transition-colors ${step > s.id ? 'bg-green-400' : 'bg-gray-200'}`}
+                className={`mx-1 mt-5 h-0.5 w-5 transition-colors sm:w-20 md:w-35 lg:w-40 ${
+                  step > s.id ? 'bg-green-400' : 'bg-gray-200'
+                }`}
               />
             )}
           </div>
@@ -182,16 +272,18 @@ export function ApplicationFormClient({
             <div className="bg-linear-to-r from-orange-500 to-red-600 px-6 py-5">
               <div className="flex items-center gap-3">
                 <User className="h-5 w-5 text-white" />
+
                 <h2 className="font-bold text-white">Personal Information</h2>
               </div>
+
               <p className="mt-1 text-xs text-orange-100">
                 Fill in your personal details accurately
               </p>
             </div>
 
-            <div className="space-y-6 p-6 mx-auto flex-wrap">
+            <div className="space-y-6 p-6">
               <div className="flex items-center gap-5 rounded-lg border border-orange-100 bg-orange-50 p-4">
-                <Label className="flex h-20 w-20 shrink-0 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-orange-300 bg-white hover:bg-orange-50 transition-colors">
+                <Label className="flex h-20 w-20 shrink-0 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-orange-300 bg-white transition-colors hover:bg-orange-50">
                   {docs.photoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -209,11 +301,12 @@ export function ApplicationFormClient({
                     type="file"
                     className="hidden"
                     accept=".pdf,.jpg,.jpeg,.png"
-                    onChange={(e) =>
-                      handleFileChange(e, 'photoUrl', 'photo', 'Photo')
+                    onChange={(event) =>
+                      handleFileChange(event, 'photoUrl', 'photo', 'Photo')
                     }
                   />
                 </Label>
+
                 <div>
                   <p className="text-sm font-semibold text-gray-900">
                     Profile Photo
@@ -223,15 +316,17 @@ export function ApplicationFormClient({
                   </p>
                   {docs.photoUrl && (
                     <p className="mt-1 flex items-center gap-1 text-xs text-green-600">
-                      <CheckCircle className="h-3 w-3" /> Uploaded
+                      <CheckCircle className="h-3 w-3" />
+                      Uploaded
                     </p>
                   )}
                 </div>
               </div>
 
-              <div className=" pt-5">
+              <div className="border-t border-gray-100 pt-5">
                 <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-gray-900">
-                  <User className="h-4 w-4 text-orange-500" /> Basic Information
+                  <User className="h-4 w-4 text-orange-500" />
+                  Basic Information
                 </h3>
               </div>
 
@@ -242,16 +337,15 @@ export function ApplicationFormClient({
                   </Label>
                   <Input
                     {...register('firstName')}
-                    placeholder="e.g. Juan"
                     defaultValue={userData?.firstName}
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    placeholder="e.g. Juan"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"
                   />
                   {errors.firstName && (
-                    <p className="text-xs text-red-600">
-                      {errors.firstName.message}
-                    </p>
+                    <FieldError>{errors.firstName.message}</FieldError>
                   )}
                 </div>
+
                 <div>
                   <Label className="text-sm font-medium text-gray-700">
                     Middle Name *
@@ -259,14 +353,13 @@ export function ApplicationFormClient({
                   <Input
                     {...register('middleName')}
                     placeholder="e.g. Santos"
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"
                   />
                   {errors.middleName && (
-                    <p className="text-xs text-red-600">
-                      {errors.middleName.message}
-                    </p>
+                    <FieldError>{errors.middleName.message}</FieldError>
                   )}
                 </div>
+
                 <div>
                   <Label className="text-sm font-medium text-gray-700">
                     Last Name *
@@ -275,17 +368,13 @@ export function ApplicationFormClient({
                     {...register('lastName')}
                     placeholder="e.g. Dela Cruz"
                     defaultValue={userData?.lastName}
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"
                   />
                   {errors.lastName && (
-                    <p className="text-xs text-red-600">
-                      {errors.lastName.message}
-                    </p>
+                    <FieldError>{errors.lastName.message}</FieldError>
                   )}
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div>
                   <Label className="text-sm font-medium text-gray-700">
                     Gender *
@@ -298,7 +387,7 @@ export function ApplicationFormClient({
                         value={field.value}
                         onValueChange={field.onChange}
                       >
-                        <SelectTrigger className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500">
+                        <SelectTrigger className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm">
                           <SelectValue placeholder="Select your gender..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -315,33 +404,31 @@ export function ApplicationFormClient({
                     )}
                   />
                   {errors.gender && (
-                    <p className="text-xs text-red-600">
-                      {errors.gender.message}
-                    </p>
+                    <FieldError>{errors.gender.message}</FieldError>
                   )}
-                  {}
                 </div>
+
                 <div>
                   <Label className="text-sm font-medium text-gray-700">
                     Age *
                   </Label>
                   <Input
-                    {...register('age', { valueAsNumber: true })}
                     type="number"
-                    placeholder="21"
                     min={18}
                     max={70}
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    placeholder="21"
+                    {...register('age', {
+                      setValueAs: (value) =>
+                        value === '' ? undefined : Number(value),
+                    })}
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"
                   />
-                  {errors.age && (
-                    <p className="text-xs text-red-600">{errors.age.message}</p>
-                  )}
+                  {errors.age && <FieldError>{errors.age.message}</FieldError>}
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-gray-700">
                     Date of Birth *
                   </Label>
-
                   <Controller
                     control={control}
                     name="dateOfBirth"
@@ -357,15 +444,16 @@ export function ApplicationFormClient({
                             )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-
                             {field.value ? (
-                              format(field.value, 'PPP')
+                              format(
+                                parse(field.value, 'yyyy-MM-dd', new Date()),
+                                'PPP',
+                              )
                             ) : (
                               <span>Pick a date</span>
                             )}
                           </Button>
                         </PopoverTrigger>
-
                         <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
                             mode="single"
@@ -379,7 +467,6 @@ export function ApplicationFormClient({
                                 field.onChange('');
                                 return;
                               }
-
                               const year = date.getFullYear();
                               const month = String(
                                 date.getMonth() + 1,
@@ -399,14 +486,10 @@ export function ApplicationFormClient({
                     )}
                   />
                   {errors.dateOfBirth && (
-                    <p className="text-xs text-red-600">
-                      {errors.dateOfBirth.message}
-                    </p>
+                    <FieldError>{errors.dateOfBirth.message}</FieldError>
                   )}
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div>
                   <Label className="text-sm font-medium text-gray-700">
                     Nationality *
@@ -414,14 +497,13 @@ export function ApplicationFormClient({
                   <Input
                     {...register('nationality')}
                     placeholder="Filipino"
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"
                   />
                   {errors.nationality && (
-                    <p className="text-xs text-red-600">
-                      {errors.nationality.message}
-                    </p>
+                    <FieldError>{errors.nationality.message}</FieldError>
                   )}
                 </div>
+
                 <div>
                   <Label className="text-sm font-medium text-gray-700">
                     Native Language *
@@ -429,14 +511,13 @@ export function ApplicationFormClient({
                   <Input
                     {...register('nativePlace')}
                     placeholder="e.g. Tagalog"
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"
                   />
                   {errors.nativePlace && (
-                    <p className="text-xs text-red-600">
-                      {errors.nativePlace.message}
-                    </p>
+                    <FieldError>{errors.nativePlace.message}</FieldError>
                   )}
                 </div>
+
                 <div>
                   <Label className="text-sm font-medium text-gray-700">
                     Education Level *
@@ -449,20 +530,22 @@ export function ApplicationFormClient({
                         value={field.value}
                         onValueChange={field.onChange}
                       >
-                        <SelectTrigger className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500">
-                          <SelectValue placeholder="Select your degree..." />
+                        <SelectTrigger className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm">
+                          <SelectValue placeholder="Select your education level..." />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
-                            <SelectLabel>Select your degree...</SelectLabel>
-                            <SelectItem value="Elementary degree">
-                              Elementary degree
+                            <SelectLabel>
+                              Select your education level...
+                            </SelectLabel>
+                            <SelectItem value="Elementary Level">
+                              Elementary Level
                             </SelectItem>
-                            <SelectItem value="High School degree">
-                              High School degree
+                            <SelectItem value="High School Level">
+                              High School Level
                             </SelectItem>
-                            <SelectItem value="Senior High School degree">
-                              Senior High School degree
+                            <SelectItem value="Senior High School Level">
+                              Senior High School Level
                             </SelectItem>
                             <SelectItem value="College degree">
                               College degree
@@ -470,39 +553,30 @@ export function ApplicationFormClient({
                             <SelectItem value="Masters degree">
                               Masters degree
                             </SelectItem>
+                            <SelectItem value="Doctorate degree">
+                              Doctorate degree
+                            </SelectItem>
+                            <SelectItem value="Vocational or Technical Certificates">
+                              Vocational or Technical Certificates
+                            </SelectItem>
+                            <SelectItem value="Post-Secondary Non-Degree Programs">
+                              Post-Secondary Non-Degree Programs
+                            </SelectItem>
                           </SelectGroup>
                         </SelectContent>
                       </Select>
                     )}
                   />
                   {errors.educationLevel && (
-                    <p className="text-xs text-red-600">
-                      {errors.educationLevel.message}
-                    </p>
+                    <FieldError>{errors.educationLevel.message}</FieldError>
                   )}
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div className="space-y-1.5">
-                  <Label className="text-sm font-medium text-gray-700">
-                    Health Status *
-                  </Label>
-                  <Input
-                    {...register('healthStatus')}
-                    placeholder="Good / Excellent"
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  />
-                  {errors.healthStatus && (
-                    <p className="text-xs text-red-600">
-                      {errors.healthStatus.message}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-1.5">
+                <div>
                   <Label className="text-sm font-medium text-gray-700">
                     Marital Status *
                   </Label>
+
                   <Controller
                     control={control}
                     name="maritalStatus"
@@ -511,127 +585,249 @@ export function ApplicationFormClient({
                         value={field.value}
                         onValueChange={field.onChange}
                       >
-                        <SelectTrigger className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500">
+                        <SelectTrigger className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm">
                           <SelectValue placeholder="Select your status..." />
                         </SelectTrigger>
+
                         <SelectContent>
                           <SelectGroup>
                             <SelectLabel>Select your status...</SelectLabel>
                             <SelectItem value="Single">Single</SelectItem>
                             <SelectItem value="Married">Married</SelectItem>
                             <SelectItem value="Widowed">Widowed</SelectItem>
-                            <SelectItem value="Separated">Separated</SelectItem>
+                            <SelectItem value="Separated">Annulment</SelectItem>
                           </SelectGroup>
                         </SelectContent>
                       </Select>
                     )}
                   />
                   {errors.maritalStatus && (
-                    <p className="text-xs text-red-600">
-                      {errors.maritalStatus.message}
-                    </p>
+                    <FieldError>{errors.maritalStatus.message}</FieldError>
                   )}
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="text-sm font-medium text-gray-700">
-                    Political Status{' '}
-                    <span className="text-orange-400"> (Optional)</span>
-                  </Label>
-                  <Input
-                    {...register('politicalStatus')}
-                    placeholder="e.g. Civilian"
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  />
-                </div>
+
                 <div>
+                  <Label className="text-sm font-medium text-gray-700">
+                    Employment Status *
+                  </Label>
                   <Controller
                     control={control}
-                    name="volunteerRole"
+                    name="employmentStatus"
                     render={({ field }) => (
                       <Select
                         value={field.value}
-                        onValueChange={field.onChange}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+
+                          if (value === 'Unemployed') {
+                            setValue('natureOfEmployment', '');
+                            setValue('position', '');
+                            setValue('employer', '');
+                          }
+                        }}
                       >
-                        <SelectTrigger className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500">
-                          <SelectValue placeholder="Select your prepared role..." />
+                        <SelectTrigger className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm">
+                          <SelectValue placeholder="Select employment status..." />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
                             <SelectLabel>
-                              Select your prepared role...
+                              Select employment status...
                             </SelectLabel>
-                            <SelectItem value="Rescue and Emergency Response">
-                              Rescue and Emergency Response
-                            </SelectItem>
-                            <SelectItem value="Medical and First Aid">
-                              Medical and First Aid
-                            </SelectItem>
-                            <SelectItem value="Communications and Early Warning">
-                              Communications and Early Warning
-                            </SelectItem>
-                            <SelectItem value="Evacuation and Camp Management">
-                              Evacuation and Camp Management
-                            </SelectItem>
-                            <SelectItem value="Relief and Logistics">
-                              Relief and Logistics
-                            </SelectItem>
-                            <SelectItem value="Information Management and Documentation">
-                              Information Management and Documentation
-                            </SelectItem>
-                            <SelectItem value="Damage Assessment">
-                              Damage Assessment
-                            </SelectItem>
-                            <SelectItem value="Community Preparedness and Training">
-                              Community Preparedness and Training
-                            </SelectItem>
-                            <SelectItem value="Psychosocial Support">
-                              Psychosocial Support
-                            </SelectItem>
-                            <SelectItem value="Environmental Protection and Rehabilitation">
-                              Environmental Protection and Rehabilitation
-                            </SelectItem>
-                            <SelectItem value="Administrative and EOC Support">
-                              Administrative and EOC Support
-                            </SelectItem>
-                            <SelectItem value="Youth and Child Support">
-                              Youth and Child Support
+                            <SelectItem value="Employed">Employed</SelectItem>
+                            <SelectItem value="Unemployed">
+                              Unemployed
                             </SelectItem>
                           </SelectGroup>
                         </SelectContent>
                       </Select>
                     )}
                   />
-                  {errors.volunteerRole && (
-                    <p className="text-xs text-red-600">
-                      {errors.volunteerRole.message}
-                    </p>
+                  {errors.employmentStatus && (
+                    <FieldError>{errors.employmentStatus.message}</FieldError>
+                  )}
+                </div>
+
+                {employmentStatus === 'Employed' && (
+                  <>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">
+                        Nature of Employment *
+                      </Label>
+                      <Controller
+                        control={control}
+                        name="natureOfEmployment"
+                        render={({ field }) => (
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <SelectTrigger className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm">
+                              <SelectValue placeholder="Select nature of employment..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectLabel>
+                                  Select nature of employment...
+                                </SelectLabel>
+                                <SelectItem value="Self Employed / Business Owner">
+                                  Self Employed / Business Owner
+                                </SelectItem>
+                                <SelectItem value="Government Employee">
+                                  Government Employee
+                                </SelectItem>
+                                <SelectItem value="Part-Time / Job Order">
+                                  Part-Time / Job Order
+                                </SelectItem>
+                                <SelectItem value="Contract of Service">
+                                  Contract of Service
+                                </SelectItem>
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                      {errors.natureOfEmployment && (
+                        <FieldError>
+                          {errors.natureOfEmployment.message}
+                        </FieldError>
+                      )}
+                    </div>
+
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">
+                        Position *
+                      </Label>
+                      <Input
+                        {...register('position')}
+                        placeholder="e.g. Specialist"
+                        className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"
+                      />
+                      {errors.position && (
+                        <FieldError>{errors.position.message}</FieldError>
+                      )}
+                    </div>
+
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">
+                        Employer&apos;s Name *
+                      </Label>
+                      <Input
+                        {...register('employer')}
+                        placeholder="e.g. Juan Dela Cruz Enterprises"
+                        className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"
+                      />
+                      {errors.employer && (
+                        <FieldError>{errors.employer.message}</FieldError>
+                      )}
+                    </div>
+                  </>
+                )}
+
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">
+                    Primary Prepared Role *
+                  </Label>
+                  <Controller
+                    control={control}
+                    name="primaryRole"
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+
+                          if (watch('secondaryRole') === value) {
+                            setValue('secondaryRole', '');
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm">
+                          <SelectValue placeholder="Select primary role..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Select primary role...</SelectLabel>
+                            {VOLUNTEER_ROLES.map((role) => (
+                              <SelectItem key={role} value={role}>
+                                {role}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.primaryRole && (
+                    <FieldError>{errors.primaryRole.message}</FieldError>
+                  )}
+                </div>
+
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">
+                    Secondary Prepared Role *
+                  </Label>
+                  <Controller
+                    control={control}
+                    name="secondaryRole"
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        disabled={!primaryRole}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm">
+                          <SelectValue
+                            placeholder={
+                              primaryRole
+                                ? 'Select secondary role...'
+                                : 'Select primary role first...'
+                            }
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Select secondary role...</SelectLabel>
+                            {secondaryRoleOptions.map((role) => (
+                              <SelectItem key={role} value={role}>
+                                {role}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+
+                  {errors.secondaryRole && (
+                    <FieldError>{errors.secondaryRole.message}</FieldError>
                   )}
                 </div>
               </div>
 
               <div className="border-t border-gray-100 pt-5">
                 <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-gray-900">
-                  <IdCard className="h-4 w-4 text-orange-500" /> Identification
+                  <IdCard className="h-4 w-4 text-orange-500" />
+                  Identification
                 </h3>
               </div>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="space-y-1.5">
+                <div>
                   <Label className="text-sm font-medium text-gray-700">
                     ID Number *
                   </Label>
                   <Input
                     {...register('idNumber')}
                     placeholder="XXX-XXXX-XXX-XXX"
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 font-mono text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 font-mono text-sm"
                   />
                   {errors.idNumber && (
-                    <p className="text-xs text-red-600">
-                      {errors.idNumber.message}
-                    </p>
+                    <FieldError>{errors.idNumber.message}</FieldError>
                   )}
                 </div>
-                <div className="space-y-1.5">
+
+                <div>
                   <Label className="text-sm font-medium text-gray-700">
                     ID Card Type *
                   </Label>
@@ -643,7 +839,7 @@ export function ApplicationFormClient({
                         value={field.value}
                         onValueChange={field.onChange}
                       >
-                        <SelectTrigger className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500">
+                        <SelectTrigger className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm">
                           <SelectValue placeholder="Select card type..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -659,7 +855,9 @@ export function ApplicationFormClient({
                               Driver&apos;s License
                             </SelectItem>
                             <SelectItem value="Passport">Passport</SelectItem>
-                            <SelectItem value="SSS ID">SSS ID</SelectItem>
+                            <SelectItem value="SSS ID">
+                              SSS ID / GSIS ID
+                            </SelectItem>
                             <SelectItem value="PhilHealth ID">
                               PhilHealth ID
                             </SelectItem>
@@ -671,190 +869,276 @@ export function ApplicationFormClient({
                   />
 
                   {errors.idCardType && (
-                    <p className="text-xs text-red-600">
-                      {errors.idCardType.message}
-                    </p>
+                    <FieldError>{errors.idCardType.message}</FieldError>
                   )}
                 </div>
               </div>
 
               <div className="border-t border-gray-100 pt-5">
                 <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-gray-900">
-                  <MapPinHouse className="h-4 w-4 text-orange-500" /> Contact &
-                  Address
+                  <MapPinHouse className="h-4 w-4 text-orange-500" />
+                  Contact & Address
                 </h3>
               </div>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 sm:col-span-3">
                   <Label className="text-sm font-medium text-gray-700">
-                    Sitio *
+                    Complete Address *
                   </Label>
-                  <Input
-                    {...register('sitio')}
-                    placeholder="e.g. Centro 2"
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  <Textarea
+                    {...register('completeAddress')}
+                    placeholder="House/Building No., Street, Purok/Sitio, and other address details"
+                    className="min-h-24 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"
                   />
-                  {errors.sitio && (
-                    <p className="text-xs text-red-600">
-                      {errors.sitio.message}
-                    </p>
+                  {errors.completeAddress && (
+                    <FieldError>{errors.completeAddress.message}</FieldError>
                   )}
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="text-sm font-medium text-gray-700">
-                    Barangay *
-                  </Label>
-                  <Input
-                    {...register('barangay')}
-                    placeholder="e.g. Don Pedro"
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  />
-                  {errors.barangay && (
-                    <p className="text-xs text-red-600">
-                      {errors.barangay.message}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-sm font-medium text-gray-700">
-                    Municipality *
-                  </Label>
-                  <Input
-                    {...register('municipality')}
-                    placeholder="e.g. Mansalay"
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  />
-                  {errors.municipality && (
-                    <p className="text-xs text-red-600">
-                      {errors.municipality.message}
-                    </p>
-                  )}
-                </div>
-              </div>
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div className="space-y-1.5">
+                <div>
                   <Label className="text-sm font-medium text-gray-700">
                     Province *
                   </Label>
-                  <Input
-                    {...register('province')}
-                    placeholder="e.g. Oriental Mindoro"
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+
+                  <Controller
+                    control={control}
+                    name="provinceCode"
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          setValue('municipalityCode', '');
+                          setValue('barangayCode', '');
+                        }}
+                      >
+                        <SelectTrigger className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm">
+                          <SelectValue placeholder="Select province..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Select province...</SelectLabel>
+                            {provinces.map((province) => (
+                              <SelectItem
+                                key={province.psgcCode}
+                                value={province.psgcCode}
+                              >
+                                {String(province)}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    )}
                   />
-                  {errors.province && (
-                    <p className="text-xs text-red-600">
-                      {errors.province.message}
-                    </p>
+                  {errors.provinceCode && (
+                    <FieldError>{errors.provinceCode.message}</FieldError>
                   )}
                 </div>
-                <div className="space-y-1.5">
+
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">
+                    Municipality / City *
+                  </Label>
+
+                  <Controller
+                    control={control}
+                    name="municipalityCode"
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        disabled={!provinceCode}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+
+                          setValue('barangayCode', '');
+                        }}
+                      >
+                        <SelectTrigger className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm">
+                          <SelectValue
+                            placeholder={
+                              provinceCode
+                                ? 'Select municipality/city...'
+                                : 'Select province first...'
+                            }
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>
+                              Select municipality/city...
+                            </SelectLabel>
+
+                            {municipalities.map((municipality) => (
+                              <SelectItem
+                                key={municipality.psgcCode}
+                                value={municipality.psgcCode}
+                              >
+                                {String(municipality)}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+
+                  {errors.municipalityCode && (
+                    <FieldError>{errors.municipalityCode.message}</FieldError>
+                  )}
+                </div>
+
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">
+                    Barangay *
+                  </Label>
+
+                  <Controller
+                    control={control}
+                    name="barangayCode"
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        disabled={!municipalityCode}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm">
+                          <SelectValue
+                            placeholder={
+                              municipalityCode
+                                ? 'Select barangay...'
+                                : 'Select municipality first...'
+                            }
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Select barangay...</SelectLabel>
+                            {barangays.map((barangay) => (
+                              <SelectItem
+                                key={barangay.psgcCode}
+                                value={barangay.psgcCode}
+                              >
+                                {String(barangay)}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+
+                  {errors.barangayCode && (
+                    <FieldError>{errors.barangayCode.message}</FieldError>
+                  )}
+                </div>
+
+                <div>
                   <Label className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
-                    <Phone className="h-3.5 w-3.5" /> Contact Number *
+                    <Phone className="h-3.5 w-3.5" />
+                    Contact Number *
                   </Label>
                   <Input
                     {...register('contactNumber')}
                     placeholder="09XXXXXXXXX"
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"
                   />
                   {errors.contactNumber && (
-                    <p className="text-xs text-red-600">
-                      {errors.contactNumber.message}
-                    </p>
+                    <FieldError>{errors.contactNumber.message}</FieldError>
                   )}
                 </div>
-                <div className="space-y-1.5">
+
+                <div>
                   <Label className="text-sm font-medium text-gray-700">
                     Home Phone{' '}
                     <span className="text-orange-400">(Optional)</span>
                   </Label>
+
                   <Input
                     {...register('homePhone')}
                     placeholder="(042) XXX-XXXX"
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"
                   />
+
+                  {errors.homePhone && (
+                    <FieldError>{errors.homePhone.message}</FieldError>
+                  )}
                 </div>
-                <div className="space-y-1.5">
+
+                <div>
                   <Label className="text-sm font-medium text-gray-700">
                     Email Address *
                   </Label>
+
                   <Input
                     {...register('email')}
-                    defaultValue={userData?.email}
                     placeholder="e.g. you@gmail.com"
-                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    defaultValue={userData?.email}
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"
                   />
                   {errors.email && (
-                    <p className="text-xs text-red-600">
-                      {errors.email.message}
-                    </p>
+                    <FieldError>{errors.email.message}</FieldError>
                   )}
                 </div>
               </div>
 
               <div className="border-t border-gray-100 pt-5">
                 <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-gray-900">
-                  <Heart className="h-4 w-4 text-orange-500" /> Emergency
-                  Contact
+                  <Heart className="h-4 w-4 text-orange-500" />
+                  Emergency Contact
                 </h3>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {[
-                    {
-                      label: 'Full Name *',
-                      field: 'emergencyName' as const,
-                      placeholder: 'Contact person name',
-                    },
-                    {
-                      label: 'Relation *',
-                      field: 'emergencyRelation' as const,
-                      placeholder: 'e.g. Parent, Sibling',
-                    },
-                    {
-                      label: 'Contact Number *',
-                      field: 'emergencyContact' as const,
-                      placeholder: '09XXXXXXXXX',
-                    },
-                    {
-                      label: 'Address *',
-                      field: 'emergencyAddress' as const,
-                      placeholder: 'e.g. Centro 2, Don Pedro, Mansalay',
-                    },
-                  ].map((f) => (
-                    <div key={f.field} className="space-y-1.5">
-                      <Label className="text-sm font-medium text-gray-700">
-                        {f.label}
-                      </Label>
-                      <Input
-                        {...register(f.field)}
-                        placeholder={f.placeholder}
-                        className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
-                      />
-                      {errors[f.field] && (
-                        <p className="text-xs text-red-600">
-                          {errors[f.field]?.message}
-                        </p>
-                      )}
-                    </div>
-                  ))}
+                  <FormInput
+                    label="Full Name *"
+                    placeholder="Contact person name"
+                    error={errors.emergencyName?.message}
+                    {...register('emergencyName')}
+                  />
+                  <FormInput
+                    label="Relation *"
+                    placeholder="e.g. Parent, Sibling"
+                    error={errors.emergencyRelation?.message}
+                    {...register('emergencyRelation')}
+                  />
+                  <FormInput
+                    label="Contact Number *"
+                    placeholder="09XXXXXXXXX"
+                    error={errors.emergencyContact?.message}
+                    {...register('emergencyContact')}
+                  />
+                  <FormInput
+                    label="Address *"
+                    placeholder="e.g. Poblacion, Mansalay"
+                    error={errors.emergencyAddress?.message}
+                    {...register('emergencyAddress')}
+                  />
                 </div>
               </div>
 
               <div className="border-t border-gray-100 pt-5">
                 <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-gray-900">
-                  <Workflow className="h-4 w-4 text-orange-500" /> Experience
+                  <Workflow className="h-4 w-4 text-orange-500" />
+                  Experience
                 </h3>
-              </div>
-              <div className="space-y-1.5">
+
                 <Label className="text-sm font-medium text-gray-700">
                   Volunteering Experience{' '}
-                  <span className="text-orange-400"> (Optional)</span>
+                  <span className="text-orange-400">(Optional)</span>
                 </Label>
+
                 <Textarea
                   {...register('volunteeringExperience')}
-                  placeholder="e.g. 2022 – BFP Auxiliary Firefighter, Municipality of XYZ\n2021 – Red Cross Youth Chapter, Barangay ABC"
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  placeholder={
+                    'e.g. 2022 – BFP Auxiliary Firefighter, Municipality of XYZ\n2021 – Red Cross Youth Chapter, Barangay ABC'
+                  }
+                  className="mt-1.5 min-h-28 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"
                 />
+                {errors.volunteeringExperience && (
+                  <FieldError>
+                    {errors.volunteeringExperience.message}
+                  </FieldError>
+                )}
               </div>
             </div>
 
@@ -862,15 +1146,18 @@ export function ApplicationFormClient({
               <button
                 type="button"
                 onClick={() => router.push('/profile')}
-                className="flex hover:cursor-pointer items-center gap-2 rounded-lg bg-gray-100 px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-200 transition-colors"
+                className="flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
               >
-                <ArrowLeft className="h-4 w-4" /> Back
+                <ArrowLeft className="h-4 w-4" />
+                Back
               </button>
+
               <button
                 type="submit"
-                className="flex hover:cursor-pointer items-center gap-2 rounded-lg bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-200 hover:bg-orange-600 transition-colors"
+                className="flex items-center gap-2 rounded-lg bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-200 transition-colors hover:bg-orange-600"
               >
-                Continue <ArrowRight className="h-4 w-4" />
+                Continue
+                <ArrowRight className="h-4 w-4" />
               </button>
             </div>
           </div>
@@ -882,32 +1169,34 @@ export function ApplicationFormClient({
           <div className="bg-linear-to-r from-orange-500 to-red-600 px-6 py-5">
             <div className="flex items-center gap-3">
               <FileText className="h-5 w-5 text-white" />
+
               <h2 className="font-bold text-white">Upload Documents</h2>
             </div>
+
             <p className="mt-1 text-xs text-orange-100">
               Upload required documents for verification
             </p>
           </div>
 
-          <div className="space-y-4 sm:p-6 p-4">
+          <div className="space-y-4 p-4 sm:p-6">
             <div className="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4">
               <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
-              <p className="sm:text-sm text-xs text-blue-700">
+
+              <p className="text-xs text-blue-700 sm:text-sm">
                 All documents must be clear and legible. Accepted formats: JPG
                 and PNG. Maximum file size: 5 MB each.
               </p>
             </div>
 
             {documentTypes.map((doc) => {
-              let isComplete: boolean;
+              let isComplete = false;
               let completedLabel = 'Uploaded';
 
-              if (doc.kind === 'single') {
-                isComplete = Boolean(docs[doc.key]);
-              } else if (doc.kind === 'sides') {
+              if (doc.kind === 'sides') {
                 isComplete = Boolean(docs[doc.front.key] && docs[doc.back.key]);
               } else {
                 isComplete = docs[doc.key].length > 0;
+
                 completedLabel = `${docs[doc.key].length} uploaded`;
               }
 
@@ -916,34 +1205,33 @@ export function ApplicationFormClient({
                   key={doc.label}
                   className="rounded-lg border border-gray-200 bg-white p-4 transition-all hover:border-orange-200 hover:shadow-sm sm:p-5"
                 >
-                  <div className="flex sm:hidden h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-50 md:h-11 md:w-11 md:rounded-lg">
-                    <doc.icon className="h-5 w-5 text-orange-500" />
-                  </div>
                   <div className="flex items-start justify-between gap-3 sm:gap-4">
                     <div className="flex min-w-0 flex-1 gap-3">
-                      <div className="sm:flex hidden h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-50 md:h-11 md:w-11 md:rounded-lg">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-50 sm:h-11 sm:w-11 sm:rounded-lg">
                         <doc.icon className="h-5 w-5 text-orange-500" />
                       </div>
+
                       <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="sm:text-sm text-[12px] font-bold text-gray-900">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="text-xs font-bold text-gray-900 sm:text-sm">
                             {doc.label}
                           </h3>
 
                           {doc.required && (
-                            <p className="shrink-0 whitespace-nowrap rounded-full bg-red-50 px-2 py-0.5 text-[8px] sm:text-xs font-bold text-red-500 ">
+                            <span className="rounded-full bg-red-50 px-2 py-0.5 text-[8px] font-bold text-red-500 sm:text-xs">
                               Required
-                            </p>
+                            </span>
                           )}
 
                           {isComplete && (
-                            <span className=" right-5 shrink-0 flex justify-end items-center gap-1 whitespace-nowrap rounded-full bg-green-50 px-2.5 py-1 sm:text-xs text-[8px] font-semibold text-green-600 sm:px-3">
+                            <span className="flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-[8px] font-semibold text-green-600 sm:text-xs">
                               <CheckCircle className="h-3.5 w-3.5" />
                               {completedLabel}
                             </span>
                           )}
                         </div>
-                        <p className="mt-1 text-[10px] md text-xs text-wrap leading-5 text-gray-500  sm:text-sm">
+
+                        <p className="mt-1 text-xs leading-5 text-gray-500 sm:text-sm">
                           {doc.desc}
                         </p>
                       </div>
@@ -951,21 +1239,6 @@ export function ApplicationFormClient({
                   </div>
 
                   <div className="mt-4 sm:mt-5">
-                    {doc.kind === 'single' && (
-                      <SingleUploadSlot
-                        url={docs[doc.key]}
-                        uploading={uploadingKeys.has(doc.uploadType)}
-                        onChange={(e) =>
-                          handleFileChange(
-                            e,
-                            doc.key,
-                            doc.uploadType,
-                            doc.label,
-                          )
-                        }
-                      />
-                    )}
-
                     {doc.kind === 'sides' && (
                       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         <SingleUploadSlot
@@ -973,23 +1246,24 @@ export function ApplicationFormClient({
                           compact
                           url={docs[doc.front.key]}
                           uploading={uploadingKeys.has(doc.front.uploadType)}
-                          onChange={(e) =>
+                          onChange={(event) =>
                             handleFileChange(
-                              e,
+                              event,
                               doc.front.key,
                               doc.front.uploadType,
                               `${doc.label} (${doc.front.label})`,
                             )
                           }
                         />
+
                         <SingleUploadSlot
                           label={doc.back.label}
                           compact
                           url={docs[doc.back.key]}
                           uploading={uploadingKeys.has(doc.back.uploadType)}
-                          onChange={(e) =>
+                          onChange={(event) =>
                             handleFileChange(
-                              e,
+                              event,
                               doc.back.key,
                               doc.back.uploadType,
                               `${doc.label} (${doc.back.label})`,
@@ -1005,8 +1279,8 @@ export function ApplicationFormClient({
                         uploading={uploadingKeys.has(doc.uploadType)}
                         max={MAX_MULTI_FILES}
                         itemLabel={doc.itemLabel}
-                        onAdd={(e) =>
-                          handleMultiFileChange(e, doc.key, doc.uploadType)
+                        onAdd={(event) =>
+                          handleMultiFileChange(event, doc.key, doc.uploadType)
                         }
                         onRemove={(url) => removeMultiFile(doc.key, url)}
                       />
@@ -1019,23 +1293,31 @@ export function ApplicationFormClient({
 
           <div className="flex items-center justify-between border-t border-gray-100 px-6 py-4">
             <button
+              type="button"
               onClick={() => setStep(1)}
-              className="flex items-center hover:cursor-pointer gap-2 rounded-lg bg-gray-100 px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-200 transition-colors"
+              className="flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
             >
-              <ArrowLeft className="h-4 w-4" /> Previous
+              <ArrowLeft className="h-4 w-4" />
+              Previous
             </button>
+
             <button
+              type="button"
               onClick={() => {
-                const missingDocMessage = getMissingDocumentMessage();
-                if (missingDocMessage) {
-                  toast.error(missingDocMessage);
+                const missing = getMissingDocumentMessage();
+
+                if (missing) {
+                  toast.error(missing);
+
                   return;
                 }
+
                 setStep(3);
               }}
-              className="flex hover:cursor-pointer items-center gap-2 rounded-lg bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-200 hover:bg-orange-600 transition-colors"
+              className="flex items-center gap-2 rounded-lg bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-200 transition-colors hover:bg-orange-600"
             >
-              Continue <ArrowRight className="h-4 w-4" />
+              Continue
+              <ArrowRight className="h-4 w-4" />
             </button>
           </div>
         </div>
@@ -1046,8 +1328,10 @@ export function ApplicationFormClient({
           <div className="bg-linear-to-r from-green-500 to-emerald-600 px-6 py-5">
             <div className="flex items-center gap-3">
               <CheckCircle className="h-5 w-5 text-white" />
+
               <h2 className="font-bold text-white">Review & Submit</h2>
             </div>
+
             <p className="mt-1 text-xs text-green-100">
               Please review your information before submitting
             </p>
@@ -1056,10 +1340,12 @@ export function ApplicationFormClient({
           <div className="space-y-5 p-6">
             <div className="flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4">
               <CheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
+
               <div>
                 <p className="text-sm font-semibold text-green-800">
                   Your application is ready to submit
                 </p>
+
                 <p className="mt-0.5 text-xs text-green-600">
                   MDRRMO staff will review within 3–5 business days. You will be
                   notified by email.
@@ -1067,96 +1353,186 @@ export function ApplicationFormClient({
               </div>
             </div>
 
-            {/* Summary */}
-            {[
-              {
-                title: 'Basic Information',
-                icon: User,
-                items: [
-                  { l: 'First Name', v: step1Data.firstName },
-                  { l: 'Middle Name', v: step1Data.middleName },
-                  { l: 'Last Name', v: step1Data.lastName },
-                  { l: 'Gender', v: step1Data.gender },
-                  { l: 'Age', v: `${step1Data.age} years old` },
-                  { l: 'Date of Birth', v: step1Data.dateOfBirth },
-                  { l: 'Nationality', v: step1Data.nationality },
-                  { l: 'Native Language', v: step1Data.nativePlace },
-                  { l: 'Education', v: step1Data.educationLevel },
-                  { l: 'Health Status', v: step1Data.healthStatus },
-                  { l: 'Marital Status', v: step1Data.maritalStatus },
-                  { l: 'Political Status', v: step1Data.politicalStatus },
-                  { l: 'Volunteer Role', v: step1Data.volunteerRole },
-                ],
-              },
-              {
-                title: 'Identification',
-                icon: IdCard,
-                items: [
-                  { l: 'ID Number', v: step1Data.idNumber },
-                  { l: 'ID Type', v: step1Data.idCardType },
-                ],
-              },
-              {
-                title: 'Contact & Address',
-                icon: MapPinHouse,
-                items: [
-                  { l: 'Sitio', v: step1Data.sitio },
-                  { l: 'Barangay', v: step1Data.barangay },
-                  { l: 'Municipality', v: step1Data.municipality },
-                  { l: 'Province', v: step1Data.province },
-                  { l: 'Contact Number', v: step1Data.contactNumber },
-                  { l: 'Home Phone', v: step1Data.homePhone },
-                  { l: 'Email Address', v: step1Data.email },
-                ],
-              },
-              {
-                title: 'Emergency Contact',
-                icon: Heart,
-                items: [
-                  { l: 'Name', v: step1Data.emergencyName },
-                  { l: 'Relation', v: step1Data.emergencyRelation },
-                  { l: 'Contact', v: step1Data.emergencyContact },
-                  { l: 'Address', v: step1Data.emergencyAddress },
-                ],
-              },
-              {
-                title: 'Experience',
-                icon: Workflow,
-                items: [
+            <ReviewSection
+              title="Basic Information"
+              icon={User}
+              items={[
+                {
+                  label: 'First Name',
+                  value: step1Data.firstName,
+                },
+                {
+                  label: 'Middle Name',
+                  value: step1Data.middleName,
+                },
+                {
+                  label: 'Last Name',
+                  value: step1Data.lastName,
+                },
+                {
+                  label: 'Gender',
+                  value: step1Data.gender,
+                },
+                {
+                  label: 'Age',
+                  value: step1Data.age ? `${step1Data.age} years old` : '—',
+                },
+                {
+                  label: 'Date of Birth',
+                  value: step1Data.dateOfBirth,
+                },
+                {
+                  label: 'Nationality',
+                  value: step1Data.nationality,
+                },
+                {
+                  label: 'Native Language',
+                  value: step1Data.nativePlace,
+                },
+                {
+                  label: 'Education',
+                  value: step1Data.educationLevel,
+                },
+
+                {
+                  label: 'Marital Status',
+                  value: step1Data.maritalStatus,
+                },
+                {
+                  label: 'Employment Status',
+                  value: step1Data.employmentStatus,
+                },
+                {
+                  label: 'Primary Role',
+                  value: step1Data.primaryRole,
+                },
+                {
+                  label: 'Secondary Role',
+                  value: step1Data.secondaryRole,
+                },
+              ]}
+            />
+
+            {step1Data.employmentStatus === 'Employed' && (
+              <ReviewSection
+                title="Employment"
+                icon={Workflow}
+                items={[
                   {
-                    l: 'Volunteering Experience',
-                    v: step1Data.volunteeringExperience,
+                    label: 'Nature of Employment',
+                    value: step1Data.natureOfEmployment,
                   },
-                ],
-              },
-            ].map((section) => (
-              <div key={section.title} className="rounded-lg bg-gray-50 p-4">
-                <div className="mb-3 flex items-center gap-2">
-                  <section.icon className="h-4 w-4 text-orange-500" />
-                  <span className="text-sm font-bold text-gray-900">
-                    {section.title}
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  {section.items.map((item) => (
-                    <div key={item.l}>
-                      <p className="text-xs text-gray-400">{item.l}</p>
-                      <p className="mt-0.5 text-sm font-medium text-gray-800">
-                        {item.v || '—'}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
+                  {
+                    label: 'Position',
+                    value: step1Data.position,
+                  },
+                  {
+                    label: 'Employer',
+                    value: step1Data.employer,
+                  },
+                ]}
+              />
+            )}
+
+            <ReviewSection
+              title="Identification"
+              icon={IdCard}
+              items={[
+                {
+                  label: 'ID Number',
+                  value: step1Data.idNumber,
+                },
+                {
+                  label: 'ID Type',
+                  value: step1Data.idCardType,
+                },
+              ]}
+            />
+
+            <ReviewSection
+              title="Contact & Address"
+              icon={MapPinHouse}
+              items={[
+                {
+                  label: 'Complete Address',
+                  value: step1Data.completeAddress,
+                },
+                {
+                  label: 'Barangay',
+                  value: selectedBarangay
+                    ? String(selectedBarangay)
+                    : step1Data.barangayCode,
+                },
+                {
+                  label: 'Municipality / City',
+                  value: selectedMunicipality
+                    ? String(selectedMunicipality)
+                    : step1Data.municipalityCode,
+                },
+                {
+                  label: 'Province',
+                  value: selectedProvince
+                    ? String(selectedProvince)
+                    : step1Data.provinceCode,
+                },
+                {
+                  label: 'Contact Number',
+                  value: step1Data.contactNumber,
+                },
+                {
+                  label: 'Home Phone',
+                  value: step1Data.homePhone,
+                },
+                {
+                  label: 'Email Address',
+                  value: step1Data.email,
+                },
+              ]}
+            />
+
+            <ReviewSection
+              title="Emergency Contact"
+              icon={Heart}
+              items={[
+                {
+                  label: 'Name',
+                  value: step1Data.emergencyName,
+                },
+                {
+                  label: 'Relation',
+                  value: step1Data.emergencyRelation,
+                },
+                {
+                  label: 'Contact',
+                  value: step1Data.emergencyContact,
+                },
+                {
+                  label: 'Address',
+                  value: step1Data.emergencyAddress,
+                },
+              ]}
+            />
+
+            <ReviewSection
+              title="Experience"
+              icon={Workflow}
+              items={[
+                {
+                  label: 'Volunteering Experience',
+                  value: step1Data.volunteeringExperience,
+                },
+              ]}
+            />
 
             <div className="rounded-lg bg-gray-50 p-4">
               <div className="mb-3 flex items-center gap-2">
                 <FileText className="h-4 w-4 text-orange-500" />
+
                 <span className="text-sm font-bold text-gray-900">
                   Submitted Documents
                 </span>
               </div>
+
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {[
                   {
@@ -1169,28 +1545,25 @@ export function ApplicationFormClient({
                       : 'Training Cert',
                     done: docs.trainingCertUrls.length > 0,
                   },
-                  {
-                    label: 'Barangay Clearance',
-                    done: Boolean(docs.barangayClearanceUrl),
-                  },
-                  {
-                    label: docs.medicalCertUrls.length
-                      ? `Medical Cert (${docs.medicalCertUrls.length})`
-                      : 'Medical Cert',
-                    done: docs.medicalCertUrls.length > 0,
-                  },
-                ].map((d) => (
+                ].map((document) => (
                   <div
-                    key={d.label}
-                    className={`flex items-center gap-1.5 rounded-lg p-2.5 ${d.done ? 'bg-green-100' : 'bg-gray-100'}`}
+                    key={document.label}
+                    className={`flex items-center gap-1.5 rounded-lg p-2.5 ${
+                      document.done ? 'bg-green-100' : 'bg-gray-100'
+                    }`}
                   >
                     <CheckCircle
-                      className={`h-3.5 w-3.5 ${d.done ? 'text-green-600' : 'text-gray-400'}`}
+                      className={`h-3.5 w-3.5 ${
+                        document.done ? 'text-green-600' : 'text-gray-400'
+                      }`}
                     />
+
                     <span
-                      className={`text-xs font-medium ${d.done ? 'text-green-700' : 'text-gray-400'}`}
+                      className={`text-xs font-medium ${
+                        document.done ? 'text-green-700' : 'text-gray-400'
+                      }`}
                     >
-                      {d.label}
+                      {document.label}
                     </span>
                   </div>
                 ))}
@@ -1201,9 +1574,10 @@ export function ApplicationFormClient({
               <input
                 type="checkbox"
                 checked={certified}
-                onChange={(e) => setCertified(e.target.checked)}
+                onChange={(event) => setCertified(event.target.checked)}
                 className="mt-0.5 h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500"
               />
+
               <span className="text-sm text-gray-600">
                 I certify that all information provided is true and correct. I
                 understand that providing false information may result in the
@@ -1212,28 +1586,109 @@ export function ApplicationFormClient({
             </label>
           </div>
 
-          <div className="flex items-center justify-between border-t border-gray-100 px-6 py-4">
+          <div className="flex flex-col-reverse gap-3 border-t border-gray-100 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
             <button
+              type="button"
               onClick={() => setStep(2)}
-              className="flex items-center gap-2 hover:cursor-pointer rounded-lg bg-gray-100 px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-200 transition-colors"
+              className="flex items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
             >
-              <ArrowLeft className="h-4 w-4" /> Previous
+              <ArrowLeft className="h-4 w-4" />
+              Previous
             </button>
-            <button
-              onClick={onFinalSubmit}
-              disabled={isSubmitting}
-              className="flex items-center gap-2 hover:cursor-pointer rounded-lg bg-green-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-200 hover:bg-green-600 disabled:opacity-70 transition-colors"
-            >
-              {isSubmitting ? (
-                <ShieldSpinLoader size={20} color="text-white" />
-              ) : (
-                <CheckCircle className="h-4 w-4" />
-              )}
-              {isSubmitting ? 'Submitting...' : 'Submit Application'}
-            </button>
+
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <button
+                type="button"
+                onClick={onSaveDraft}
+                disabled={isSubmitting}
+                className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:border-orange-300 hover:text-orange-600 disabled:opacity-70"
+              >
+                {isSubmitting ? (
+                  <ShieldSpinLoader size={18} color="text-gray-600" />
+                ) : (
+                  <FileText className="h-4 w-4" />
+                )}
+                Save as Draft
+              </button>
+
+              <button
+                type="button"
+                onClick={onFinalSubmit}
+                disabled={isSubmitting || !certified}
+                className="flex items-center justify-center gap-2 rounded-lg bg-green-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-200 transition-colors hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {isSubmitting ? (
+                  <ShieldSpinLoader size={20} color="text-white" />
+                ) : (
+                  <CheckCircle className="h-4 w-4" />
+                )}
+
+                {isSubmitting ? 'Submitting...' : 'Submit Application'}
+              </button>
+            </div>
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function FieldError({ children }: { children: string | undefined }) {
+  if (!children) {
+    return null;
+  }
+  return <p className="mt-1 text-xs text-red-600">{children}</p>;
+}
+
+type FormInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
+  label: string;
+  error?: string;
+};
+
+const FormInput = ({ label, error, ...props }: FormInputProps) => {
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-sm font-medium text-gray-700">{label}</Label>
+      <Input
+        {...props}
+        className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"
+      />
+      {error && <p className="text-xs text-red-600">{error}</p>}
+    </div>
+  );
+};
+
+type ReviewSectionProps = {
+  title: string;
+  icon: React.ComponentType<{
+    className?: string;
+  }>;
+  items: {
+    label: string;
+    value: string | number | null | undefined;
+  }[];
+};
+
+function ReviewSection({ title, icon: Icon, items }: ReviewSectionProps) {
+  return (
+    <div className="rounded-lg bg-gray-50 p-4">
+      <div className="mb-3 flex items-center gap-2">
+        <Icon className="h-4 w-4 text-orange-500" />
+
+        <span className="text-sm font-bold text-gray-900">{title}</span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {items.map((item) => (
+          <div key={item.label} className="min-w-0">
+            <p className="text-xs text-gray-400">{item.label}</p>
+
+            <p className="mt-0.5 wrap-break-word text-sm font-medium text-gray-800">
+              {item.value || '—'}
+            </p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -1248,12 +1703,13 @@ function SingleUploadSlot({
   if (uploading) {
     return (
       <div
-        className={`flex ${compact ? 'h-24' : 'h-32'} w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-orange-200 bg-orange-50/50 text-center`}
+        className={`flex ${
+          compact ? 'h-24' : 'h-32'
+        } w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-orange-200 bg-orange-50/50 text-center`}
       >
-        <div className="flex items-center mb-2 justify-center">
-          <ShieldSpinLoader size={26} color="text-orange-500" />
-        </div>
-        <p className="text-sm font-medium text-orange-600">Uploading...</p>
+        <ShieldSpinLoader size={26} color="text-orange-500" />
+
+        <p className="mt-2 text-sm font-medium text-orange-600">Uploading...</p>
       </div>
     );
   }
@@ -1269,18 +1725,19 @@ function SingleUploadSlot({
               {label}
             </p>
           )}
+
           <a
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 truncate sm:text-sm text-[10px] md font-medium text-green-700 hover:text-orange-600"
+            className="inline-flex items-center gap-1 truncate text-[10px] font-medium text-green-700 hover:text-orange-600 sm:text-sm"
           >
             View document
             <ExternalLink className="h-3.5 w-3.5 shrink-0" />
           </a>
         </div>
 
-        <label className="shrink-0 cursor-pointer rounded-lg border border-gray-200 bg-white  py-1 px-3 text-xs font-medium text-gray-600 transition hover:border-orange-300 hover:text-orange-600">
+        <label className="shrink-0 cursor-pointer rounded-lg border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-600 transition hover:border-orange-300 hover:text-orange-600">
           Replace
           <input
             type="file"
@@ -1295,17 +1752,23 @@ function SingleUploadSlot({
 
   return (
     <label
-      className={`flex ${compact ? 'h-24' : 'h-32'} w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 text-center transition-all hover:border-orange-300 hover:bg-orange-50`}
+      className={`flex ${
+        compact ? 'h-24' : 'h-32'
+      } w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 text-center transition-all hover:border-orange-300 hover:bg-orange-50`}
     >
       <Upload className="mb-2 h-6 w-6 text-gray-300" />
+
       {label && (
         <p className="mb-0.5 text-xs font-semibold text-gray-600">{label}</p>
       )}
+
       <p className="px-2 text-sm text-gray-500">
         Drag & drop or{' '}
         <span className="font-semibold text-orange-500">browse</span>
       </p>
+
       <p className="mt-1 text-xs text-gray-400">JPG, PNG • Max 5 MB</p>
+
       <input
         type="file"
         className="hidden"
@@ -1330,24 +1793,26 @@ function MultiUploadSlot({
     <div className="space-y-3">
       {urls.length > 0 && (
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {urls.map((url, i) => (
+          {urls.map((url, index) => (
             <div
               key={url}
               className="flex items-center gap-2 overflow-hidden rounded-lg border border-green-100 bg-green-50 p-1"
             >
               <CheckCircle className="h-4 w-4 shrink-0 text-green-500" />
+
               <a
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 truncate sm:text-sm text-[10px] font-medium text-green-700 hover:text-orange-600"
+                className="flex-1 truncate text-[10px] font-medium text-green-700 hover:text-orange-600 sm:text-sm"
               >
-                {itemLabel} {i + 1}
+                {itemLabel} {index + 1}
               </a>
+
               <button
                 type="button"
                 onClick={() => onRemove(url)}
-                aria-label={`Remove ${itemLabel.toLowerCase()} ${i + 1}`}
+                aria-label={`Remove ${itemLabel.toLowerCase()} ${index + 1}`}
                 className="shrink-0 rounded-full p-1 text-green-400 transition-colors hover:bg-green-100 hover:text-red-500"
               >
                 <X className="h-3.5 w-3.5" />
@@ -1360,14 +1825,16 @@ function MultiUploadSlot({
       {canAddMore &&
         (uploading ? (
           <div className="flex h-24 w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-orange-200 bg-orange-50/50 text-center">
-            <div className="flex items-center justify-center mb-1.5">
-              <ShieldSpinLoader size={26} color="text-orange-500" />
-            </div>
-            <p className="text-xs font-medium text-orange-600">Uploading...</p>
+            <ShieldSpinLoader size={26} color="text-orange-500" />
+
+            <p className="mt-1.5 text-xs font-medium text-orange-600">
+              Uploading...
+            </p>
           </div>
         ) : (
           <label className="flex h-24 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 text-center transition-all hover:border-orange-300 hover:bg-orange-50">
             <Upload className="mb-1.5 h-5 w-5 text-gray-300" />
+
             <p className="text-xs text-gray-500">
               {urls.length > 0 ? (
                 <>
@@ -1383,9 +1850,11 @@ function MultiUploadSlot({
                 </>
               )}
             </p>
+
             <p className="mt-1 text-[11px] text-gray-400">
               Up to {max} files • JPG, PNG
             </p>
+
             <input
               type="file"
               multiple

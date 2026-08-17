@@ -67,9 +67,7 @@ export const adminChangePasswordSchema = z
     path: ['confirmPassword'],
   });
 
-// ─── VOLUNTEER APPLICATION ────────────────────────────────────────────────────
-
-export const applicationStep1Schema = z.object({
+export const applicationStep1BaseSchema = z.object({
   firstName: z.string().min(2, 'First name is required'),
   middleName: z.string().min(2, 'Middle name is required'),
   lastName: z.string().min(2, 'Last name is required'),
@@ -79,26 +77,29 @@ export const applicationStep1Schema = z.object({
     .int()
     .min(18, 'You must be at least 18 years old')
     .max(70, 'Age must be 70 or below')
-    .refine((v) => typeof v === 'number' && !Number.isNaN(v), {
+    .refine((value) => typeof value === 'number' && !Number.isNaN(value), {
       message: 'Age must be a number',
     }),
   dateOfBirth: z.string().min(1, 'Date of birth is required'),
   nationality: z.string().min(1, 'Nationality is required'),
-  nativePlace: z.string().min(1, 'Native place is required'),
-  educationLevel: z.string().min(1, 'Education level type is required'),
-  politicalStatus: z.string().optional(),
-  healthStatus: z.string().min(1, 'Health status is required'),
-  maritalStatus: z.enum(['Single', 'Married', 'Widowed', 'Separated']),
-  volunteerRole: z.string().min(1, 'Volunteer role is required'),
+  nativePlace: z.string().min(1, 'Native language is required'),
+  educationLevel: z.string().min(1, 'Education level is required'),
+  maritalStatus: z.enum(['Single', 'Married', 'Widowed', 'Annulment']),
+  employmentStatus: z.enum(['Employed', 'Unemployed']),
+  natureOfEmployment: z.string().optional(),
+  position: z.string().optional(),
+  employer: z.string().optional(),
+  primaryRole: z.string().min(1, 'Primary role is required'),
+  secondaryRole: z.string().min(1, 'Secondary role is required'),
   idNumber: z
     .string()
     .min(5, 'ID number must be at least 5 characters')
     .max(30, 'ID number too long'),
   idCardType: z.string().min(1, 'ID card type is required'),
-  sitio: z.string().min(2, 'Sitio is required'),
-  barangay: z.string().min(2, 'Barangay is required'),
-  municipality: z.string().min(2, 'Municipality is required'),
-  province: z.string().min(2, 'Province is required'),
+  completeAddress: z.string().min(5, 'Complete address is required'),
+  provinceCode: z.string().min(1, 'Province is required'),
+  municipalityCode: z.string().min(1, 'Municipality or city is required'),
+  barangayCode: z.string().min(1, 'Barangay is required'),
   contactNumber: z
     .string()
     .regex(/^09\d{9}$/, 'Phone number must be in format 09XXXXXXXXX'),
@@ -113,6 +114,41 @@ export const applicationStep1Schema = z.object({
   volunteeringExperience: z.string().optional(),
 });
 
+export const applicationStep1Schema = applicationStep1BaseSchema.superRefine(
+  (data, ctx) => {
+    if (data.employmentStatus === 'Employed') {
+      if (!data.natureOfEmployment?.trim()) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['natureOfEmployment'],
+          message: 'Nature of employment is required',
+        });
+      }
+      if (!data.position?.trim()) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['position'],
+          message: 'Position is required',
+        });
+      }
+      if (!data.employer?.trim()) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['employer'],
+          message: 'Employer is required',
+        });
+      }
+    }
+    if (data.primaryRole === data.secondaryRole) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['secondaryRole'],
+        message: 'Secondary role must be different from primary role',
+      });
+    }
+  },
+);
+
 export const applicationStep2Schema = z.object({
   validIdFrontUrl: z.string().min(1, 'Valid ID front view is required'),
   validIdBackUrl: z.string().min(1, 'Valid ID back view is required'),
@@ -120,17 +156,20 @@ export const applicationStep2Schema = z.object({
     .array(z.string().min(1))
     .min(1, 'At least one training certificate is required')
     .max(5, 'You can upload up to 5 training certificates'),
-  barangayClearanceUrl: z.string().min(1, 'Barangay clearance is required'),
-  medicalCertUrls: z
-    .array(z.string().min(1))
-    .min(1, 'At least one medical certificate is required')
-    .max(5, 'You can upload up to 5 medical certificates'),
   photoUrl: z.string().min(1, 'Profile Picture is required'),
 });
 
-export const fullApplicationSchema = applicationStep1Schema.merge(
+export const fullApplicationSchema = applicationStep1Schema.and(
   applicationStep2Schema,
 );
+
+export const applicationDraftSchema = applicationStep1Schema.partial().extend({
+  validIdFrontUrl: z.string().optional(),
+  validIdBackUrl: z.string().optional(),
+  trainingCertUrls: z.array(z.string()).max(5).optional(),
+  photoUrl: z.string().optional(),
+  status: z.literal('draft'),
+});
 
 // ─── ANNOUNCEMENTS ────────────────────────────────────────────────────────────
 
@@ -177,5 +216,6 @@ export type AdminChangePasswordInput = z.infer<
 export type ApplicationStep1Input = z.infer<typeof applicationStep1Schema>;
 export type ApplicationStep2Input = z.infer<typeof applicationStep2Schema>;
 export type FullApplicationInput = z.infer<typeof fullApplicationSchema>;
+export type ApplicationDraftInput = z.infer<typeof applicationDraftSchema>;
 export type AnnouncementInput = z.infer<typeof announcementSchema>;
 export type AdminProfileInput = z.infer<typeof adminProfileSchema>;

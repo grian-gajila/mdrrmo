@@ -253,9 +253,12 @@ export default async function DashboardPage() {
                   </div>
                 </div>
                 <span
-                  className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${statusConfig[applicant.status].class}`}
+                  className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${statusConfig[applicant.status as keyof typeof statusConfig].class}`}
                 >
-                  {statusConfig[applicant.status].label}
+                  {
+                    statusConfig[applicant.status as keyof typeof statusConfig]
+                      .label
+                  }
                 </span>
                 <Link
                   href={`/admin/dashboard/applicants?id=${applicant.id}`}

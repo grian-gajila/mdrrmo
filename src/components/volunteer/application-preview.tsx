@@ -10,12 +10,10 @@ import {
   Camera,
   ChevronRight,
   ExternalLink,
-  FileIcon,
   FileText,
   Heart,
   IdCard,
   MapPinHouse,
-  Stethoscope,
   User,
   Workflow,
   X,
@@ -81,10 +79,9 @@ function ApplicationPreviewModal({
             { l: 'Nationality', v: data.nationality },
             { l: 'Native Language', v: data.nativePlace },
             { l: 'Education', v: data.educationLevel },
-            { l: 'Health Status', v: data.healthStatus },
             { l: 'Marital Status', v: data.maritalStatus },
-            { l: 'Political Status', v: data.politicalStatus },
-            { l: 'Volunteer Role', v: data.volunteerRole },
+            { l: 'Primary Role', v: data.primaryRole },
+            { l: 'Secondary Role Role', v: data.secondaryRole },
           ],
         },
         {
@@ -99,10 +96,10 @@ function ApplicationPreviewModal({
           title: 'Contact & Address',
           icon: MapPinHouse,
           items: [
-            { l: 'Sitio', v: data.sitio },
-            { l: 'Barangay', v: data.barangay },
-            { l: 'Municipality', v: data.municipality },
-            { l: 'Province', v: data.province },
+            { l: 'Complete Address', v: data.completeAddress },
+            { l: 'Barangay', v: data.barangayCode },
+            { l: 'Municipality', v: data.municipalityCode },
+            { l: 'Province', v: data.provinceCode },
             { l: 'Contact Number', v: data.contactNumber },
             { l: 'Home Phone', v: data.homePhone },
             { l: 'Email Address', v: data.email },
@@ -150,9 +147,9 @@ function ApplicationPreviewModal({
             {data && (
               <div className="mt-1.5 flex flex-wrap items-center gap-2">
                 <span
-                  className={`inline-flex rounded-full border px-2 py-0.5 text-[11px] font-semibold ${statusConfig[data.status].class} `}
+                  className={`inline-flex rounded-full border px-2 py-0.5 text-[11px] font-semibold ${statusConfig[data.status as keyof typeof statusConfig].class} `}
                 >
-                  {statusConfig[data.status].label}
+                  {statusConfig[data.status as keyof typeof statusConfig].label}
                 </span>
                 {data.submittedAt ? (
                   <span className="text-xs text-gray-400">
@@ -217,8 +214,6 @@ function ApplicationPreviewModal({
                   validIdFrontUrl: data.validIdFrontUrl,
                   validIdBackUrl: data.validIdBackUrl,
                   trainingCertUrls: data.trainingCertUrl,
-                  barangayClearanceUrl: data.barangayClearanceUrl,
-                  medicalCertUrls: data.medicalCertUrl,
                 }}
               />
             </div>
@@ -302,7 +297,6 @@ function DocumentCategory({
 
 export function DocumentReview({ docs }: { docs: DocumentSet }) {
   const trainingCerts = docs.trainingCertUrls ?? [];
-  const medicalCerts = docs.medicalCertUrls ?? [];
 
   return (
     <div className="space-y-4">
@@ -334,27 +328,6 @@ export function DocumentReview({ docs }: { docs: DocumentSet }) {
         title={`Training Certificate${trainingCerts.length === 1 ? '' : 's'} (${trainingCerts.length})`}
         emptyText="No training certificates on file."
         documents={trainingCerts.map((url, i) => ({
-          url,
-          label: `Certificate ${i + 1}`,
-        }))}
-      />
-
-      <DocumentCategory
-        icon={FileIcon}
-        title="Barangay Clearance"
-        emptyText="No barangay clearance on file."
-        documents={
-          docs.barangayClearanceUrl
-            ? [{ url: docs.barangayClearanceUrl, label: 'Barangay Clearance' }]
-            : []
-        }
-      />
-
-      <DocumentCategory
-        icon={Stethoscope}
-        title={`Medical Certificate${medicalCerts.length === 1 ? '' : 's'} (${medicalCerts.length})`}
-        emptyText="No medical certificates on file."
-        documents={medicalCerts.map((url, i) => ({
           url,
           label: `Certificate ${i + 1}`,
         }))}

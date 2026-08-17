@@ -1,7 +1,9 @@
 'use client';
+
 import { roleColors, roleIcons } from '@/data/admin/volunteer-role-palettes';
 import { statusConfig } from '@/data/status';
-import { FullApplication } from '@/types';
+import type { FullApplication } from '@/types';
+
 import {
   CheckCircle,
   ChevronLeft,
@@ -18,7 +20,6 @@ import {
   LucideIcon,
   MapPin,
   MapPinHouse,
-  Phone,
   Search,
   Stethoscope,
   User,
@@ -26,10 +27,23 @@ import {
   X,
   XCircle,
 } from 'lucide-react';
+
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { ShieldSpinLoader } from '../custom/loading';
+
+const STATUS_TABS = [
+  'all',
+  'pending',
+  'under_review',
+  'approved',
+  'rejected',
+] as const;
+
+type StatusTab = (typeof STATUS_TABS)[number];
+
+type ApplicantAction = 'approve' | 'reject' | 'under_review';
 
 export function ApplicantsTable({
   applicants,
@@ -41,66 +55,103 @@ export function ApplicantsTable({
   currentStatus: string;
 }) {
   const router = useRouter();
+
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<FullApplication | null>(null);
-  const [actionId, setActionId] = useState<string | null>(null);
-  const [rejectNotes, setRejectNotes] = useState('');
   const [rejectModal, setRejectModal] = useState<FullApplication | null>(null);
-  const [loadingAction, setLoadingAction] = useState<
-    'approve' | 'reject' | 'under_review' | null
-  >(null);
-
-  const filtered = applicants.filter((a) =>
-    `${a.firstName} ${a.lastName} ${a.email} ${a.status} ${statusConfig[a.status].label} `
-      .toLowerCase()
-      .includes(search.toLowerCase()),
+  const [rejectNotes, setRejectNotes] = useState('');
+  const [loadingAction, setLoadingAction] = useState<ApplicantAction | null>(
+    null,
   );
+
+  const filtered = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) {
+      return applicants;
+    }
+    return applicants.filter((applicant) => {
+      const searchable = [
+        applicant.firstName,
+        applicant.middleName,
+        applicant.lastName,
+        applicant.email,
+        applicant.contactNumber,
+        applicant.status,
+        applicant.primaryRole,
+        applicant.secondaryRole,
+        applicant.provinceCode,
+        applicant.municipalityCode,
+        applicant.barangayCode,
+        applicant.employmentStatus,
+        applicant.position,
+        applicant.employer,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+
+      const statusLabel =
+        statusConfig[
+          applicant.status as keyof typeof statusConfig
+        ]?.label?.toLowerCase() ?? '';
+
+      return searchable.includes(query) || statusLabel.includes(query);
+    });
+  }, [applicants, search]);
 
   const handleAction = async (
     applicantId: string,
-    action: 'approve' | 'reject' | 'under_review',
+    action: ApplicantAction,
     notes?: string,
   ) => {
-    if (action === 'reject' && rejectNotes.trim() == '') {
+    if (action === 'reject' && !notes?.trim()) {
       toast.error('Please provide a reason for rejection.');
       return;
     }
     setLoadingAction(action);
     try {
-      const res = await fetch(`/api/admin/applicants/${applicantId}`, {
+      const response = await fetch(`/api/admin/applicants/${applicantId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action, notes }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action,
+          notes,
+        }),
       });
-
-      if (!res.ok) {
-        toast.error('Action failed. Please try again.');
+      const json = await response.json().catch(() => null);
+      if (!response.ok) {
+        toast.error(json?.error ?? 'Action failed. Please try again.');
         return;
       }
+      if (action === 'approve') {
+        toast.success('Application approved & volunteer hired!');
+      } else if (action === 'reject') {
+        toast.success('Application rejected.');
+      } else {
+        toast.success('Application marked as under review.');
+      }
 
-      toast.success(
-        action === 'approve'
-          ? 'Application approved & volunteer hired!'
-          : action === 'reject'
-            ? 'Application rejected.'
-            : 'Marked as under review.',
-      );
       setSelected(null);
       setRejectModal(null);
-      setActionId(null);
-      setLoadingAction(null);
+      setRejectNotes('');
       router.refresh();
-    } catch (error) {
-      toast.error(`${error}`);
-      setLoadingAction(null);
+    } catch {
+      toast.error('Action failed. Please try again.');
     } finally {
       setLoadingAction(null);
     }
   };
 
-  const Icon = selected?.volunteerRole
-    ? roleIcons[selected.volunteerRole]
-    : undefined;
+  const selectedRole = selected?.primaryRole;
+  const SelectedRoleIcon = selectedRole ? roleIcons[selectedRole] : undefined;
+  const selectedRoleColor = selectedRole
+    ? roleColors[selectedRole]
+    : 'bg-gray-100 text-gray-600';
+  const selectedStatus = selected
+    ? statusConfig[selected.status as keyof typeof statusConfig]
+    : null;
 
   return (
     <div className="mx-auto w-full space-y-6 p-6">
@@ -111,29 +162,42 @@ export function ApplicantsTable({
             Review and manage volunteer applications
           </p>
         </div>
-        <button className="flex items-center gap-2 hover:cursor-pointer rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50">
+        <button
+          type="button"
+          className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+        >
           <Download className="h-4 w-4" />
           Export List
         </button>
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {(
-          ['all', 'pending', 'under_review', 'approved', 'rejected'] as const
-        ).map((tab) => (
+        {STATUS_TABS.map((tab) => (
           <button
             key={tab}
+            type="button"
+            onClick={() => {
+              const url = new URL(window.location.href);
+              if (tab === 'all') {
+                url.searchParams.delete('status');
+              } else {
+                url.searchParams.set('status', tab);
+              }
+              router.push(`${url.pathname}${url.search}`);
+            }}
             className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
               currentStatus === tab
                 ? 'bg-orange-500 text-white shadow-lg shadow-orange-200'
                 : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
             }`}
           >
-            {tab === 'all'
-              ? 'All'
-              : tab.replace('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+            {formatStatusLabel(tab)}
             <span
-              className={`rounded-full px-1.5 py-0.5 text-xs font-bold ${currentStatus === tab ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}
+              className={`rounded-full px-1.5 py-0.5 text-xs font-bold ${
+                currentStatus === tab
+                  ? 'bg-white/20 text-white'
+                  : 'bg-gray-100 text-gray-600'
+              }`}
             >
               {counts[tab] ?? 0}
             </span>
@@ -148,12 +212,15 @@ export function ApplicantsTable({
             <input
               type="text"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search applicants by name..."
-              className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pr-4 pl-10 text-sm focus:border-transparent focus:ring-2 focus:ring-orange-500 focus:outline-none"
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search applicants by name, role, address, employer..."
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pr-4 pl-10 text-sm outline-none transition focus:border-transparent focus:ring-2 focus:ring-orange-500"
             />
           </div>
-          <button className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50">
+          <button
+            type="button"
+            className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50"
+          >
             <Filter className="h-4 w-4" />
             Filters
           </button>
@@ -162,7 +229,7 @@ export function ApplicantsTable({
 
       <div className="overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-237.5">
             <thead>
               <tr className="border-b border-gray-100 bg-gray-50/50">
                 {[
@@ -172,21 +239,22 @@ export function ApplicantsTable({
                   'Status',
                   'Documents',
                   'Actions',
-                ].map((h) => (
+                ].map((heading) => (
                   <th
-                    key={h}
+                    key={heading}
                     className="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500"
                   >
-                    {h}
+                    {heading}
                   </th>
                 ))}
               </tr>
             </thead>
+
             <tbody className="divide-y divide-gray-50">
               {filtered.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="px-6 py-12 text-center text-sm text-gray-400"
                   >
                     No applicants found.
@@ -194,7 +262,9 @@ export function ApplicantsTable({
                 </tr>
               ) : (
                 filtered.map((applicant) => {
-                  const cfg = statusConfig[applicant.status];
+                  const config =
+                    statusConfig[applicant.status as keyof typeof statusConfig];
+
                   return (
                     <tr
                       key={applicant.id}
@@ -202,36 +272,45 @@ export function ApplicantsTable({
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-9 w-9 shrink-0 object-contain items-center justify-center rounded-full">
-                            {applicant.photoUrl && (
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-orange-50">
+                            {applicant.photoUrl ? (
                               // eslint-disable-next-line @next/next/no-img-element
                               <img
-                                src={`${applicant.photoUrl}`}
-                                alt={`${applicant.photoUrl}`}
-                                className="rounded-full h-9 w-9 object-cover"
+                                src={applicant.photoUrl}
+                                alt={`${applicant.firstName} ${applicant.lastName}`}
+                                className="h-full w-full object-cover"
                               />
+                            ) : (
+                              <User className="h-5 w-5 text-orange-400" />
                             )}
                           </div>
-                          <div>
-                            <div className="text-sm font-semibold text-gray-900">
+
+                          <div className="min-w-0">
+                            <div className="truncate text-sm font-semibold text-gray-900">
                               {applicant.firstName}{' '}
-                              {applicant.middleName.charAt(0)}.{' '}
+                              {applicant.middleName
+                                ? `${applicant.middleName.charAt(0)}. `
+                                : ''}
                               {applicant.lastName}
                             </div>
-                            <div className="mt-0.5 text-xs text-gray-400">
+
+                            <div className="mt-0.5 truncate text-xs text-gray-400">
                               {applicant.email}
                             </div>
                           </div>
                         </div>
                       </td>
+
                       <td className="px-6 py-4">
                         <div className="text-sm text-gray-700">
                           {applicant.contactNumber}
                         </div>
+
                         <div className="mt-0.5 text-xs text-gray-400">
-                          {applicant.barangay}, {applicant.municipality}
+                          {applicant.municipalityCode}, {applicant.provinceCode}
                         </div>
                       </td>
+
                       <td className="px-6 py-4">
                         <div className="text-sm text-gray-700">
                           {applicant.submittedAt
@@ -240,60 +319,50 @@ export function ApplicantsTable({
                               ).toLocaleDateString('en-PH', {
                                 dateStyle: 'long',
                               })
-                            : null}
+                            : '—'}
                         </div>
                       </td>
+
                       <td className="px-6 py-4">
                         <span
-                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${cfg.class}`}
+                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${config.class}`}
                         >
                           <span
-                            className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`}
-                          ></span>
-                          {cfg.label}
+                            className={`h-1.5 w-1.5 rounded-full ${config.dot}`}
+                          />
+
+                          {config.label}
                         </span>
                       </td>
-                      <td className="px-6 max-w-60 py-4">
-                        <div className="flex items-center gap-1 justify-center flex-wrap">
-                          {[
-                            {
-                              tag: 'Valid Id',
-                            },
-                            {
-                              tag: 'Barangay Clearance',
-                            },
-                            {
-                              tag: 'Training Certificate',
-                            },
-                            {
-                              tag: 'Medical Certificate',
-                            },
-                          ].map((docs) => (
-                            <span
-                              key={docs.tag}
-                              className="bg-gray-100 text-gray-700 text-[8px] px-2 rounded-full"
-                            >
-                              {applicant.medicalCertUrl &&
-                              applicant.validIdBackUrl &&
+
+                      <td className="max-w-60 px-6 py-4">
+                        <div className="flex flex-wrap gap-1.5">
+                          <DocumentBadge
+                            label="Valid ID"
+                            complete={Boolean(
                               applicant.validIdFrontUrl &&
-                              applicant.trainingCertUrl &&
-                              applicant.barangayClearanceUrl
-                                ? docs.tag
-                                : 'No documents'}
-                            </span>
-                          ))}
+                              applicant.validIdBackUrl,
+                            )}
+                          />
+
+                          <DocumentBadge
+                            label="Training"
+                            complete={Boolean(
+                              applicant.trainingCertUrl?.length,
+                            )}
+                          />
                         </div>
                       </td>
-                      <td className="px-6 justify-start flex py-4">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => setSelected(applicant)}
-                            className="flex items-center gap-1.5 rounded-lg hover:cursor-pointer bg-orange-50 px-3 py-1.5 text-xs font-medium text-orange-500 transition-colors hover:bg-orange-100"
-                          >
-                            <Eye className="h-3.5 w-3.5" />
-                            View
-                          </button>
-                        </div>
+
+                      <td className="px-6 py-4">
+                        <button
+                          type="button"
+                          onClick={() => setSelected(applicant)}
+                          className="flex items-center gap-1.5 rounded-lg bg-orange-50 px-3 py-1.5 text-xs font-medium text-orange-500 transition-colors hover:bg-orange-100"
+                        >
+                          <Eye className="h-3.5 w-3.5" />
+                          View
+                        </button>
                       </td>
                     </tr>
                   );
@@ -307,19 +376,24 @@ export function ApplicantsTable({
           <span className="text-sm text-gray-500">
             Showing {filtered.length} of {applicants.length}
           </span>
+
           <div className="flex items-center gap-2">
             <button
-              className="rounded-lg border hover:cursor-pointer border-gray-200 p-2 text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+              type="button"
               disabled
+              className="rounded-lg border border-gray-200 p-2 text-gray-500 disabled:opacity-50"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
-            <span className="rounded-lg hover:cursor-pointer bg-orange-500 px-3 py-1.5 text-sm font-medium text-white">
+
+            <span className="rounded-lg bg-orange-500 px-3 py-1.5 text-sm font-medium text-white">
               1
             </span>
+
             <button
-              className="rounded-lg border hover:cursor-pointer border-gray-200 p-2 text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+              type="button"
               disabled
+              className="rounded-lg border border-gray-200 p-2 text-gray-500 disabled:opacity-50"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
@@ -329,24 +403,31 @@ export function ApplicantsTable({
 
       {selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="max-h-[90vh] w-full scrollbar-none max-w-3xl overflow-y-auto rounded-lg bg-white shadow-2xl">
+          <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-lg bg-white shadow-2xl">
             <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-lg border-b border-gray-100 bg-white px-6 py-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg ">
-                  {selected.photoUrl && (
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-orange-50">
+                  {selected.photoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={`${selected.photoUrl}`}
-                      alt={`${selected.photoUrl}`}
-                      className="rounded-lg h-12 w-12 object-cover"
+                      src={selected.photoUrl}
+                      alt={`${selected.firstName} ${selected.lastName}`}
+                      className="h-full w-full object-cover"
                     />
+                  ) : (
+                    <User className="h-6 w-6 text-orange-400" />
                   )}
                 </div>
-                <div>
-                  <h1 className="font-bold text-xl text-gray-900">
-                    {selected.firstName} {selected.middleName.charAt(0)}.{' '}
+
+                <div className="min-w-0">
+                  <h1 className="truncate text-xl font-bold text-gray-900">
+                    {selected.firstName}{' '}
+                    {selected.middleName
+                      ? `${selected.middleName.charAt(0)}. `
+                      : ''}
                     {selected.lastName}
                   </h1>
+
                   <p className="text-xs text-gray-500">
                     Volunteer Application ·{' '}
                     {selected.submittedAt
@@ -356,22 +437,24 @@ export function ApplicantsTable({
                             dateStyle: 'long',
                           },
                         )
-                      : null}
+                      : 'Not submitted'}
                   </p>
                 </div>
               </div>
-              <div className="flex items-center  gap-2">
-                <span
-                  className={`rounded-full px-2.5 py-1 text-xs font-medium ${statusConfig[selected.status as keyof typeof statusConfig].class}`}
-                >
-                  {
-                    statusConfig[selected.status as keyof typeof statusConfig]
-                      .label
-                  }
-                </span>
+
+              <div className="flex items-center gap-2">
+                {selectedStatus && (
+                  <span
+                    className={`rounded-full px-2.5 py-1 text-xs font-medium ${selectedStatus.class}`}
+                  >
+                    {selectedStatus.label}
+                  </span>
+                )}
+
                 <button
+                  type="button"
                   onClick={() => setSelected(null)}
-                  className="rounded-lg p-2 text-gray-400 hover:cursor-pointer transition-colors hover:bg-gray-100 hover:text-gray-600"
+                  className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -379,31 +462,45 @@ export function ApplicantsTable({
             </div>
 
             <div className="space-y-6 p-6">
-              <div>
-                <div className="mb-4 flex items-center justify-between">
-                  <div className="flex gap-2 items-center">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-orange-100">
-                      <User className="h-3.5 w-3.5 text-orange-500" />
+              <DetailSection title="Personal Information" icon={User}>
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs text-gray-400">
+                      Primary Prepared Role
+                    </p>
+                    <div
+                      className={`mt-1 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium ${selectedRoleColor}`}
+                    >
+                      {SelectedRoleIcon && (
+                        <SelectedRoleIcon className="h-4 w-4" />
+                      )}
+                      {selected.primaryRole}
                     </div>
-                    <h3 className="text-sm font-bold tracking-wide text-gray-900 uppercase">
-                      Personal Information
-                    </h3>
                   </div>
-                  <div
-                    className={`px-4 py-1 rounded-full flex items-center gap-2 text-xs ${roleColors[selected.volunteerRole]}`}
-                  >
-                    {Icon && <Icon className="h-4 w-4" />}
-                    {selected.volunteerRole}
+                  <div>
+                    <p className="text-xs text-gray-400">
+                      Secondary Prepared Role
+                    </p>
+                    <div className="mt-1 inline-flex rounded-full bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700">
+                      {selected.secondaryRole || '—'}
+                    </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-                  {[
-                    { label: 'Gender', value: selected.gender },
+
+                <DetailGrid
+                  items={[
+                    {
+                      label: 'Gender',
+                      value: selected.gender,
+                    },
                     {
                       label: 'Age',
                       value: `${selected.age} years old`,
                     },
-                    { label: 'Date of Birth', value: selected.dateOfBirth },
+                    {
+                      label: 'Date of Birth',
+                      value: selected.dateOfBirth,
+                    },
                     {
                       label: 'Nationality',
                       value: selected.nationality,
@@ -416,101 +513,105 @@ export function ApplicantsTable({
                       label: 'Education Level',
                       value: selected.educationLevel,
                     },
-                    {
-                      label: 'Political Status',
-                      value: selected.politicalStatus,
-                    },
-                    {
-                      label: 'Health Status',
-                      value: selected.healthStatus,
-                    },
+
                     {
                       label: 'Marital Status',
                       value: selected.maritalStatus,
                     },
-                  ].map((field) => (
-                    <div
-                      key={field.label}
-                      className="rounded-lg bg-gray-50 p-3"
-                    >
-                      <div className="mb-0.5 text-xs text-gray-400">
-                        {field.label}
-                      </div>
-                      <div className="text-sm font-semibold text-gray-800">
-                        {field.value}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+                    {
+                      label: 'Employment Status',
+                      value: selected.employmentStatus,
+                    },
+                  ]}
+                />
+              </DetailSection>
 
-              <div>
-                <div className="mb-4 flex items-center gap-2">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-100">
-                    <IdCard className="h-3.5 w-3.5 text-blue-600" />
-                  </div>
-                  <h3 className="text-sm font-bold tracking-wide text-gray-900 uppercase">
-                    Identification
-                  </h3>
-                </div>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {selected.employmentStatus === 'Employed' && (
+                <DetailSection title="Employment" icon={Workflow}>
+                  <DetailGrid
+                    items={[
+                      {
+                        label: 'Nature of Employment',
+                        value: selected.natureOfEmployment,
+                      },
+                      {
+                        label: 'Position',
+                        value: selected.position,
+                      },
+                      {
+                        label: 'Employer',
+                        value: selected.employer,
+                      },
+                    ]}
+                  />
+                </DetailSection>
+              )}
+
+              <DetailSection title="Identification" icon={IdCard}>
+                <DetailGrid
+                  columns={2}
+                  items={[
+                    {
+                      label: 'ID Number',
+                      value: selected.idNumber,
+                      mono: true,
+                    },
+                    {
+                      label: 'ID Card Type',
+                      value: selected.idCardType,
+                    },
+                  ]}
+                />
+              </DetailSection>
+
+              <DetailSection title="Contact & Address" icon={MapPinHouse}>
+                <div className="space-y-3">
                   <div className="rounded-lg bg-gray-50 p-3">
-                    <div className="mb-0.5 text-xs text-gray-400">
-                      ID Number
+                    <div className="mb-1 flex items-center gap-1.5 text-xs text-gray-400">
+                      <MapPin className="h-3 w-3" />
+                      Complete Address
                     </div>
-                    <div className="font-mono text-sm font-semibold text-gray-800">
-                      {selected.idNumber}
-                    </div>
-                  </div>
-                  <div className="rounded-lg bg-gray-50 p-3">
-                    <div className="mb-0.5 text-xs text-gray-400">
-                      ID Card Type
-                    </div>
+
                     <div className="text-sm font-semibold text-gray-800">
-                      {selected.idCardType}
+                      {selected.completeAddress}
                     </div>
                   </div>
-                </div>
-              </div>
-              <div>
-                <div className="mb-4 flex items-center gap-2">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-100">
-                    <MapPinHouse className="h-3.5 w-3.5 text-green-600" />
-                  </div>
-                  <h3 className="text-sm font-bold tracking-wide text-gray-900 uppercase">
-                    Contact & Address
-                  </h3>
-                </div>
-                <div className="rounded-lg bg-gray-50 p-3 sm:col-span-2">
-                  <div className="mb-0.5 flex items-center gap-1.5 text-xs text-gray-400">
-                    <MapPin className="h-3 w-3" /> Current Address
-                  </div>
-                  <div className="text-sm font-semibold text-gray-800">
-                    {selected.sitio}, {selected.barangay},{' '}
-                    {selected.municipality}, {selected.province}
-                  </div>
-                </div>
-                <div className="rounded-lg bg-gray-50 p-3">
-                  <div className="mb-0.5 flex items-center gap-1.5 text-xs text-gray-400">
-                    <Phone className="h-3 w-3" /> Contact Number
-                  </div>
-                  <div className="text-sm font-semibold text-gray-800">
-                    {selected.contactNumber}
-                  </div>
-                </div>
-              </div>
 
-              <div>
-                <div className="mb-4 flex items-center gap-2">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-red-100">
-                    <Heart className="h-3.5 w-3.5 text-red-500" />
-                  </div>
-                  <h3 className="text-sm font-bold tracking-wide text-gray-900 uppercase">
-                    Emergency Contact
-                  </h3>
+                  <DetailGrid
+                    items={[
+                      {
+                        label: 'Province',
+                        value: selected.provinceCode,
+                      },
+                      {
+                        label: 'Municipality / City',
+                        value: selected.municipalityCode,
+                      },
+                      {
+                        label: 'Barangay',
+                        value: selected.barangayCode,
+                      },
+                      {
+                        label: 'Contact Number',
+                        value: selected.contactNumber,
+                      },
+                      {
+                        label: 'Home Phone',
+                        value: selected.homePhone,
+                      },
+                      {
+                        label: 'Email Address',
+                        value: selected.email,
+                      },
+                    ]}
+                  />
                 </div>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  {[
+              </DetailSection>
+
+              <DetailSection title="Emergency Contact" icon={Heart}>
+                <DetailGrid
+                  columns={2}
+                  items={[
                     {
                       label: 'Name',
                       value: selected.emergencyContact?.name,
@@ -520,123 +621,96 @@ export function ApplicantsTable({
                       value: selected.emergencyContact?.relation,
                     },
                     {
-                      label: 'Contact',
+                      label: 'Contact Number',
                       value: selected.emergencyContact?.contactNumber,
                     },
                     {
                       label: 'Address',
                       value: selected.emergencyContact?.address,
                     },
-                  ].map((field) => (
-                    <div
-                      key={field.label}
-                      className="rounded-lg border border-red-100 bg-red-50/50 p-3"
-                    >
-                      <div className="mb-0.5 text-xs text-gray-400">
-                        {field.label}
-                      </div>
-                      <div className="text-sm font-semibold text-gray-800">
-                        {field.value}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <div className="mb-4 flex items-center gap-2">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-100">
-                    <Workflow className="h-3.5 w-3.5 text-green-600" />
-                  </div>
-                  <h3 className="text-sm font-bold tracking-wide text-gray-900 uppercase">
-                    Experience
-                  </h3>
-                </div>
-                <div className="rounded-lg bg-gray-50 p-3 sm:col-span-2">
-                  <div className="mb-0.5 flex items-center gap-1.5 text-xs text-gray-400">
-                    <MapPinHouse className="h-3 w-3" /> Volunteering Experience
-                  </div>
-                  <div className="text-sm font-semibold text-gray-800">
-                    {selected.volunteeringExperience}
-                  </div>
-                </div>
-              </div>
+                  ]}
+                />
+              </DetailSection>
 
-              <div>
-                <div className="mb-4 flex items-center gap-2">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-purple-100">
-                    <FileText className="h-3.5 w-3.5 text-purple-600" />
-                  </div>
-                  <h3 className="text-sm font-bold tracking-wide text-gray-900 uppercase">
-                    Submitted Documents
-                  </h3>
-                </div>
+              <DetailSection title="Experience" icon={Workflow}>
+                <div className="rounded-lg bg-gray-50 p-3">
+                  <p className="mb-1 text-xs text-gray-400">
+                    Volunteering Experience
+                  </p>
 
+                  <p className="whitespace-pre-line text-sm font-medium text-gray-800">
+                    {selected.volunteeringExperience ||
+                      'No volunteering experience provided.'}
+                  </p>
+                </div>
+              </DetailSection>
+
+              <DetailSection title="Submitted Documents" icon={FileText}>
                 <DocumentReview
                   docs={{
                     validIdFrontUrl: selected.validIdFrontUrl,
                     validIdBackUrl: selected.validIdBackUrl,
                     trainingCertUrls: selected.trainingCertUrl,
-                    barangayClearanceUrl: selected.barangayClearanceUrl,
-                    medicalCertUrls: selected.medicalCertUrl,
                   }}
                 />
-              </div>
+              </DetailSection>
             </div>
 
             <div className="sticky bottom-0 flex items-center justify-between rounded-b-lg border-t border-gray-100 bg-white px-6 py-4">
               <button
+                type="button"
                 onClick={() => setSelected(null)}
-                className="rounded-lg bg-gray-100 px-4 hover:cursor-pointer py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
+                className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
               >
                 Close
               </button>
-              {statusConfig[selected.status as keyof typeof statusConfig]
-                .label !== 'Approved' && (
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => {
-                      handleAction(selected.id, 'under_review');
-                      setActionId(null);
-                    }}
-                    disabled={loadingAction !== null}
-                    className={`flex w-full hover:cursor-pointer rounded-lg transition-colors bg-blue-50 items-center gap-2 px-4 py-2 font-medium text-sm text-blue-500 hover:bg-blue-100 ${statusConfig[selected.status as keyof typeof statusConfig].label === 'Rejected' && 'hidden'}`}
-                  >
-                    {loadingAction === 'under_review' ? (
-                      <ShieldSpinLoader size={20} color="text-blue-500" />
-                    ) : (
-                      <Clock className="h-4 w-4" />
-                    )}
-                    Under Review
-                  </button>
-                  <button
-                    onClick={() => {
-                      setRejectModal(selected);
-                      setSelected(null);
-                    }}
-                    disabled={loadingAction !== null}
-                    className={`flex items-center gap-2 hover:cursor-pointer rounded-lg bg-red-50 px-4 py-2 text-sm font-medium text-red-500 transition-colors hover:bg-red-100 ${statusConfig[selected.status as keyof typeof statusConfig].label === 'Rejected' && 'hidden'}`}
-                  >
-                    {loadingAction === 'reject' ? (
-                      <ShieldSpinLoader size={20} color="text-red-500" />
-                    ) : (
+
+              {selected.status !== 'approved' &&
+                selected.status !== 'rejected' && (
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleAction(selected.id, 'under_review')}
+                      disabled={loadingAction !== null}
+                      className="flex items-center gap-2 rounded-lg bg-blue-50 px-4 py-2 text-sm font-medium text-blue-500 transition-colors hover:bg-blue-100 disabled:opacity-50"
+                    >
+                      {loadingAction === 'under_review' ? (
+                        <ShieldSpinLoader size={18} color="text-blue-500" />
+                      ) : (
+                        <Clock className="h-4 w-4" />
+                      )}
+                      Under Review
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRejectModal(selected);
+
+                        setSelected(null);
+                      }}
+                      disabled={loadingAction !== null}
+                      className="flex items-center gap-2 rounded-lg bg-red-50 px-4 py-2 text-sm font-medium text-red-500 transition-colors hover:bg-red-100 disabled:opacity-50"
+                    >
                       <XCircle className="h-4 w-4" />
-                    )}
-                    Reject
-                  </button>
-                  <button
-                    onClick={() => handleAction(selected.id, 'approve')}
-                    disabled={loadingAction !== null}
-                    className={`flex items-center gap-2 hover:cursor-pointer rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-green-200 transition-colors hover:bg-green-600 ${statusConfig[selected.status as keyof typeof statusConfig].label === 'Rejected' && 'hidden'}`}
-                  >
-                    {loadingAction === 'approve' ? (
-                      <ShieldSpinLoader size={20} color="text-white" />
-                    ) : (
-                      <CheckCircle className="h-4 w-4" />
-                    )}
-                    Approve
-                  </button>
-                </div>
-              )}
+                      Reject
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleAction(selected.id, 'approve')}
+                      disabled={loadingAction !== null}
+                      className="flex items-center gap-2 rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-green-200 transition-colors hover:bg-green-600 disabled:opacity-50"
+                    >
+                      {loadingAction === 'approve' ? (
+                        <ShieldSpinLoader size={18} color="text-white" />
+                      ) : (
+                        <CheckCircle className="h-4 w-4" />
+                      )}
+                      Approve
+                    </button>
+                  </div>
+                )}
             </div>
           </div>
         </div>
@@ -647,42 +721,49 @@ export function ApplicantsTable({
           <div className="w-full max-w-md rounded-lg bg-white shadow-2xl">
             <div className="border-b border-gray-100 px-6 py-4">
               <h2 className="font-bold text-gray-900">Reject Application</h2>
+
               <p className="mt-0.5 text-sm text-gray-500">
                 {rejectModal.firstName} {rejectModal.lastName}
               </p>
             </div>
+
             <div className="p-6">
               <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                Reason for rejection{' '}
-                <span className="text-red-500">(required *)</span>
+                Reason for rejection <span className="text-red-500">*</span>
               </label>
+
               <textarea
                 value={rejectNotes}
-                onChange={(e) => setRejectNotes(e.target.value)}
-                rows={4}
-                required
+                onChange={(event) => setRejectNotes(event.target.value)}
+                rows={5}
                 placeholder="Explain why the application is being rejected. This will be included in the notification email."
-                className="w-full resize-none rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full resize-none rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-transparent focus:ring-2 focus:ring-orange-500"
               />
             </div>
+
             <div className="flex justify-end gap-2 border-t border-gray-100 px-6 py-4">
               <button
+                type="button"
                 onClick={() => {
                   setRejectModal(null);
+
                   setRejectNotes('');
                 }}
-                className="rounded-lg bg-gray-100 hover:cursor-pointer px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200 transition-colors"
+                className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
               >
                 Cancel
               </button>
+
               <button
+                type="button"
                 onClick={() =>
                   handleAction(rejectModal.id, 'reject', rejectNotes)
                 }
-                className="flex items-center gap-2 hover:cursor-pointer rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-70 transition-colors"
+                disabled={loadingAction !== null || !rejectNotes.trim()}
+                className="flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {loadingAction === 'reject' ? (
-                  <ShieldSpinLoader size={20} color="text-white" />
+                  <ShieldSpinLoader size={18} color="text-white" />
                 ) : (
                   <XCircle className="h-4 w-4" />
                 )}
@@ -692,10 +773,93 @@ export function ApplicantsTable({
           </div>
         </div>
       )}
+    </div>
+  );
+}
 
-      {actionId && (
-        <div className="fixed inset-0 z-10" onClick={() => setActionId(null)} />
-      )}
+function formatStatusLabel(status: StatusTab) {
+  if (status === 'all') {
+    return 'All';
+  }
+  return status
+    .replaceAll('_', ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+function DocumentBadge({
+  label,
+  complete,
+}: {
+  label: string;
+  complete: boolean;
+}) {
+  return (
+    <span
+      className={`rounded-full px-2 py-1 text-[10px] font-medium ${
+        complete ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'
+      }`}
+    >
+      {complete ? label : `${label} missing`}
+    </span>
+  );
+}
+
+type DetailSectionProps = {
+  title: string;
+  icon: LucideIcon;
+  children: React.ReactNode;
+};
+
+function DetailSection({ title, icon: Icon, children }: DetailSectionProps) {
+  return (
+    <section>
+      <div className="mb-4 flex items-center gap-2">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-100">
+          <Icon className="h-3.5 w-3.5 text-orange-500" />
+        </div>
+
+        <h3 className="text-sm font-bold uppercase tracking-wide text-gray-900">
+          {title}
+        </h3>
+      </div>
+
+      {children}
+    </section>
+  );
+}
+
+type DetailGridProps = {
+  items: {
+    label: string;
+    value: string | number | null | undefined;
+    mono?: boolean;
+  }[];
+
+  columns?: 2 | 3 | 4;
+};
+
+function DetailGrid({ items, columns = 3 }: DetailGridProps) {
+  const gridClass =
+    columns === 2
+      ? 'sm:grid-cols-2'
+      : columns === 4
+        ? 'sm:grid-cols-4'
+        : 'sm:grid-cols-3';
+
+  return (
+    <div className={`grid grid-cols-2 gap-3 ${gridClass}`}>
+      {items.map((item) => (
+        <div key={item.label} className="rounded-lg bg-gray-50 p-3">
+          <div className="mb-0.5 text-xs text-gray-400">{item.label}</div>
+
+          <div
+            className={`wrap-break-word text-sm font-semibold text-gray-800 ${
+              item.mono ? 'font-mono' : ''
+            }`}
+          >
+            {item.value || '—'}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -711,47 +875,52 @@ interface DocumentSet {
 function isImageUrl(url: string) {
   return /\.(jpe?g|png|gif|webp|bmp)(\?.*)?$/i.test(url);
 }
-
 type DocumentThumbProps = {
   url: string;
   label?: string;
 };
-
 function DocumentThumb({ url, label }: DocumentThumbProps) {
   const isImage = isImageUrl(url);
+
   return (
-    <div>
-      <a
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="group block overflow-hidden rounded-lg border border-gray-200 transition-colors hover:border-orange-300"
-      >
-        <div className="relative aspect-4/3 w-full bg-gray-100">
-          {isImage ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={url} alt={label} className="h-24 w-full object-cover" />
-          ) : (
-            <div className="flex h-24 flex-col items-center justify-center gap-1.5 bg-gray-50">
-              <FileText className="h-6 w-6 text-gray-400" />
-              <span className="text-xs font-medium text-gray-500">
-                PDF Document
-              </span>
-            </div>
-          )}
-          <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all group-hover:bg-black/40 group-hover:opacity-100">
-            <span className="flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-gray-900">
-              <ExternalLink className="h-3.5 w-3.5" /> View full size
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group block overflow-hidden rounded-lg border border-gray-200 transition-colors hover:border-orange-300"
+    >
+      <div className="relative aspect-4/3 w-full bg-gray-100">
+        {isImage ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={url}
+            alt={label ?? 'Document'}
+            className="h-24 w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-24 flex-col items-center justify-center gap-1.5 bg-gray-50">
+            <FileText className="h-6 w-6 text-gray-400" />
+
+            <span className="text-xs font-medium text-gray-500">
+              PDF Document
             </span>
           </div>
-        </div>
-        {label && (
-          <div className="border-t border-gray-100 px-2.5 py-1.5 text-center text-xs font-medium text-gray-600">
-            {label}
-          </div>
         )}
-      </a>
-    </div>
+
+        <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all group-hover:bg-black/40 group-hover:opacity-100">
+          <span className="flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-gray-900">
+            <ExternalLink className="h-3.5 w-3.5" />
+            View full size
+          </span>
+        </div>
+      </div>
+
+      {label && (
+        <div className="border-t border-gray-100 px-2.5 py-1.5 text-center text-xs font-medium text-gray-600">
+          {label}
+        </div>
+      )}
+    </a>
   );
 }
 
@@ -759,7 +928,10 @@ interface CategoryProps {
   icon: LucideIcon;
   title: string;
   emptyText: string;
-  documents: { url: string; label: string }[];
+  documents: {
+    url: string;
+    label: string;
+  }[];
 }
 
 function DocumentCategory({
@@ -772,12 +944,18 @@ function DocumentCategory({
     <div className="rounded-lg bg-gray-50 p-4">
       <div className="mb-3 flex items-center gap-2">
         <Icon className="h-4 w-4 text-orange-500" />
+
         <span className="text-sm font-bold text-gray-900">{title}</span>
       </div>
+
       {documents.length > 0 ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {documents.map((doc) => (
-            <DocumentThumb key={doc.url} url={doc.url} label={doc.label} />
+          {documents.map((document) => (
+            <DocumentThumb
+              key={document.url}
+              url={document.url}
+              label={document.label}
+            />
           ))}
         </div>
       ) : (
@@ -789,6 +967,7 @@ function DocumentCategory({
 
 export function DocumentReview({ docs }: { docs: DocumentSet }) {
   const trainingCerts = docs.trainingCertUrls ?? [];
+
   const medicalCerts = docs.medicalCertUrls ?? [];
 
   return (
@@ -799,21 +978,34 @@ export function DocumentReview({ docs }: { docs: DocumentSet }) {
         emptyText="No ID on file."
         documents={[
           ...(docs.validIdFrontUrl
-            ? [{ url: docs.validIdFrontUrl, label: 'Front' }]
+            ? [
+                {
+                  url: docs.validIdFrontUrl,
+                  label: 'Front',
+                },
+              ]
             : []),
+
           ...(docs.validIdBackUrl
-            ? [{ url: docs.validIdBackUrl, label: 'Back' }]
+            ? [
+                {
+                  url: docs.validIdBackUrl,
+                  label: 'Back',
+                },
+              ]
             : []),
         ]}
       />
 
       <DocumentCategory
         icon={FileText}
-        title={`Training Certificate${trainingCerts.length === 1 ? '' : 's'} (${trainingCerts.length})`}
+        title={`Training Certificate${
+          trainingCerts.length === 1 ? '' : 's'
+        } (${trainingCerts.length})`}
         emptyText="No training certificates on file."
-        documents={trainingCerts.map((url, i) => ({
+        documents={trainingCerts.map((url, index) => ({
           url,
-          label: `Certificate ${i + 1}`,
+          label: `Certificate ${index + 1}`,
         }))}
       />
 
@@ -823,18 +1015,25 @@ export function DocumentReview({ docs }: { docs: DocumentSet }) {
         emptyText="No barangay clearance on file."
         documents={
           docs.barangayClearanceUrl
-            ? [{ url: docs.barangayClearanceUrl, label: 'Barangay Clearance' }]
+            ? [
+                {
+                  url: docs.barangayClearanceUrl,
+                  label: 'Barangay Clearance',
+                },
+              ]
             : []
         }
       />
 
       <DocumentCategory
         icon={Stethoscope}
-        title={`Medical Certificate${medicalCerts.length === 1 ? '' : 's'} (${medicalCerts.length})`}
+        title={`Medical Certificate${
+          medicalCerts.length === 1 ? '' : 's'
+        } (${medicalCerts.length})`}
         emptyText="No medical certificates on file."
-        documents={medicalCerts.map((url, i) => ({
+        documents={medicalCerts.map((url, index) => ({
           url,
-          label: `Certificate ${i + 1}`,
+          label: `Certificate ${index + 1}`,
         }))}
       />
     </div>

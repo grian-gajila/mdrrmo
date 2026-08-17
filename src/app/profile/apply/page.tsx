@@ -11,7 +11,9 @@ export default async function ApplyPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) redirect('/auth/login?redirect=/apply');
+  if (!user) {
+    redirect('/auth/login?redirect=/apply');
+  }
 
   const profile = await db
     .select()
@@ -20,16 +22,12 @@ export default async function ApplyPage() {
     .limit(1)
     .then((rows) => rows[0] ?? null);
 
-  const existing = await db
-    .select({
-      id: volunteerApplications.id,
-      status: volunteerApplications.status,
-      submittedAt: volunteerApplications.submittedAt,
-    })
+  const existingApplication = await db
+    .select()
     .from(volunteerApplications)
     .where(eq(volunteerApplications.volunteerId, user.id))
     .limit(1)
-    .then((r) => r[0] ?? null);
+    .then((rows) => rows[0] ?? null);
 
   const userData = profile
     ? {
@@ -40,6 +38,9 @@ export default async function ApplyPage() {
     : null;
 
   return (
-    <ApplicationFormClient existingApplication={existing} userData={userData} />
+    <ApplicationFormClient
+      existingApplication={existingApplication}
+      userData={userData}
+    />
   );
 }

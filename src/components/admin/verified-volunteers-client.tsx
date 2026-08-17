@@ -179,9 +179,9 @@ export function VerifiedVolunteersClient({
                   </td>
                   <td className="px-6 py-4">
                     <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${volunteer.role ? roleColors[volunteer.role] : 'bg-gray-100 text-gray-600'}`}
+                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${volunteer.primaryRole ? roleColors[volunteer.primaryRole] : 'bg-gray-100 text-gray-600'}`}
                     >
-                      {volunteer.role}
+                      {volunteer.primaryRole}
                     </span>
                   </td>
                   <td className="px-6 py-4">
@@ -276,9 +276,9 @@ export function VerifiedVolunteersClient({
                     {selected.lastName}
                   </h2>
                   <span
-                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${selected.role ? roleColors[selected.role] : 'bg-gray-100 text-gray-500'}`}
+                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${selected.primaryRole ? roleColors[selected.primaryRole] : 'bg-gray-100 text-gray-500'}`}
                   >
-                    {selected.role}
+                    {selected.primaryRole}
                   </span>
                 </div>
               </div>
@@ -323,7 +323,7 @@ export function VerifiedVolunteersClient({
                   },
                   {
                     label: 'Address',
-                    value: `${selected.sitio}, ${selected.barangay}, ${selected.municipality}, ${selected.province}`,
+                    value: `${selected.completeAddress}, ${selected.barangayCode}, ${selected.municipalityCode}, ${selected.provinceCode}`,
                     icon: MapPin,
                   },
                   {

@@ -1,5 +1,5 @@
 {
-  "id": "420c96ba-e719-4747-af12-f6cc3ac52479",
+  "id": "133f42c9-1060-4696-b6e2-a1bdb9af7c6a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -355,6 +355,81 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.notification_reads": {
+      "name": "notification_reads",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "volunteer_id": {
+          "name": "volunteer_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "announcement_id": {
+          "name": "announcement_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "read_at": {
+          "name": "read_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "notification_reads_volunteer_id_volunteer_profiles_id_fk": {
+          "name": "notification_reads_volunteer_id_volunteer_profiles_id_fk",
+          "tableFrom": "notification_reads",
+          "tableTo": "volunteer_profiles",
+          "columnsFrom": [
+            "volunteer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "notification_reads_announcement_id_announcements_id_fk": {
+          "name": "notification_reads_announcement_id_announcements_id_fk",
+          "tableFrom": "notification_reads",
+          "tableTo": "announcements",
+          "columnsFrom": [
+            "announcement_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "notification_reads_volunteer_announcement_unique": {
+          "name": "notification_reads_volunteer_announcement_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "volunteer_id",
+            "announcement_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.volunteer_applications": {
       "name": "volunteer_applications",
       "schema": "",
@@ -392,7 +467,8 @@
         },
         "gender": {
           "name": "gender",
-          "type": "text",
+          "type": "gender",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
@@ -427,26 +503,46 @@
           "primaryKey": false,
           "notNull": true
         },
-        "political_status": {
-          "name": "political_status",
+        "marital_status": {
+          "name": "marital_status",
+          "type": "marital_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "employment_status": {
+          "name": "employment_status",
+          "type": "employment_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nature_of_employment": {
+          "name": "nature_of_employment",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "health_status": {
-          "name": "health_status",
+        "position": {
+          "name": "position",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "employer": {
+          "name": "employer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "primary_role": {
+          "name": "primary_role",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "marital_status": {
-          "name": "marital_status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "volunteer_role": {
-          "name": "volunteer_role",
+        "secondary_role": {
+          "name": "secondary_role",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -463,26 +559,26 @@
           "primaryKey": false,
           "notNull": true
         },
-        "sitio": {
-          "name": "sitio",
+        "complete_address": {
+          "name": "complete_address",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "barangay": {
-          "name": "barangay",
+        "province_code": {
+          "name": "province_code",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "municipality": {
-          "name": "municipality",
+        "municipality_code": {
+          "name": "municipality_code",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "province": {
-          "name": "province",
+        "barangay_code": {
+          "name": "barangay_code",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -535,18 +631,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "barangay_clearance_url": {
-          "name": "barangay_clearance_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "medical_cert_url": {
-          "name": "medical_cert_url",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
         "photo_url": {
           "name": "photo_url",
           "type": "text",
@@ -559,7 +643,7 @@
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
-          "default": "'pending'"
+          "default": "'draft'"
         },
         "reviewed_by": {
           "name": "reviewed_by",
@@ -583,8 +667,7 @@
           "name": "submitted_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
+          "notNull": false
         },
         "updated_at": {
           "name": "updated_at",
@@ -726,10 +809,38 @@
       "name": "application_status",
       "schema": "public",
       "values": [
+        "draft",
         "pending",
         "under_review",
         "approved",
         "rejected"
+      ]
+    },
+    "public.employment_status": {
+      "name": "employment_status",
+      "schema": "public",
+      "values": [
+        "Employed",
+        "Unemployed"
+      ]
+    },
+    "public.gender": {
+      "name": "gender",
+      "schema": "public",
+      "values": [
+        "Male",
+        "Female",
+        "Prefer not to say"
+      ]
+    },
+    "public.marital_status": {
+      "name": "marital_status",
+      "schema": "public",
+      "values": [
+        "Single",
+        "Married",
+        "Widowed",
+        "Annulment"
       ]
     },
     "public.volunteer_status": {
