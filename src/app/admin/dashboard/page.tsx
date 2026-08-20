@@ -253,11 +253,11 @@ export default async function DashboardPage() {
                   </div>
                 </div>
                 <span
-                  className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${statusConfig[applicant.status as keyof typeof statusConfig].class}`}
+                  className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${statusConfig[applicant.status as keyof typeof statusConfig]?.class}`}
                 >
                   {
                     statusConfig[applicant.status as keyof typeof statusConfig]
-                      .label
+                      ?.label
                   }
                 </span>
                 <Link
