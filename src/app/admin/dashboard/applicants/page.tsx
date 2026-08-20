@@ -2,8 +2,10 @@ import { ApplicantsTable } from '@/components/admin/applicants-table';
 import { getAdminSession } from '@/lib/auth/admin-auth';
 import { db } from '@/lib/db';
 import { volunteerApplications } from '@/lib/db/schema';
-import { desc, eq, ne } from 'drizzle-orm';
+import { desc, eq, inArray } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
+
+const APPLICANT_STATUSES = ['pending', 'under_review', 'rejected'] as const;
 
 export default async function ApplicantsPage({
   searchParams,
@@ -22,7 +24,7 @@ export default async function ApplicantsPage({
     .where(
       statusFilter
         ? eq(volunteerApplications.status, statusFilter)
-        : ne(volunteerApplications.status, 'approved'),
+        : inArray(volunteerApplications.status, APPLICANT_STATUSES),
     )
     .orderBy(desc(volunteerApplications.submittedAt));
 

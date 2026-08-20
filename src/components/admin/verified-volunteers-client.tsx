@@ -148,92 +148,103 @@ export function VerifiedVolunteersClient({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {filtered.map((volunteer) => (
-                <tr
-                  key={volunteer.id}
-                  className="transition-colors hover:bg-gray-50/50"
-                >
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full ">
-                        {volunteer.avatar && (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={`${volunteer.avatar}`}
-                            alt={`${volunteer.avatar}`}
-                            className="rounded-full h-9 w-9 object-cover"
-                          />
-                        )}
-                      </div>
-                      <div>
-                        <div className="text-sm font-semibold text-gray-900">
-                          {volunteer.firstName}{' '}
-                          {volunteer.middleName?.charAt(0)}.{' '}
-                          {volunteer.lastName}
-                        </div>
-                        <div className="mt-0.5 text-xs text-gray-400">
-                          {volunteer.contactNumber}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${volunteer.primaryRole ? roleColors[volunteer.primaryRole] : 'bg-gray-100 text-gray-600'}`}
-                    >
-                      {volunteer.primaryRole}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-1.5 text-sm text-gray-700">
-                      <Calendar className="h-3.5 w-3.5 text-gray-400" />
-                      {volunteer.hiredAt
-                        ? new Date(volunteer.hiredAt).toLocaleDateString(
-                            'en-PH',
-                            {
-                              dateStyle: 'long',
-                            },
-                          )
-                        : null}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className={`text-sm font-bold ${Number(volunteer.deploymentCount) > 0 ? 'text-orange-500' : 'text-gray-400'}`}
-                      >
-                        {volunteer.deploymentCount}
-                      </span>
-                      <span className="text-xs text-gray-400">missions</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
-                        volunteer.status === 'active'
-                          ? 'bg-green-100 text-green-500'
-                          : 'bg-gray-100 text-gray-500'
-                      }`}
-                    >
-                      <span
-                        className={`h-1.5 w-1.5 rounded-full ${volunteer.status === 'active' ? 'bg-green-500' : 'bg-gray-400'}`}
-                      ></span>
-                      {volunteer.status === 'active' ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => setSelected(volunteer)}
-                        className="flex items-center gap-1.5 rounded-lg hover:cursor-pointer bg-orange-50 px-3 py-1.5 text-xs font-medium text-orange-500 transition-colors hover:bg-orange-100"
-                      >
-                        <Eye className="h-3.5 w-3.5" />
-                        View
-                      </button>
-                    </div>
+              {filtered.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="px-6 py-12 text-center text-sm text-gray-400"
+                  >
+                    No verified applicants found.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filtered.map((volunteer) => (
+                  <tr
+                    key={volunteer.id}
+                    className="transition-colors hover:bg-gray-50/50"
+                  >
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full ">
+                          {volunteer.avatar && (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={`${volunteer.avatar}`}
+                              alt={`${volunteer.avatar}`}
+                              className="rounded-full h-9 w-9 object-cover"
+                            />
+                          )}
+                        </div>
+                        <div>
+                          <div className="text-sm font-semibold text-gray-900">
+                            {volunteer.firstName}{' '}
+                            {volunteer.middleName?.charAt(0)}.{' '}
+                            {volunteer.lastName}
+                          </div>
+                          <div className="mt-0.5 text-xs text-gray-400">
+                            {volunteer.contactNumber}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-xs font-medium ${volunteer.primaryRole ? roleColors[volunteer.primaryRole] : 'bg-gray-100 text-gray-600'}`}
+                      >
+                        {volunteer.primaryRole}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-1.5 text-sm text-gray-700">
+                        <Calendar className="h-3.5 w-3.5 text-gray-400" />
+                        {volunteer.hiredAt
+                          ? new Date(volunteer.hiredAt).toLocaleDateString(
+                              'en-PH',
+                              {
+                                dateStyle: 'long',
+                              },
+                            )
+                          : null}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className={`text-sm font-bold ${Number(volunteer.deploymentCount) > 0 ? 'text-orange-500' : 'text-gray-400'}`}
+                        >
+                          {volunteer.deploymentCount}
+                        </span>
+                        <span className="text-xs text-gray-400">missions</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
+                          volunteer.status === 'active'
+                            ? 'bg-green-100 text-green-500'
+                            : 'bg-gray-100 text-gray-500'
+                        }`}
+                      >
+                        <span
+                          className={`h-1.5 w-1.5 rounded-full ${volunteer.status === 'active' ? 'bg-green-500' : 'bg-gray-400'}`}
+                        ></span>
+                        {volunteer.status === 'active' ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => setSelected(volunteer)}
+                          className="flex items-center gap-1.5 rounded-lg hover:cursor-pointer bg-orange-50 px-3 py-1.5 text-xs font-medium text-orange-500 transition-colors hover:bg-orange-100"
+                        >
+                          <Eye className="h-3.5 w-3.5" />
+                          View
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

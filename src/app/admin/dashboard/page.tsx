@@ -6,7 +6,7 @@ import {
   volunteerApplications,
   volunteerProfiles,
 } from '@/lib/db/schema';
-import { count, desc, eq } from 'drizzle-orm';
+import { count, desc, eq, ne } from 'drizzle-orm';
 import {
   Activity,
   AlertTriangle,
@@ -47,6 +47,7 @@ export default async function DashboardPage() {
     db
       .select({ count: count() })
       .from(volunteerApplications)
+      .where(ne(volunteerApplications.status, 'draft'))
       .then((r) => r[0].count),
     db
       .select({ count: count() })
@@ -83,6 +84,7 @@ export default async function DashboardPage() {
         volunteerProfiles,
         eq(volunteerApplications.volunteerId, volunteerProfiles.id),
       )
+      .where(ne(volunteerApplications.status, 'draft'))
       .orderBy(desc(volunteerApplications.submittedAt))
       .limit(6),
     db
@@ -223,51 +225,58 @@ export default async function DashboardPage() {
           </div>
 
           <div className="divide-y divide-gray-50">
-            {recentApplications.map((applicant, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-gray-50"
-              >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
-                  {applicant.avatar && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={`${applicant.avatar}`}
-                      alt={`${applicant.avatar}`}
-                      className="rounded-full h-9 w-9 object-cover"
-                    />
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-semibold text-gray-900">
-                    {applicant.firstName} {applicant.lastName}
-                  </div>
-                  <div className="mt-0.5 text-xs text-gray-400">
-                    {applicant.submittedAt
-                      ? new Date(applicant.submittedAt).toLocaleDateString(
-                          'en-PH',
-                          { dateStyle: 'medium' },
-                        )
-                      : '-'}{' '}
-                    · {role}
-                  </div>
-                </div>
-                <span
-                  className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${statusConfig[applicant.status as keyof typeof statusConfig]?.class}`}
-                >
-                  {
-                    statusConfig[applicant.status as keyof typeof statusConfig]
-                      ?.label
-                  }
-                </span>
-                <Link
-                  href={`/admin/dashboard/applicants?id=${applicant.id}`}
-                  className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-orange-50 hover:text-orange-500"
-                >
-                  <Eye className="h-4 w-4" />
-                </Link>
+            {recentApplications.length === 0 ? (
+              <div className="px-6 py-12 text-center text-sm text-gray-400">
+                No data found.
               </div>
-            ))}
+            ) : (
+              recentApplications.map((applicant, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-gray-50"
+                >
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
+                    {applicant.avatar && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={`${applicant.avatar}`}
+                        alt={`${applicant.avatar}`}
+                        className="rounded-full h-9 w-9 object-cover"
+                      />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-semibold text-gray-900">
+                      {applicant.firstName} {applicant.lastName}
+                    </div>
+                    <div className="mt-0.5 text-xs text-gray-400">
+                      {applicant.submittedAt
+                        ? new Date(applicant.submittedAt).toLocaleDateString(
+                            'en-PH',
+                            { dateStyle: 'medium' },
+                          )
+                        : '-'}{' '}
+                      · {role}
+                    </div>
+                  </div>
+                  <span
+                    className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${statusConfig[applicant.status as keyof typeof statusConfig]?.class}`}
+                  >
+                    {
+                      statusConfig[
+                        applicant.status as keyof typeof statusConfig
+                      ]?.label
+                    }
+                  </span>
+                  <Link
+                    href={`/admin/dashboard/applicants?id=${applicant.id}`}
+                    className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-orange-50 hover:text-orange-500"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Link>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
