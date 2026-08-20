@@ -1,5 +1,6 @@
 import { statusConfig } from '@/data/status';
 import useVolunteerApplicationPreview from '@/hooks/use-volunteer-application-preview';
+import { listBarangays, listMuncities, listProvinces } from '@/lib/psgc';
 import {
   ApplicationPreviewModalProps,
   CategoryProps,
@@ -64,6 +65,18 @@ function ApplicationPreviewModal({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
+  const province = listProvinces().find(
+    (province) => province.psgcCode === data?.provinceCode,
+  );
+
+  const municipality = listMuncities().find(
+    (municipality) => municipality.psgcCode === data?.municipalityCode,
+  );
+
+  const barangay = listBarangays().find(
+    (barangay) => barangay.psgcCode === data?.barangayCode,
+  );
+
   const sections = data
     ? [
         {
@@ -80,6 +93,10 @@ function ApplicationPreviewModal({
             { l: 'Native Language', v: data.nativePlace },
             { l: 'Education', v: data.educationLevel },
             { l: 'Marital Status', v: data.maritalStatus },
+            { l: 'Employment Status', v: data.employmentStatus },
+            { l: 'Nature of Employment', v: data.natureOfEmployment },
+            { l: 'Position', v: data.position },
+            { l: 'Employer', v: data.employer },
             { l: 'Primary Role', v: data.primaryRole },
             { l: 'Secondary Role Role', v: data.secondaryRole },
           ],
@@ -97,9 +114,9 @@ function ApplicationPreviewModal({
           icon: MapPinHouse,
           items: [
             { l: 'Complete Address', v: data.completeAddress },
-            { l: 'Barangay', v: data.barangayCode },
-            { l: 'Municipality', v: data.municipalityCode },
-            { l: 'Province', v: data.provinceCode },
+            { l: 'Barangay', v: barangay?.brgyName },
+            { l: 'Municipality', v: municipality?.munCityName },
+            { l: 'Province', v: province?.provName },
             { l: 'Contact Number', v: data.contactNumber },
             { l: 'Home Phone', v: data.homePhone },
             { l: 'Email Address', v: data.email },

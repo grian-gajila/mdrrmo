@@ -121,23 +121,37 @@ export function ApplicationFormClient({
   const municipalityCode = watch('municipalityCode');
   const barangayCode = watch('barangayCode');
 
-  const listOfProvince = listProvinces();
-  const selectedProvince = listOfProvince.find(
+  const provinces = listProvinces();
+  const municipalities = listMuncities();
+  const barangays = listBarangays();
+
+  const selectedProvince = provinces.find(
     (province) => province.psgcCode === provinceCode,
   );
 
-  const municipalities = selectedProvince
-    ? listMuncities(selectedProvince.psgcCode.slice(2, 5))
-    : [];
-  const selectedMunicipality = municipalities.find(
-    (municipality) => municipality.psgcCode === municipalityCode,
-  );
-  const barangays = selectedMunicipality
-    ? listBarangays(selectedMunicipality.psgcCode.slice(2, 7))
+  const provinceLookupCode = selectedProvince?.psgcCode.slice(0, 5);
+
+  const filteredMunicipalities = provinceLookupCode
+    ? municipalities.filter(
+        (municipality) =>
+          municipality.psgcCode.slice(0, 5) === provinceLookupCode,
+      )
     : [];
 
-  const selectedBarangay = barangays.find(
-    (barangay) => barangay.brgyCode === barangayCode,
+  const selectedMunicipality = filteredMunicipalities.find(
+    (municipality) => municipality.psgcCode === municipalityCode,
+  );
+
+  const municipalityLookupCode = selectedMunicipality?.psgcCode.slice(0, 7);
+
+  const filteredBarangays = municipalityLookupCode
+    ? barangays.filter(
+        (barangay) => barangay.psgcCode.slice(0, 7) === municipalityLookupCode,
+      )
+    : [];
+
+  const selectedBarangay = filteredBarangays.find(
+    (barangay) => barangay.psgcCode === barangayCode,
   );
 
   const secondaryRoleOptions = VOLUNTEER_ROLES.filter(
@@ -919,7 +933,7 @@ export function ApplicationFormClient({
                         <SelectContent>
                           <SelectGroup>
                             <SelectLabel>Select province...</SelectLabel>
-                            {listOfProvince.map((province) => (
+                            {provinces.map((province) => (
                               <SelectItem
                                 key={province.psgcCode}
                                 value={province.psgcCode}
@@ -970,7 +984,7 @@ export function ApplicationFormClient({
                               Select municipality/city...
                             </SelectLabel>
 
-                            {municipalities.map((municipality) => (
+                            {filteredMunicipalities.map((municipality) => (
                               <SelectItem
                                 key={municipality.psgcCode}
                                 value={municipality.psgcCode}
@@ -1015,7 +1029,7 @@ export function ApplicationFormClient({
                         <SelectContent>
                           <SelectGroup>
                             <SelectLabel>Select barangay...</SelectLabel>
-                            {barangays.map((barangay) => (
+                            {filteredBarangays.map((barangay) => (
                               <SelectItem
                                 key={barangay.psgcCode}
                                 value={barangay.psgcCode}
@@ -1458,21 +1472,15 @@ export function ApplicationFormClient({
                 },
                 {
                   label: 'Barangay',
-                  value: selectedBarangay
-                    ? String(selectedBarangay.brgyName)
-                    : step1Data.barangayCode,
+                  value: selectedBarangay?.brgyName,
                 },
                 {
                   label: 'Municipality / City',
-                  value: selectedMunicipality
-                    ? String(selectedMunicipality.munCityName)
-                    : step1Data.municipalityCode,
+                  value: selectedMunicipality?.munCityName,
                 },
                 {
                   label: 'Province',
-                  value: selectedProvince
-                    ? String(selectedProvince.provName)
-                    : step1Data.provinceCode,
+                  value: selectedProvince?.provName,
                 },
                 {
                   label: 'Contact Number',
