@@ -9,8 +9,6 @@ const BUCKET_MAP: Record<string, string> = {
   validIdFront: 'volunteer-documents',
   validIdBack: 'volunteer-documents',
   trainingCert: 'volunteer-documents',
-  barangayClearance: 'volunteer-documents',
-  medicalCert: 'volunteer-documents',
 };
 
 export async function POST(request: Request) {
