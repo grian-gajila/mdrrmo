@@ -30,18 +30,18 @@ const RequirementsSection = () => {
               desc: 'Disaster response, first aid, or any relevant certification',
               required: true,
             },
-            {
-              icon: FileText,
-              title: 'Barangay Clearance',
-              desc: 'Issued within the last 3 months from your local barangay',
-              required: true,
-            },
-            {
-              icon: Heart,
-              title: 'Medical Certificate',
-              desc: 'Fit-to-work certificate from a licensed physician',
-              required: true,
-            },
+            // {
+            //   icon: FileText,
+            //   title: 'Barangay Clearance',
+            //   desc: 'Issued within the last 3 months from your local barangay',
+            //   required: true,
+            // },
+            // {
+            //   icon: Heart,
+            //   title: 'Medical Certificate',
+            //   desc: 'Fit-to-work certificate from a licensed physician',
+            //   required: true,
+            // },
           ].map((req) => (
             <div
               key={req.title}
