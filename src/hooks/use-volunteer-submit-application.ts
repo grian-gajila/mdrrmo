@@ -103,6 +103,7 @@ export const useVolunteerSubmitApplication = ({
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDraftSaving, setIsDraftSaving] = useState(false);
   const [uploadingKeys, setUploadingKeys] = useState<Set<string>>(new Set());
   const [docs, setDocs] = useState<UploadedDocs>(
     getInitialDocs(existingApplication),
@@ -138,7 +139,7 @@ export const useVolunteerSubmitApplication = ({
       existingApplication,
     }),
   });
-
+  // "1705200000" '175207000'
   const uploadFile = async (
     file: File,
     type: string,
@@ -285,7 +286,7 @@ export const useVolunteerSubmitApplication = ({
   const onSaveDraft = async () => {
     const currentData = getValues();
 
-    setIsSubmitting(true);
+    setIsDraftSaving(true);
 
     try {
       const response = await saveVolunteerApplicationDraftServices({
@@ -309,7 +310,7 @@ export const useVolunteerSubmitApplication = ({
     } catch {
       toast.error('Failed to save application draft. Please try again.');
     } finally {
-      setIsSubmitting(false);
+      setIsDraftSaving(false);
     }
   };
 
@@ -377,6 +378,7 @@ export const useVolunteerSubmitApplication = ({
     setValue,
     getValues,
     isSubmitting,
+    isDraftSaving,
     uploadingKeys,
     certified,
     setCertified,

@@ -7,7 +7,7 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="h-screen w-full bg-orange-50 items-center justify-center">
+        <div className="flex h-screen w-full bg-orange-50 items-center justify-center">
           <ShieldDrawLoader />
         </div>
       }

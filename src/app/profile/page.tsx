@@ -82,19 +82,37 @@ export default async function ProfilePage() {
           </div>
         </div>
       ) : (
-        <div className="rounded-lg border border-dashed border-orange-300 bg-orange-50 p-6 text-center">
-          <FileText className="mx-auto mb-3 h-10 w-10 text-orange-400" />
-          <h3 className="font-bold text-gray-900">No Application Yet</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            Start your volunteer application to join MDRRMO Mansalay
-          </p>
+        <>
+          <div className="rounded-lg border border-dashed border-orange-300 bg-orange-50 p-6 text-center">
+            <FileText className="mx-auto mb-3 h-10 w-10 text-orange-400" />
+            <h3 className="font-bold text-gray-900">
+              {application.status === 'draft'
+                ? 'Application saved as draft'
+                : 'No Application Yet'}
+            </h3>
+
+            <p className="mt-1 text-sm text-gray-500">
+              Start your volunteer application to join MDRRMO Mansalay
+            </p>
+            {application.status !== 'draft' && (
+              <Link
+                href="/profile/apply"
+                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-200 hover:bg-orange-600 transition-colors"
+              >
+                Apply Now
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            )}
+          </div>
+
           <Link
             href="/profile/apply"
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-200 hover:bg-orange-600 transition-colors"
+            className="mt-3 inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700"
           >
-            Apply Now <ChevronRight className="h-4 w-4" />
+            <FileText className="h-3.5 w-3.5" />
+            View Draft application
           </Link>
-        </div>
+        </>
       )}
 
       {hiredRecord && (

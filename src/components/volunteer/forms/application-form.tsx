@@ -33,8 +33,6 @@ import type {
   SingleUploadSlotProps,
 } from '@/types';
 
-import { listBarangays, listMuncities, listProvinces } from '@jobuntux/psgc';
-
 import { format, parse } from 'date-fns';
 
 import {
@@ -61,6 +59,7 @@ import { useRouter } from 'next/navigation';
 import { Controller } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import { listBarangays, listMuncities, listProvinces } from '@/lib/psgc';
 import { ApplicationPreview } from '../application-preview';
 
 const VOLUNTEER_ROLES = [
@@ -93,6 +92,7 @@ export function ApplicationFormClient({
     watch,
     setValue,
     isSubmitting,
+    isDraftSaving,
     uploadingKeys,
     certified,
     setCertified,
@@ -121,25 +121,27 @@ export function ApplicationFormClient({
   const municipalityCode = watch('municipalityCode');
   const barangayCode = watch('barangayCode');
 
-  const provinces = listProvinces();
-
-  const municipalities = provinceCode ? listMuncities(provinceCode) : [];
-
-  const barangays = municipalityCode ? listBarangays(municipalityCode) : [];
-
-  const secondaryRoleOptions = VOLUNTEER_ROLES.filter(
-    (role) => role !== primaryRole,
-  );
-
-  const selectedProvince = provinces.find(
+  const listOfProvince = listProvinces();
+  const selectedProvince = listOfProvince.find(
     (province) => province.psgcCode === provinceCode,
   );
 
+  const municipalities = selectedProvince
+    ? listMuncities(selectedProvince.psgcCode.slice(2, 5))
+    : [];
   const selectedMunicipality = municipalities.find(
     (municipality) => municipality.psgcCode === municipalityCode,
   );
+  const barangays = selectedMunicipality
+    ? listBarangays(selectedMunicipality.psgcCode.slice(2, 7))
+    : [];
+
   const selectedBarangay = barangays.find(
     (barangay) => barangay.brgyCode === barangayCode,
+  );
+
+  const secondaryRoleOptions = VOLUNTEER_ROLES.filter(
+    (role) => role !== primaryRole,
   );
 
   if (existingApplication && existingApplication.status !== 'draft') {
@@ -337,7 +339,6 @@ export function ApplicationFormClient({
                   </Label>
                   <Input
                     {...register('firstName')}
-                    defaultValue={userData?.firstName}
                     placeholder="e.g. Juan"
                     className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"
                   />
@@ -367,7 +368,6 @@ export function ApplicationFormClient({
                   <Input
                     {...register('lastName')}
                     placeholder="e.g. Dela Cruz"
-                    defaultValue={userData?.lastName}
                     className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"
                   />
                   {errors.lastName && (
@@ -919,12 +919,12 @@ export function ApplicationFormClient({
                         <SelectContent>
                           <SelectGroup>
                             <SelectLabel>Select province...</SelectLabel>
-                            {provinces.map((province) => (
+                            {listOfProvince.map((province) => (
                               <SelectItem
                                 key={province.psgcCode}
                                 value={province.psgcCode}
                               >
-                                {String(province)}
+                                {String(province.provName)}
                               </SelectItem>
                             ))}
                           </SelectGroup>
@@ -975,7 +975,7 @@ export function ApplicationFormClient({
                                 key={municipality.psgcCode}
                                 value={municipality.psgcCode}
                               >
-                                {String(municipality)}
+                                {String(municipality.munCityName)}
                               </SelectItem>
                             ))}
                           </SelectGroup>
@@ -1020,7 +1020,7 @@ export function ApplicationFormClient({
                                 key={barangay.psgcCode}
                                 value={barangay.psgcCode}
                               >
-                                {String(barangay)}
+                                {String(barangay.brgyName)}
                               </SelectItem>
                             ))}
                           </SelectGroup>
@@ -1051,7 +1051,7 @@ export function ApplicationFormClient({
 
                 <div>
                   <Label className="text-sm font-medium text-gray-700">
-                    Home Phone{' '}
+                    Telephone{' '}
                     <span className="text-orange-400">(Optional)</span>
                   </Label>
 
@@ -1074,7 +1074,6 @@ export function ApplicationFormClient({
                   <Input
                     {...register('email')}
                     placeholder="e.g. you@gmail.com"
-                    defaultValue={userData?.email}
                     className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"
                   />
                   {errors.email && (
@@ -1146,7 +1145,7 @@ export function ApplicationFormClient({
               <button
                 type="button"
                 onClick={() => router.push('/profile')}
-                className="flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
+                className="flex items-center gap-2 rounded-lg hover:cursor-pointer bg-gray-100 px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Back
@@ -1154,7 +1153,7 @@ export function ApplicationFormClient({
 
               <button
                 type="submit"
-                className="flex items-center gap-2 rounded-lg bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-200 transition-colors hover:bg-orange-600"
+                className="flex items-center gap-2 rounded-lg bg-orange-500 hover:cursor-pointer px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-200 transition-colors hover:bg-orange-600"
               >
                 Continue
                 <ArrowRight className="h-4 w-4" />
@@ -1295,7 +1294,7 @@ export function ApplicationFormClient({
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
+              className="flex items-center gap-2 rounded-lg hover:cursor-pointer bg-gray-100 px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
             >
               <ArrowLeft className="h-4 w-4" />
               Previous
@@ -1314,7 +1313,7 @@ export function ApplicationFormClient({
 
                 setStep(3);
               }}
-              className="flex items-center gap-2 rounded-lg bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-200 transition-colors hover:bg-orange-600"
+              className="flex items-center gap-2 rounded-lg hover:cursor-pointer bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-200 transition-colors hover:bg-orange-600"
             >
               Continue
               <ArrowRight className="h-4 w-4" />
@@ -1460,19 +1459,19 @@ export function ApplicationFormClient({
                 {
                   label: 'Barangay',
                   value: selectedBarangay
-                    ? String(selectedBarangay)
+                    ? String(selectedBarangay.brgyName)
                     : step1Data.barangayCode,
                 },
                 {
                   label: 'Municipality / City',
                   value: selectedMunicipality
-                    ? String(selectedMunicipality)
+                    ? String(selectedMunicipality.munCityName)
                     : step1Data.municipalityCode,
                 },
                 {
                   label: 'Province',
                   value: selectedProvince
-                    ? String(selectedProvince)
+                    ? String(selectedProvince.provName)
                     : step1Data.provinceCode,
                 },
                 {
@@ -1590,7 +1589,7 @@ export function ApplicationFormClient({
             <button
               type="button"
               onClick={() => setStep(2)}
-              className="flex items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
+              className="flex items-center justify-center gap-2 hover:cursor-pointer rounded-lg bg-gray-100 px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
             >
               <ArrowLeft className="h-4 w-4" />
               Previous
@@ -1600,22 +1599,22 @@ export function ApplicationFormClient({
               <button
                 type="button"
                 onClick={onSaveDraft}
-                disabled={isSubmitting}
-                className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:border-orange-300 hover:text-orange-600 disabled:opacity-70"
+                disabled={isSubmitting || isSubmitting}
+                className="flex items-center justify-center gap-2 hover:cursor-pointer rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:border-orange-300 hover:text-orange-600 disabled:opacity-70"
               >
-                {isSubmitting ? (
+                {isDraftSaving ? (
                   <ShieldSpinLoader size={18} color="text-gray-600" />
                 ) : (
                   <FileText className="h-4 w-4" />
                 )}
-                Save as Draft
+                {isDraftSaving ? 'Saving...' : ' Save as Draft'}
               </button>
 
               <button
                 type="button"
                 onClick={onFinalSubmit}
-                disabled={isSubmitting || !certified}
-                className="flex items-center justify-center gap-2 rounded-lg bg-green-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-200 transition-colors hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-70"
+                disabled={isSubmitting || !certified || isDraftSaving}
+                className="flex items-center justify-center gap-2 rounded-lg hover:cursor-pointer bg-green-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-200 transition-colors hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isSubmitting ? (
                   <ShieldSpinLoader size={20} color="text-white" />
@@ -1813,7 +1812,7 @@ function MultiUploadSlot({
                 type="button"
                 onClick={() => onRemove(url)}
                 aria-label={`Remove ${itemLabel.toLowerCase()} ${index + 1}`}
-                className="shrink-0 rounded-full p-1 text-green-400 transition-colors hover:bg-green-100 hover:text-red-500"
+                className="shrink-0 rounded-full p-1 text-green-400 hover:cursor-pointer transition-colors hover:bg-green-100 hover:text-red-500"
               >
                 <X className="h-3.5 w-3.5" />
               </button>

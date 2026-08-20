@@ -163,13 +163,15 @@ export const fullApplicationSchema = applicationStep1Schema.and(
   applicationStep2Schema,
 );
 
-export const applicationDraftSchema = applicationStep1Schema.partial().extend({
-  validIdFrontUrl: z.string().optional(),
-  validIdBackUrl: z.string().optional(),
-  trainingCertUrls: z.array(z.string()).max(5).optional(),
-  photoUrl: z.string().optional(),
-  status: z.literal('draft'),
-});
+export const applicationDraftSchema = applicationStep1BaseSchema
+  .partial()
+  .extend({
+    validIdFrontUrl: z.string().optional(),
+    validIdBackUrl: z.string().optional(),
+    trainingCertUrls: z.array(z.string()).max(5).optional(),
+    photoUrl: z.string().optional(),
+    status: z.literal('draft'),
+  });
 
 // ─── ANNOUNCEMENTS ────────────────────────────────────────────────────────────
 
