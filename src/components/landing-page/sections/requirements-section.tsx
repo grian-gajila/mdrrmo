@@ -1,4 +1,4 @@
-import { AlertTriangle, Award, FileText, Heart, IdCard } from 'lucide-react';
+import { AlertTriangle, Award, IdCard } from 'lucide-react';
 
 const RequirementsSection = () => {
   return (
