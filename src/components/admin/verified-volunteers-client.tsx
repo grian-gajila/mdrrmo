@@ -1,5 +1,6 @@
 'use client';
 import { roleColors } from '@/data/admin/volunteer-role-palettes';
+import { listBarangays, listMuncities, listProvinces } from '@/lib/psgc';
 import { Volunteer } from '@/types';
 import {
   Activity,
@@ -42,6 +43,18 @@ export function VerifiedVolunteersClient({
       0,
     ),
   };
+
+  const province = listProvinces().find(
+    (province) => province.psgcCode === selected?.provinceCode,
+  );
+
+  const municipality = listMuncities().find(
+    (municipality) => municipality.psgcCode === selected?.municipalityCode,
+  );
+
+  const barangay = listBarangays().find(
+    (barangay) => barangay.psgcCode === selected?.barangayCode,
+  );
 
   return (
     <div className="mx-auto w-full space-y-6 p-6">
@@ -334,7 +347,7 @@ export function VerifiedVolunteersClient({
                   },
                   {
                     label: 'Address',
-                    value: `${selected.completeAddress}, ${selected.barangayCode}, ${selected.municipalityCode}, ${selected.provinceCode}`,
+                    value: `${selected.completeAddress}, ${barangay?.brgyName}, ${municipality?.munCityName}, ${province?.provName}`,
                     icon: MapPin,
                   },
                   {

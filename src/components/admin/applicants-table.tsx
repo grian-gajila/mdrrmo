@@ -28,18 +28,13 @@ import {
   XCircle,
 } from 'lucide-react';
 
+import { listBarangays, listMuncities, listProvinces } from '@/lib/psgc';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { ShieldSpinLoader } from '../custom/loading';
 
-const STATUS_TABS = [
-  'all',
-  'pending',
-  'under_review',
-  'approved',
-  'rejected',
-] as const;
+const STATUS_TABS = ['all', 'pending', 'under_review', 'rejected'] as const;
 
 type StatusTab = (typeof STATUS_TABS)[number];
 
@@ -153,6 +148,18 @@ export function ApplicantsTable({
     ? statusConfig[selected.status as keyof typeof statusConfig]
     : null;
 
+  const province = listProvinces().find(
+    (province) => province.psgcCode === selected?.provinceCode,
+  );
+
+  const municipality = listMuncities().find(
+    (municipality) => municipality.psgcCode === selected?.municipalityCode,
+  );
+
+  const barangay = listBarangays().find(
+    (barangay) => barangay.psgcCode === selected?.barangayCode,
+  );
+
   return (
     <div className="mx-auto w-full space-y-6 p-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
@@ -264,6 +271,14 @@ export function ApplicantsTable({
                 filtered.map((applicant) => {
                   const config =
                     statusConfig[applicant.status as keyof typeof statusConfig];
+                  const province = listProvinces().find(
+                    (province) => province.psgcCode === applicant?.provinceCode,
+                  );
+
+                  const municipality = listMuncities().find(
+                    (municipality) =>
+                      municipality.psgcCode === applicant?.municipalityCode,
+                  );
 
                   return (
                     <tr
@@ -307,7 +322,7 @@ export function ApplicantsTable({
                         </div>
 
                         <div className="mt-0.5 text-xs text-gray-400">
-                          {applicant.municipalityCode}, {applicant.provinceCode}
+                          {municipality?.munCityName}, {province?.provName}
                         </div>
                       </td>
 
@@ -358,7 +373,7 @@ export function ApplicantsTable({
                         <button
                           type="button"
                           onClick={() => setSelected(applicant)}
-                          className="flex items-center gap-1.5 rounded-lg bg-orange-50 px-3 py-1.5 text-xs font-medium text-orange-500 transition-colors hover:bg-orange-100"
+                          className="flex items-center gap-1.5 rounded-lg bg-orange-50 px-3 py-1.5 text-xs font-medium text-orange-500 hover:cursor-pointer transition-colors hover:bg-orange-100"
                         >
                           <Eye className="h-3.5 w-3.5" />
                           View
@@ -381,7 +396,7 @@ export function ApplicantsTable({
             <button
               type="button"
               disabled
-              className="rounded-lg border border-gray-200 p-2 text-gray-500 disabled:opacity-50"
+              className="rounded-lg border border-gray-200 hover:cursor-pointer p-2 text-gray-500 disabled:opacity-50"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -393,7 +408,7 @@ export function ApplicantsTable({
             <button
               type="button"
               disabled
-              className="rounded-lg border border-gray-200 p-2 text-gray-500 disabled:opacity-50"
+              className="rounded-lg border border-gray-200 hover:cursor-pointer p-2 text-gray-500 disabled:opacity-50"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
@@ -581,15 +596,15 @@ export function ApplicantsTable({
                     items={[
                       {
                         label: 'Province',
-                        value: selected.provinceCode,
+                        value: province?.provName,
                       },
                       {
                         label: 'Municipality / City',
-                        value: selected.municipalityCode,
+                        value: municipality?.munCityName,
                       },
                       {
                         label: 'Barangay',
-                        value: selected.barangayCode,
+                        value: barangay?.brgyName,
                       },
                       {
                         label: 'Contact Number',
@@ -672,7 +687,7 @@ export function ApplicantsTable({
                       type="button"
                       onClick={() => handleAction(selected.id, 'under_review')}
                       disabled={loadingAction !== null}
-                      className="flex items-center gap-2 rounded-lg bg-blue-50 px-4 py-2 text-sm font-medium text-blue-500 transition-colors hover:bg-blue-100 disabled:opacity-50"
+                      className="flex items-center gap-2 rounded-lg bg-blue-50 px-4 py-2 text-sm font-medium text-blue-500 transition-colors hover:cursor-pointer hover:bg-blue-100 disabled:opacity-50"
                     >
                       {loadingAction === 'under_review' ? (
                         <ShieldSpinLoader size={18} color="text-blue-500" />
@@ -690,7 +705,7 @@ export function ApplicantsTable({
                         setSelected(null);
                       }}
                       disabled={loadingAction !== null}
-                      className="flex items-center gap-2 rounded-lg bg-red-50 px-4 py-2 text-sm font-medium text-red-500 transition-colors hover:bg-red-100 disabled:opacity-50"
+                      className="flex items-center gap-2 rounded-lg bg-red-50 px-4 py-2 text-sm font-medium text-red-500 transition-colors hover:cursor-pointer hover:bg-red-100 disabled:opacity-50"
                     >
                       <XCircle className="h-4 w-4" />
                       Reject
@@ -700,7 +715,7 @@ export function ApplicantsTable({
                       type="button"
                       onClick={() => handleAction(selected.id, 'approve')}
                       disabled={loadingAction !== null}
-                      className="flex items-center gap-2 rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-green-200 transition-colors hover:bg-green-600 disabled:opacity-50"
+                      className="flex items-center gap-2 rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white shadow-lg hover:cursor-pointer shadow-green-200 transition-colors hover:bg-green-600 disabled:opacity-50"
                     >
                       {loadingAction === 'approve' ? (
                         <ShieldSpinLoader size={18} color="text-white" />
@@ -749,7 +764,7 @@ export function ApplicantsTable({
 
                   setRejectNotes('');
                 }}
-                className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
+                className="rounded-lg bg-gray-100 px-4 hover:cursor-pointer py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
               >
                 Cancel
               </button>
@@ -760,7 +775,7 @@ export function ApplicantsTable({
                   handleAction(rejectModal.id, 'reject', rejectNotes)
                 }
                 disabled={loadingAction !== null || !rejectNotes.trim()}
-                className="flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex items-center gap-2 rounded-lg hover:cursor-pointer bg-red-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {loadingAction === 'reject' ? (
                   <ShieldSpinLoader size={18} color="text-white" />
