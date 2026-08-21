@@ -12,7 +12,6 @@ import {
   Download,
   ExternalLink,
   Eye,
-  FileIcon,
   FileText,
   Filter,
   Heart,
@@ -21,7 +20,6 @@ import {
   MapPin,
   MapPinHouse,
   Search,
-  Stethoscope,
   User,
   Workflow,
   X,
@@ -883,8 +881,6 @@ interface DocumentSet {
   validIdFrontUrl?: string | null;
   validIdBackUrl?: string | null;
   trainingCertUrls?: string[] | null;
-  barangayClearanceUrl?: string | null;
-  medicalCertUrls?: string[] | null;
 }
 
 function isImageUrl(url: string) {
@@ -983,8 +979,6 @@ function DocumentCategory({
 export function DocumentReview({ docs }: { docs: DocumentSet }) {
   const trainingCerts = docs.trainingCertUrls ?? [];
 
-  const medicalCerts = docs.medicalCertUrls ?? [];
-
   return (
     <div className="space-y-4">
       <DocumentCategory
@@ -1019,34 +1013,6 @@ export function DocumentReview({ docs }: { docs: DocumentSet }) {
         } (${trainingCerts.length})`}
         emptyText="No training certificates on file."
         documents={trainingCerts.map((url, index) => ({
-          url,
-          label: `Certificate ${index + 1}`,
-        }))}
-      />
-
-      <DocumentCategory
-        icon={FileIcon}
-        title="Barangay Clearance"
-        emptyText="No barangay clearance on file."
-        documents={
-          docs.barangayClearanceUrl
-            ? [
-                {
-                  url: docs.barangayClearanceUrl,
-                  label: 'Barangay Clearance',
-                },
-              ]
-            : []
-        }
-      />
-
-      <DocumentCategory
-        icon={Stethoscope}
-        title={`Medical Certificate${
-          medicalCerts.length === 1 ? '' : 's'
-        } (${medicalCerts.length})`}
-        emptyText="No medical certificates on file."
-        documents={medicalCerts.map((url, index) => ({
           url,
           label: `Certificate ${index + 1}`,
         }))}
